@@ -1,8 +1,8 @@
 # Banned words
 
-Used by `ste-docs` (see `SKILL.md`, rule 11). Replace each banned word with the word in the right column. Then reread the sentence.
+Used by `unslop` (see `SKILL.md`, rule 8). Replace each banned word with the word in the right column. Then reread the sentence.
 
-This is a starter list. Check the approved word list of the current ASD-STE100 issue before you rely on it. Add a row when a new word needs a rule.
+This list belongs to `unslop`. It started as a copy of the `ste-docs` list, and the two lists are now separate. Change this one without changing the other. Add a row when a new word needs a rule.
 
 | Banned | Use instead | Reason |
 |--------|-------------|--------|
