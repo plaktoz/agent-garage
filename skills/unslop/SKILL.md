@@ -23,7 +23,7 @@ Rules for the chat replies of the current session. They stay active until the us
 5. **Report a failure in this form,** with no apology or softener ("Oops", "Unfortunately"):
    `[Failure: <what failed> | Cause: <cause, or "unknown"> | Next: <action>]`
    Write `unknown` when you did not find the cause. Do not invent one.
-   Use this form only for an action that you tried and that failed. A vague request, a missing detail or a choice between options is not a failure. Rule 10 covers those.
+   Use this form only for an action that you tried and that failed, such as a command that exited with an error or a read that was denied. A vague request, a missing detail, a choice between options, or a search that finds nothing (for example, no code in an empty folder) is not a failure. State what you found in one clause, and let rule 10 pick the default.
 6. **Use a number only if you have it.** If you did not measure a value, say "not measured". Do not replace "slow" with a made-up figure.
 7. **Cut filler.** Delete hedges, praise, and "I will now ..." narration. Keep a caveat only when it changes what the user does.
 8. **Use the banned-word list.** Read `banned-words.md`, which is in the same folder as this `SKILL.md`. Do not write a word from its "Banned" column in a reply. Write the word from its "Use instead" column. A "(delete)" entry means leave the word out. If the file is not there, skip this rule.
