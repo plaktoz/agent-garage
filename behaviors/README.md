@@ -24,5 +24,5 @@ parts:
 ---
 
 Optional prose: intent, when to use it, caveats. This body can double as the
-CLAUDE.md fragment injected on deploy.
+instruction fragment injected on deploy (into `AGENTS.md`, which `CLAUDE.md` imports).
 ```

@@ -1,25 +1,31 @@
 #!/usr/bin/env bash
 # Install the skills of this repo into ~/.claude/skills as symlinks.
-# Usage: scripts/install-skills.sh [--force] [--uninstall] [--list] [skill-name ...]
+# Usage: scripts/install-skills.sh [--codex] [--force] [--uninstall] [--list] [skill-name ...]
+# --codex installs into ~/.agents/skills (Codex CLI) in place of ~/.claude/skills.
+# CLAUDE_SKILLS_DIR overrides both.
 set -euo pipefail
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 src="$repo/skills"
-dest="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
+codex=0
 force=0
 mode=install
 names=()
 
 for arg in "$@"; do
   case "$arg" in
+    --codex) codex=1 ;;
     --force) force=1 ;;
     --uninstall) mode=uninstall ;;
     --list) mode=list ;;
-    -h | --help) sed -n '2,3p' "$0"; exit 0 ;;
+    -h | --help) sed -n '2,5p' "$0"; exit 0 ;;
     -*) echo "Unknown option: $arg" >&2; exit 2 ;;
     *) names+=("$arg") ;;
   esac
 done
+
+if [ "$codex" -eq 1 ]; then default_dest="$HOME/.agents/skills"; else default_dest="$HOME/.claude/skills"; fi
+dest="${CLAUDE_SKILLS_DIR:-$default_dest}"
 
 # A skill is a folder in skills/ that has a SKILL.md file.
 if [ "${#names[@]}" -eq 0 ]; then

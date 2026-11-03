@@ -1,6 +1,6 @@
 # claude-mods
 
-A centralized framework for customizing, structuring, and deploying tailored behaviors and evolving context libraries for Anthropic's Claude.
+A centralized framework for customizing, structuring, and deploying tailored behaviors and evolving context libraries for coding agents. It works with Claude Code. Parts of it also work with Codex CLI. See "Use with Codex CLI".
 
 > Status: early scaffold. Structure is expected to change as we learn what works.
 
@@ -11,12 +11,13 @@ A centralized framework for customizing, structuring, and deploying tailored beh
 | `behaviors/` | Named, composable bundles that combine parts below into one deployable unit |
 | `library/` | Context documents, snippets, and reference material that evolve over time |
 | `skills/` | Reusable skills (`<name>/SKILL.md`) |
-| `agents/` | Subagent definitions |
+| `agents/` | Subagent definitions (`<name>.md`, Claude Code). `.codex/agents/<name>.toml` is the Codex CLI form and points back to the `.md` file |
 | `hooks/` | Hook scripts and settings fragments |
-| `mods/` | Claude Code plugins of function hooks (`<mod>/.claude-plugin/plugin.json` + `hooks/register.ts`); test with `claude plugin test mods/<mod>` |
+| `mods/` | Claude Code only. Plugins of function hooks (`<mod>/.claude-plugin/plugin.json` + `hooks/register.ts`); test with `claude plugin test mods/<mod>` |
 | `.claude-plugin/` | `marketplace.json`: lists the mods so `claude plugin install` can find them |
 | `scripts/` | Install, sync, and validate tooling |
 | `docs/` | Review reports and task lists for the repo |
+| `AGENTS.md` | The shared instructions for every agent. `CLAUDE.md` imports it |
 
 ### theme-cli themes
 
@@ -75,23 +76,38 @@ CLAUDE_SKILLS_DIR=/path/to/skills bash scripts/install-skills.sh
 
 A skill is a folder in `skills/` that has a `SKILL.md` file.
 
-### Install skills into one project
+For Codex CLI, add `--codex`. The script then links into `~/.agents/skills/` in place of `~/.claude/skills/`. See "Use with Codex CLI".
 
-By default the script installs for you, into `~/.claude/skills/`. To install into one project instead, point `CLAUDE_SKILLS_DIR` at that project's `.claude/skills` folder. Use the full path to the script and to the project:
+On Windows, run the script in Git Bash. It makes symbolic links with `ln -s`. In Git Bash, `ln -s` copies the folder unless Developer Mode is on and `MSYS=winsymlinks:nativestrict` is set. A copy does not follow changes in this repository, and the script then reports the skill as not installed from this repository. Not tested on Windows: this note is from reading the script.
 
-```bash
-CLAUDE_SKILLS_DIR=/path/to/your-project/.claude/skills bash /path/to/claude-mods/scripts/install-skills.sh ste-docs
-```
+## Install agents
 
-For example, to install `ste-docs` into a project at `~/Developer/my-app`:
+The script `scripts/install-agents.sh` links each agent in `agents/` into `~/.claude/agents/`. It works like `install-skills.sh` and takes the same options (`--list`, `--force`, `--uninstall`). To install into one project, set `CLAUDE_AGENTS_DIR` to that project's `.claude/agents` folder.
 
 ```bash
-CLAUDE_SKILLS_DIR=~/Developer/my-app/.claude/skills bash ~/Developer/claude-mods/scripts/install-skills.sh ste-docs
+bash scripts/install-agents.sh alfred
 ```
 
-Add `--list` to the same command to check, or `--uninstall` to remove. Start a new Claude Code session in the project to see the skill.
+`alfred` reviews this repository and reports drift. He syncs the copies of `banned-words.md` and changes nothing else. Start a new Claude Code session, then ask for `alfred`.
 
-The links point to your copy of this repository, so they work on your machine only. Do not commit them to the project. If the project is shared, add `.claude/skills/` to its `.gitignore`.
+## Use with Codex CLI
+
+Codex CLI reads the same shared instructions and the same skills. It does not run the mods. Checked in the Codex 0.164.0 program file only, not in a live run: this machine has no working Codex login.
+
+| Part | Codex CLI |
+|------|-----------|
+| `AGENTS.md` | Works. Codex reads it. |
+| `skills/` | Works. Run `bash scripts/install-skills.sh --codex`. Codex reads `~/.agents/skills/` and a project's `.agents/skills/`. |
+| `skills/unslop` | Works. `agents/openai.yaml` turns off implicit use, so Codex runs it only when you name it. |
+| `agents/alfred.md` | Partly. `.codex/agents/alfred.toml` tells Codex to follow it. Not confirmed: that Codex loads agents from a project folder. If it does not, ask Codex to follow `agents/alfred.md`. |
+| `mods/` | Does not work. Mods use Claude Code calls that Codex does not have. Do not add the marketplace in Codex. |
+| `scripts/install-mods.*` | Does not work. They need the `claude` command. |
+
+To install one skill into a project for Codex, run the script with the project's folder:
+
+```bash
+CLAUDE_SKILLS_DIR=/path/to/your-project/.agents/skills bash /path/to/claude-mods/scripts/install-skills.sh unslop
+```
 
 ## Install mods
 

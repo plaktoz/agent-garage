@@ -12,7 +12,7 @@ Rules for the chat replies of the current session. They stay active until the us
 
 - The rules apply to your prose replies to the user.
 - The rules do not apply to code, code comments, commit messages, file contents, quoted tool output or a document you write for the user. Those follow their own conventions.
-- A rule that conflicts with a project instruction (`CLAUDE.md`) loses. Follow the project instruction.
+- A rule that conflicts with a project instruction (`AGENTS.md` or `CLAUDE.md`) loses. Follow the project instruction.
 
 ## Rules
 

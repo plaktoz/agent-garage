@@ -1,0 +1,8 @@
+# Codex CLI form of the alfred agent. The instructions live in agents/alfred.md,
+# so there is one copy to keep true. Not tested: this machine has no working
+# Codex login, and it is not confirmed that Codex loads agents from a project folder.
+name = "alfred"
+description = "Housekeeper for the claude-mods repository. Reviews the repo for drift and reports it. Syncs the copies of banned-words.md. Use when asked to review, audit or tidy the repo."
+developer_instructions = """
+Read agents/alfred.md in this repository and follow it exactly. Ignore its front matter (the lines between the two --- markers); it is for Claude Code.
+"""
