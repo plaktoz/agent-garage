@@ -5,3 +5,9 @@ mods/*/.claude-plugin/types/
 # Source images and audio you supply yourself are personal use only; never commit them.
 # Mod themes live in ~/.claude/theme-cli/, outside the repo.
 scratch/
+
+# Per-project skill and agent links made by scripts/install-skills.sh and install-agents.sh.
+# They hold absolute paths to this machine, so never commit them.
+.claude/skills/
+.claude/agents/
+.agents/skills/
