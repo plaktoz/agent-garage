@@ -88,7 +88,7 @@ The script `scripts/install-agents.sh` links each agent in `agents/` into `~/.cl
 bash scripts/install-agents.sh alfred
 ```
 
-`alfred` reviews this repository and reports drift. He syncs the copies of `banned-words.md` and changes nothing else. Start a new Claude Code session, then ask for `alfred`.
+`alfred` reviews this repository and reports drift. He changes no file. Start a new Claude Code session, then ask for `alfred`.
 
 ## Use with Codex CLI
 
