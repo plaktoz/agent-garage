@@ -136,3 +136,7 @@ To change a locked skill, do not edit `.cache/` by hand: the next fetch restores
 ## 9. Licence notice
 
 mattpocock/skills is MIT licensed. Copyright (c) 2026 Matt Pocock. The full text is at https://github.com/mattpocock/skills, and after a fetch at `.cache/mattpocock-skills/LICENSE`.
+
+### Decision on `ambition` (2026-11-08)
+
+The owner decided that `ambition` stays in `skills.lock.json`. The kit fetches and links it, as section 3 describes. It does not copy its files into `skills/`. Its upstream declares no licence, so the kit makes no licence claim for it. The decision was made under S9 of `docs/kit-self-check-2026-11-08.md`.

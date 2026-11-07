@@ -159,7 +159,7 @@ The script `scripts/install-agents.sh` links each agent in `agents/` into `~/.cl
 bash scripts/install-agents.sh alfred
 ```
 
-`alfred` reviews this repository and reports drift. He changes no file. Start a new Claude Code session, then ask for `alfred`.
+`alfred` reviews this repository and reports drift. It changes a file only when you ask for that change in the same request. Then it works on a new branch, opens a pull request and never merges. It does not change `skills.lock.json` unless you approve that lock update. Start a new Claude Code session, then ask for `alfred`.
 
 To install an agent into one project, set `CLAUDE_AGENTS_DIR` to `<project>/.claude/agents`. The root `.gitignore` already lists `.claude/agents/`.
 
@@ -275,6 +275,7 @@ The scripts in `scripts/` run under bash. `fetch-skills.sh` and `check-upstream.
 | `bootstrap-project.sh` | Copies the playbooks into a project. Installs pstack on request | Yes, in the project |
 | `fetch-skills.sh` | Fetches the locked sources into `.cache/`. `--update` rewrites the lock | `.cache/`, and the lock with `--update` |
 | `check-upstream.sh` | Reports whether a locked source moved upstream | No |
+| `check-claims.sh` | Compares the options, exit codes and source names in this README with the scripts and the lock | No |
 | `install-skills.sh`, `install-agents.sh` | Link skills and agents. See "Install skills" and "Install agents" | Links in the target folder |
 | `lib-deps.sh` | Read-only dependency checks that other scripts source | No |
 | `skills-lock.cjs` | A `node` helper for `skills.lock.json` | Only through `fetch-skills.sh --update` |
@@ -338,6 +339,21 @@ It compares the locked commit of each source with the upstream head (`git ls-rem
 It ends with one recommended next step. It never acts. Only `fetch-skills.sh --update` changes the lock.
 
 It exits 0 when nothing moved. It exits 1 when upstream moved. It exits 2 on a usage error. It exits 3 when it cannot run, for example with no network or a bad lock.
+
+### `scripts/check-claims.sh`
+
+```bash
+bash scripts/check-claims.sh
+```
+
+Read only. It needs no network. It checks the claims that a machine can test:
+
+- each option in a script's usage text is named in its README section;
+- the exit codes that a script's `Exit status:` line gives are the codes its README section names;
+- each source named in a `--source` help line is a key under `sources` in `skills.lock.json`;
+- the sources table under `skills.lock.json` lists the same keys.
+
+It prints one `FAIL` line for each stale claim, with the file and line. It exits 0 when no claim is stale, 1 when one is, and 2 when it cannot run.
 
 ### `scripts/skills-lock.cjs`
 
