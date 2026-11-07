@@ -103,6 +103,32 @@
         }
       }
     },
+    "ambition": {
+      "url": "https://github.com/jakedahn/ambition.git",
+      "commit": "02dd70c28aeb436dc30f72cbd777d1982943ad88",
+      "commitDate": "2026-10-15",
+      "licence": "None declared (no LICENSE file; GitHub reports none). Referenced and fetched, never copied into this repo.",
+      "skills": {
+        "ambition": {
+          "path": "skills/ambition",
+          "tree": "f60dade1c2ad5feb4d533ec73743315055becfa0",
+          "calls": []
+        }
+      }
+    },
+    "good-readme": {
+      "url": "https://github.com/adewale/good-readme.git",
+      "commit": "17c42e29537ab9316339b73d57cbc74316cf01bd",
+      "commitDate": "2026-11-05",
+      "licence": "MIT (LICENSE file, Copyright (c) 2026 Ade). Referenced and fetched, never copied into this repo.",
+      "skills": {
+        "good-readme": {
+          "path": "skills/good-readme",
+          "tree": "96a628b0c68eee1164af1fc887a4a052eb9bb113",
+          "calls": []
+        }
+      }
+    },
     "pstack-claude": {
       "url": "https://github.com/michael-denyer/pstack-claude.git",
       "commit": "7bad1ebc26faa268806bfbb84e5af55d178b68e4",
