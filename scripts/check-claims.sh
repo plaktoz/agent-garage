@@ -12,6 +12,8 @@
 #            names after "exits" ("It exits 0 ..."). A script without that line is noted, not checked.
 # For each script whose usage says "Only this source (a or b)", the names must equal the source keys
 # in skills.lock.json. The README table of the lock (### `skills.lock.json`) must list the same keys.
+# The "## License" section of the README must agree with the root LICENSE file: with the file, the
+# section names MIT and does not say "no root LICENSE"; without the file, the section says so.
 #
 # Output: one line per stale claim, "FAIL <file>:<line>: <what differs>", then a count. Lines that
 # start with NOTE are not failures.
@@ -225,6 +227,28 @@ for src in $LOCK_KEYS; do
       ;;
   esac
 done
+
+# licence: the "## License" section of the README agrees with the root LICENSE file on disk.
+lic=$(section "$README" '## License' 2)
+if [ -z "$lic" ]; then
+  CHECKS=$((CHECKS + 1))
+  fail "README.md: no section \"## License\""
+else
+  lic_ln=$(printf '%s\n' "$lic" | grep -m1 -E '^[0-9]+:.' | cut -d: -f1)
+  none_ln=$(printf '%s\n' "$lic" | grep -m1 -i -E 'no root `?LICENSE' | cut -d: -f1)
+  CHECKS=$((CHECKS + 1))
+  if [ -f "$REPO/LICENSE" ]; then
+    if [ -n "$none_ln" ]; then
+      fail "README.md:$none_ln: the License section says there is no root LICENSE, but $REPO/LICENSE exists"
+    fi
+    CHECKS=$((CHECKS + 1))
+    if ! printf '%s\n' "$lic" | grep -q -w -e 'MIT'; then
+      fail "README.md:${lic_ln:-?}: the root LICENSE exists, but the License section does not name MIT"
+    fi
+  elif [ -z "$none_ln" ]; then
+    fail "README.md:${lic_ln:-?}: there is no root LICENSE file, but the License section does not say so"
+  fi
+fi
 
 echo "$CHECKS claims checked, $FAILS stale."
 if [ "$FAILS" -gt 0 ]; then
