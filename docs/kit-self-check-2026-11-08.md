@@ -77,7 +77,7 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   - A pushed branch with a planted stale claim fails the job. Run this on a test branch and delete the branch afterwards.
   - The job uses the same temp `HOME` as the kit checks.
 
-- [ ] **S9. Decide whether `ambition` stays in the lock.** Depends on decision 3. Not on any other task.
+- [x] **S9. Decide whether `ambition` stays in the lock.** Depends on decision 3. Not on any other task. Result (2026-11-08): the owner decided it stays. The decision is recorded in `docs/skills-sources.md` section 9. `doctor.sh` exits 0, and `check-claims.sh` passes (34 claims, 0 stale). The lock and `skills/` are unchanged.
   Do: if the user keeps it, record the decision in `docs/skills-sources.md` section 9. If the user removes it, remove the source entry, the locked skill and the `skills/` references, and run `fetch-skills.sh` and `doctor.sh` again.
   Acceptance: `doctor.sh` gives no failure, and the skill count in the README matches the lock.
 
