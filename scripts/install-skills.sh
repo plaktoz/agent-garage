@@ -17,6 +17,9 @@
 # Before it links a skill that mentions a plugin named in skills.lock.json (requires.plugins), it
 # checks, read only, whether the computer already has that plugin (scripts/lib-deps.sh). It never
 # installs a plugin.
+# Windows: run it in Git Bash. A link needs Developer Mode. The script sets MSYS=winsymlinks:nativestrict,
+#   so ln -s makes a real link or fails. If a copy was made instead, the script removes it, reports an
+#   error and exits non-zero. Not tested on Windows: this is from reading the script.
 set -euo pipefail
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -28,6 +31,22 @@ force=0
 mode=install
 project=""
 names=()
+
+# Windows (Git Bash, MSYS, Cygwin): without this setting, ln -s makes a copy and not a link.
+is_win=0
+case "$(uname -s)" in
+  MINGW* | MSYS* | CYGWIN*) is_win=1; export MSYS=winsymlinks:nativestrict ;;
+esac
+
+# check_link TO NAME: on Windows, ln -s can make a copy instead of a link. Such a copy is removed
+# and reported. On other systems this does nothing.
+check_link() {
+  [ "$is_win" -eq 1 ] || return 0
+  [ -L "$1" ] && return 0
+  rm -rf "$1"
+  echo "error      $2 (ln -s made a copy, not a link, so the copy was removed. Turn on Windows Developer Mode, then run in Git Bash with MSYS=winsymlinks:nativestrict)" >&2
+  return 1
+}
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -46,6 +65,13 @@ while [ "$#" -gt 0 ]; do
   shift
 done
 
+# The home folder: HOME, else USERPROFILE (Windows).
+home="${HOME:-${USERPROFILE:-}}"
+if [ -z "$home" ]; then
+  echo "error: neither HOME nor USERPROFILE is set" >&2
+  exit 2
+fi
+
 # proj_root is the project that dependency checks look at: the --project folder, else the current folder.
 proj_root="$PWD"
 if [ -n "$project" ]; then
@@ -57,7 +83,7 @@ if [ -n "$project" ]; then
   proj_root="$(cd "$project" && pwd)"
   if [ "$agents" -eq 1 ]; then dest="$proj_root/.agents/skills"; else dest="$proj_root/.claude/skills"; fi
 else
-  if [ "$agents" -eq 1 ]; then default_dest="$HOME/.agents/skills"; else default_dest="$HOME/.claude/skills"; fi
+  if [ "$agents" -eq 1 ]; then default_dest="$home/.agents/skills"; else default_dest="$home/.claude/skills"; fi
   dest="${CLAUDE_SKILLS_DIR:-$default_dest}"
 fi
 
@@ -173,7 +199,7 @@ dep_report() {
       continue
     fi
     echo "dependency $pname: needed by${hits}. Checking whether this computer already has it (read only)."
-    dep_plugin_scan "$pname" "$proj_root" "$HOME/.claude/skills" "$HOME/.agents/skills" "$proj_root/.claude/skills" "$proj_root/.agents/skills"
+    dep_plugin_scan "$pname" "$proj_root" "$home/.claude/skills" "$home/.agents/skills" "$proj_root/.claude/skills" "$proj_root/.agents/skills"
     while IFS="$(printf '\t')" read -r lvl txt; do
       [ -n "$lvl" ] || continue
       echo "dependency   $lvl: $txt"
@@ -245,7 +271,7 @@ for name in "${names[@]}"; do
     if [ "$force" -eq 1 ]; then
       rm -rf "$to"
       ln -s "$from" "$to"
-      echo "replaced   $name"
+      if check_link "$to" "$name"; then echo "replaced   $name"; else status=1; fi
     elif [ -L "$to" ] && [ ! -e "$to" ]; then
       echo "broken     $name (link target $(readlink "$to") is missing; use --force to replace)" >&2
       status=1
@@ -255,7 +281,7 @@ for name in "${names[@]}"; do
     fi
   else
     ln -s "$from" "$to"
-    echo "installed  $name"
+    if check_link "$to" "$name"; then echo "installed  $name"; else status=1; fi
   fi
 done
 
