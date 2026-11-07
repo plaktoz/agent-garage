@@ -1,0 +1,193 @@
+name: ci
+
+# Checks the kit on Linux, macOS and Windows (Git Bash). It reads the repo and writes nothing back:
+# no commit, comment, issue or release. It uses no secrets.
+# Every job uses a temp HOME under $RUNNER_TEMP, so the installers never touch the runner's home.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+# A newer run of the same workflow on the same ref cancels the older run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kit:
+    name: kit on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash   # Git Bash on Windows
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node 24 is the LTS line. No package.json or script in the repo sets a minimum (the lock marks
+      # node as a note, with no minimum). The helper and the pilot were run locally on a newer Node,
+      # so the first CI run is also the first run on Node 24.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Temp home, not the runner's home
+        run: |
+          set -euo pipefail
+          base="$RUNNER_TEMP"
+          if [ "$RUNNER_OS" = Windows ]; then base="$(cygpath -u "$RUNNER_TEMP")"; fi
+          work="$base/kit-ci"
+          mkdir -p "$work/home" "$work/pilot"
+          {
+            echo "CI_WORK=$work"
+            echo "HOME=$work/home"
+          } >> "$GITHUB_ENV"
+          if [ "$RUNNER_OS" = Windows ]; then
+            # Windows tools read USERPROFILE. Give the Windows form of the same folder.
+            echo "USERPROFILE=$(cygpath -w "$work/home")" >> "$GITHUB_ENV"
+            echo "MSYS=winsymlinks:nativestrict" >> "$GITHUB_ENV"
+          fi
+
+      # Windows: a real symbolic link needs Developer Mode. This sets the registry flag; the runner is
+      # an administrator, so it may work. Unverified here: if the flag does not take effect, the probe
+      # reports no link and the install step fails, so a copy is never installed silently.
+      - name: Windows - turn on Developer Mode
+        if: runner.os == 'Windows'
+        continue-on-error: true
+        shell: pwsh
+        run: reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v AllowDevelopmentWithoutDevLicense /t REG_DWORD /d 1 /f
+
+      - name: Windows - probe a symbolic link
+        if: runner.os == 'Windows'
+        run: |
+          set -euo pipefail
+          printf 'probe\n' > "$CI_WORK/probe-target"
+          ln -s "$CI_WORK/probe-target" "$CI_WORK/probe-link" || true
+          if [ -L "$CI_WORK/probe-link" ]; then
+            echo "symlink: a real link can be made"
+          else
+            echo "symlink: no real link on this runner. The install step will fail, as it should."
+          fi
+
+      - name: 1. Syntax of the shell scripts
+        run: |
+          set -euo pipefail
+          for f in scripts/*.sh claude/scripts/*.sh; do bash -n "$f"; done
+          echo "bash -n: ok"
+
+      - name: 2. Syntax of the Node helper
+        run: node --check scripts/skills-lock.cjs
+
+      - name: 3. Fetch the locked skills (Windows - core.autocrlf true)
+        run: |
+          set -euo pipefail
+          if [ "$RUNNER_OS" = Windows ]; then git config --global core.autocrlf true; fi
+          bash scripts/fetch-skills.sh
+
+      # Tree ids of the fetched copies must equal git's ids for the same paths at the locked commit.
+      # The helper hashes the files on disk, so this is the CRLF check: with autocrlf true, a copy
+      # with CRLF line endings would give a different id.
+      # Decision (user, 2026-11-08): this step has no continue-on-error. If it fails on Windows, the
+      # Windows job stops here, and install, doctor and the pilot do not run there until it is fixed.
+      - name: 3a. Tree ids match git (autocrlf true on Windows)
+        run: |
+          set -euo pipefail
+          node scripts/skills-lock.cjs list skills.lock.json > "$CI_WORK/rows.txt"
+          fail=0
+          checked=0
+          while IFS='|' read -r src path; do
+            [ -n "$path" ] || continue
+            want="$(git -C ".cache/$src" rev-parse "HEAD:$path" 2>/dev/null || true)"
+            got="$(node scripts/skills-lock.cjs tree ".cache/$src/$path" || true)"
+            checked=$((checked + 1))
+            if [ -z "$want" ] || [ "$got" != "$want" ]; then
+              echo "differs: $src/$path (git ${want:-none}, helper ${got:-none})" >&2
+              fail=1
+            fi
+          done < <(awk -F'|' '$1 == "skill" { print $2 "|" $4 } $1 == "plugin" { print $2 "|" $3 }' "$CI_WORK/rows.txt")
+          echo "tree ids checked: $checked"
+          [ "$checked" -gt 0 ]
+          [ "$fail" -eq 0 ]
+
+      - name: 3b. Fetch again (Windows - core.autocrlf false)
+        if: runner.os == 'Windows'
+        run: |
+          set -euo pipefail
+          git config --global core.autocrlf false
+          bash scripts/fetch-skills.sh
+
+      - name: 3c. Tree ids match git (autocrlf false on Windows)
+        if: runner.os == 'Windows'
+        run: |
+          set -euo pipefail
+          node scripts/skills-lock.cjs list skills.lock.json > "$CI_WORK/rows.txt"
+          fail=0
+          checked=0
+          while IFS='|' read -r src path; do
+            [ -n "$path" ] || continue
+            want="$(git -C ".cache/$src" rev-parse "HEAD:$path" 2>/dev/null || true)"
+            got="$(node scripts/skills-lock.cjs tree ".cache/$src/$path" || true)"
+            checked=$((checked + 1))
+            if [ -z "$want" ] || [ "$got" != "$want" ]; then
+              echo "differs: $src/$path (git ${want:-none}, helper ${got:-none})" >&2
+              fail=1
+            fi
+          done < <(awk -F'|' '$1 == "skill" { print $2 "|" $4 } $1 == "plugin" { print $2 "|" $3 }' "$CI_WORK/rows.txt")
+          echo "tree ids checked: $checked"
+          [ "$checked" -gt 0 ]
+          [ "$fail" -eq 0 ]
+
+      - name: 4. Install into the temp home, list, doctor
+        run: |
+          set -euo pipefail
+          bash scripts/install-skills.sh
+          bash scripts/install-skills.sh --list > "$CI_WORK/list.txt"
+          cat "$CI_WORK/list.txt"
+          [ -s "$CI_WORK/list.txt" ]
+          # After the install every line must read "installed".
+          if grep -v '^installed ' "$CI_WORK/list.txt"; then
+            echo "error: a skill is not installed (lines above)" >&2
+            exit 1
+          fi
+          bash scripts/doctor.sh
+
+      - name: 5. Pilot (notes-cli copy, unslop installed into it, node --test)
+        run: |
+          set -euo pipefail
+          copy="$CI_WORK/pilot/notes-cli"
+          rm -rf "$copy"
+          cp -R sample/notes-cli "$copy"
+          bash scripts/install-skills.sh --project "$copy" unslop
+          cd "$copy"
+          node --test test/
+
+  shellcheck:
+    name: shellcheck (ubuntu-latest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      # shellcheck is preinstalled on ubuntu-latest. This job reports and does not fail on warnings.
+      # TODO: when the scripts give no warning, remove "|| true" from the shellcheck line, so a
+      # warning fails the job. The number of warnings is printed at the end of the log.
+      - name: shellcheck at severity warning
+        run: |
+          set -euo pipefail
+          command -v shellcheck >/dev/null 2>&1 || { echo "error: shellcheck is not on this runner" >&2; exit 1; }
+          shellcheck --version | sed -n 2p
+          shellcheck --severity=warning -f gcc scripts/*.sh claude/scripts/*.sh > shellcheck.txt || true
+          cat shellcheck.txt
+          echo "shellcheck warnings and errors: $(grep -c ': \(warning\|error\):' shellcheck.txt || true)"
