@@ -186,10 +186,11 @@ dep_report() {
 }
 dep_report
 
-if [ -n "$project" ] && [ "$mode" != list ]; then
+if [ -n "$project" ] && [ "$mode" = install ]; then
   echo "target     $dest"
 fi
-mkdir -p "$dest"
+# Only an install makes the folder. --list and --uninstall never create one.
+[ "$mode" = install ] && mkdir -p "$dest"
 status=0
 
 for name in "${names[@]}"; do
