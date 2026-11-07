@@ -122,6 +122,9 @@ ensure_clone() {
     if [ "$have" != "$2" ]; then
       git -C "$dir" remote set-url origin "$2" || { problem "source $1: cannot set origin to $2"; return 1; }
     fi
+    # Also for clones made before this line existed, so the checkout below keeps LF.
+    git -C "$dir" config core.autocrlf false
+    git -C "$dir" config core.eol lf
     return 0
   fi
   if [ -e "$dir" ]; then
@@ -134,6 +137,9 @@ ensure_clone() {
     rm -rf "$dir"
     return 1
   fi
+  # Set before any checkout: Git for Windows defaults to CRLF, and the upstream repos have no .gitattributes.
+  git -C "$dir" config core.autocrlf false
+  git -C "$dir" config core.eol lf
   fetched_here=1
 }
 

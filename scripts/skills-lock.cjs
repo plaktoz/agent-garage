@@ -23,8 +23,10 @@
 //       Prints one top-level key of a JSON file (the plugin version, from plugin.json).
 //   node scripts/skills-lock.cjs tree <folder>
 //       Prints the git tree id of a folder's files, the same id that `git rev-parse <commit>:<path>`
-//       gives for the same content. Read only: it writes no object and runs no git. Files, symlinks
-//       and the executable bit count, as in git. Prints nothing when the folder has no file.
+//       gives for the same content. Read only: it writes no git object. Files, symlinks and the
+//       executable bit count, as in git. Where the file system has no executable bit (Windows, or
+//       core.filemode false), the modes come from the git index (git ls-files); without git they
+//       come from the file system. Prints nothing when the folder has no file.
 //
 // Exit: 0 ok, 1 error (message on stderr).
 "use strict";
@@ -32,6 +34,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const cp = require("child_process");
 
 function fail(msg) {
   process.stderr.write("error: " + msg + "\n");
@@ -40,7 +43,8 @@ function fail(msg) {
 
 function readText(file) {
   try {
-    return fs.readFileSync(file, "utf8");
+    // Drop a leading UTF-8 BOM, which JSON.parse rejects.
+    return fs.readFileSync(file, "utf8").replace(/^\uFEFF/, "");
   } catch (e) {
     fail("cannot read " + file + " (" + e.code + ")");
   }
@@ -206,6 +210,8 @@ function apply(lockFile, updFile) {
 // Entries are sorted by name, with a folder's name followed by "/" for the sort.
 function gitBlob(file, mode) {
   if (mode === "120000") {
+    // Without symlink support (Windows) git checks a link out as a file that holds the target.
+    if (!fs.lstatSync(file).isSymbolicLink()) return gitObject("blob", fs.readFileSync(file));
     const target = fs.readlinkSync(file);
     return gitObject("blob", Buffer.from(target, "utf8"));
   }
@@ -217,22 +223,51 @@ function gitObject(kind, body) {
   return crypto.createHash("sha1").update(head).update(body).digest("hex");
 }
 
-function modeOf(file) {
+// The modes git records for the files under dir, as { "a/b.sh": "100755" }, or null when the file
+// system is trusted. Node on Windows sees no executable bit, so there the index is asked instead.
+function indexModes(dir) {
+  let noExecBit = process.platform === "win32";
+  try {
+    const v = cp.execFileSync("git", ["-C", dir, "config", "--bool", "core.filemode"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+    if (v.trim() === "false") noExecBit = true;
+  } catch (e) {
+    // No git, no repository, or no setting: keep the platform guess.
+  }
+  if (!noExecBit) return null;
+  try {
+    const out = cp.execFileSync("git", ["-C", dir, "ls-files", "-s", "-z", "--", "."], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] });
+    const modes = {};
+    for (const rec of out.split("\0")) {
+      const m = /^(\d+) [0-9a-f]+ \d\t(.*)$/.exec(rec);
+      if (m) modes[m[2]] = m[1];
+    }
+    return modes;
+  } catch (e) {
+    return null;
+  }
+}
+
+// rel is the path of the file below the folder given to `tree`, with "/" between the parts.
+function modeOf(file, rel, modes) {
   const st = fs.lstatSync(file);
-  if (st.isSymbolicLink()) return "120000";
   if (st.isDirectory()) return "40000";
+  if (modes && modes[rel] && (modes[rel] === "100755" || modes[rel] === "100644" || modes[rel] === "120000")) {
+    return modes[rel];
+  }
+  if (st.isSymbolicLink()) return "120000";
   return (st.mode & 0o111) ? "100755" : "100644";
 }
 
 // treeOf(dir) returns { id, empty } for the folder. A folder with no file has no tree in git.
-function treeOf(dir) {
+function treeOf(dir, rel, modes) {
   const entries = [];
   for (const name of fs.readdirSync(dir)) {
     if (name === ".git") continue;
     const full = path.join(dir, name);
-    const mode = modeOf(full);
+    const subRel = rel ? rel + "/" + name : name;
+    const mode = modeOf(full, subRel, modes);
     if (mode === "40000") {
-      const sub = treeOf(full);
+      const sub = treeOf(full, subRel, modes);
       if (sub.empty) continue;
       entries.push({ name: name + "/", mode: "40000", id: sub.id });
     } else {
@@ -252,7 +287,7 @@ function main(argv) {
   const cmd = argv[0];
   if (cmd === "tree" && argv.length === 2) {
     if (!fs.existsSync(argv[1]) || !fs.statSync(argv[1]).isDirectory()) fail("not a folder: " + argv[1]);
-    const t = treeOf(argv[1]);
+    const t = treeOf(argv[1], "", indexModes(argv[1]));
     if (!t.empty) process.stdout.write(t.id + "\n");
     return;
   }

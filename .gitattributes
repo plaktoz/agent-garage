@@ -1,6 +1,19 @@
-# Shell scripts and the shared instructions must keep LF line endings on Windows.
+# Git decides text or binary by content, and stores text with LF in the repo.
+* text=auto
+
+# Scripts and shared text keep LF line endings on Windows, so bash and node read them.
 *.sh text eol=lf
+*.cjs text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.py text eol=lf
+*.ps1 text eol=lf
+*.yml text eol=lf
 *.md text eol=lf
 *.toml text eol=lf
 *.yaml text eol=lf
 *.json text eol=lf
+LICENSE text eol=lf
+
+# Images are never changed by line-ending conversion.
+*.png binary
