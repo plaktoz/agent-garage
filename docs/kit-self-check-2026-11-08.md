@@ -119,7 +119,9 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   - A. Alfred reviews. The workflow opens the pull request. Alfred reports on it (the lock diff, the `check-claims.sh` result, the playbook skill names) and does not merge. This fits the agent as it is, and its check 5 already covers merged branches. Default.
   - B. Alfred authors. The agent definition changes to allow it to run `fetch-skills.sh --update` and open the pull request. That removes the "Changes no file" rule, which needs the user's approval, and `skills.lock.json` still cannot change without it.
   In both readings a person merges, and the merge rule from the user is still needed.
-  Not started until the user gives the rule and picks A or B. Keep this `[ ]`.
+  Merge rule (decided 2026-11-08, "go with Tier 1"): recorded in `docs/skills-sources.md` section 7. Tier 1 merges without a read, as approved. Known gap, recorded there: a licence change in an upstream `LICENSE` is not checked by any script, so Tier 1 cannot see it.
+  Authority (decided 2026-11-08, "allow alfred to make changes"): Alfred may change files on request, on a new branch, with a pull request. Recorded in `agents/alfred.md` and in PR #20.
+  Still open: the workflow in `upstream-check.yml` that opens the pull request, and its acceptance test on a test branch. Keep this `[ ]` until that test passes.
 
 ## Not verified and out of scope
 
