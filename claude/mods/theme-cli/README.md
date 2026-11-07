@@ -57,12 +57,12 @@ The logic is in six files in `hooks/` and two scripts in `scripts/`. The line nu
 | Command `theme-sound` | `hooks/register.tsx` | 251 |
 | Commands `theme-list`, `theme-use`, `theme-build`, `theme-new` | `hooks/register.tsx` | 264, 278, 289, 296 |
 | Command `theme-sound-test` | `hooks/register.tsx` | 310 |
-| Command `theme-dump` | `hooks/register.tsx` | 322 |
-| Hooks `turn.start`, `turn.complete` | `hooks/register.tsx` | 355, 375 |
-| Hooks `classic.SubagentStart`, `classic.SubagentStop` | `hooks/register.tsx` | 400, 419 |
-| Hooks `tool.call`, `turn.step`, `session.measure` | `hooks/register.tsx` | 441, 456, 473 |
-| Hook `session.end` | `hooks/register.tsx` | 479 |
-| Hook `ui.render` (the strip) | `hooks/register.tsx` | 488 |
+| Command `theme-dump` | `hooks/register.tsx` | 326 |
+| Hooks `turn.start`, `turn.complete` | `hooks/register.tsx` | 359, 379 |
+| Hooks `classic.SubagentStart`, `classic.SubagentStop` | `hooks/register.tsx` | 404, 423 |
+| Hooks `tool.call`, `turn.step`, `session.measure` | `hooks/register.tsx` | 445, 460, 477 |
+| Hook `session.end` | `hooks/register.tsx` | 483 |
+| Hook `ui.render` (the strip) | `hooks/register.tsx` | 492 |
 | Module variables `windows` (is this Windows) and `loops` (looped clips now playing) | `hooks/winaudio.ts` | 66, 20 |
 | Constants `WAV_MIME`, `READ`, `PLAY_ONCE`, `PLAY_LOOP` – the WAV type and the PowerShell scripts | `hooks/winaudio.ts` | 11, 14–16 |
 | `stopWindowsLoops()` – ends every Windows loop | `hooks/winaudio.ts` | 22 |
@@ -90,12 +90,13 @@ The logic is in six files in `hooks/` and two scripts in `scripts/`. The line nu
 | `loadSounds()` – reads the sound files | `hooks/library.ts` | 115 |
 | `pythonLauncher()` – finds the first Python that answers | `hooks/library.ts` | 137 |
 | `loadTheme()` – check, build, read | `hooks/library.ts` | 148 |
-| `templateFor()` – the file that `/theme-new` writes | `hooks/library.ts` | 193 |
+| `templateFor()` – the file that `/theme-new` writes | `hooks/library.ts` | 194 |
 | `resolve()`, `read_png()` and `read_image()` | `scripts/build-theme.py` | 28, 73, 126 |
 | `crop()` and `to_pixels()` | `scripts/build-theme.py` | 140, 153 |
 | `shrink()` – scales a frame | `scripts/build-theme.py` | 171 |
 | `pack()` – writes a frame as glyph rows | `scripts/build-theme.py` | 205 |
-| `source_of()` and `main()` | `scripts/build-theme.py` | 219, 240 |
+| `source_of()` and `main()` | `scripts/build-theme.py` | 219, 249 |
+| `utf8_streams()` – makes stdout and stderr UTF-8, so a non-ASCII path prints | `scripts/build-theme.py` | 240 |
 | Sound clip functions `voice()`, `start()`, `working()`, `success()`, `error()`, `main()` | `scripts/make-mario-sounds.py` | 28, 74, 79, 96, 108, 115 |
 | Type of the stored values | `types/index.d.ts` | 28–44 |
 | Tests for the strip (13 tests) | `hooks/register.test.tsx` | 77–271 |
@@ -248,7 +249,7 @@ The stamp is one line of text. It joins these parts with `|`:
 
 The cache is `themes/<name>/.cache/frames.json`. It stores the stamp and the scaled frames. If the stored stamp equals the new stamp, the mod reads the cache and does no image work.
 
-If the stamp differs, the mod runs the build script with `-I`. It tries `python3`, `python` and `py -3` in that order. Each one runs `--version` first. The first one that answers runs the build. The build has a limit of 120,000 ms.
+If the stamp differs, the mod runs the build script with `-I -X utf8`. The `-I` flag ignores `PYTHONUTF8`, so `-X utf8` sets UTF-8 for the build. It tries `python3`, `python` and `py -3` in that order. Each one runs `--version` first. The first one that answers runs the build. The build has a limit of 120,000 ms.
 
 The script reads `theme.json` and writes the cache as UTF-8. It crops each frame, makes the background clear, scales the frame, and writes the cache.
 
@@ -301,7 +302,7 @@ If `theme.json` is missing or invalid, the mod uses the built-in theme. The reas
 | `/theme-hide` | Hide the strip. | `Strip hidden. /theme-show shows it again.` |
 | `/theme-show` | Show the strip. | `Strip shown.` |
 | `/theme-sound <mode>` | Set the sound mode. `all` plays every cue and the working loop, and is the default. `cues` plays the start, success and error cues but no working loop. `off` plays nothing. `cues` and `off` end a loop that is playing. Going back to `all` during a turn starts the working loop. The setting lasts for the session and a hot reload. | With no mode: `Sounds: <mode>. Set with /theme-sound all, cues or off.` Unknown mode: `Unknown mode "<x>". Use all, cues or off.` A change: `Sounds: <mode>.` |
-| `/theme-sound-test` | Play a 0.3 s test tone through the mod's Windows player. | On Windows: `Played a 0.3 s test tone. Heard nothing? Check the volume mixer for this terminal.` If PowerShell fails: `Could not play the tone: <cause>`. Elsewhere: `Not Windows: the engine plays sound itself here.` |
+| `/theme-sound-test` | Play a 0.3 s test tone through the mod's Windows player. | On Windows: `Played a 0.3 s test tone. Heard nothing? Check the volume mixer for this terminal.` If PowerShell fails: `Could not play the tone: <cause>`. Elsewhere: `Not Windows, so this test does not run. macOS: the engine plays the cues. Linux: the engine has no player, so the cues are silent. WSL is not tested.` |
 | `/theme-dump` | Write `theme-cli-log.txt` in the current folder. | `Wrote <n> log lines and the strip to theme-cli-log.txt.` |
 
 `/theme-mute` and `/theme-unmute` were removed. `/theme-sound` replaces them.
@@ -364,7 +365,8 @@ Each platform plays the clips in a different way:
 
 - macOS: the engine plays the clip. The engine documentation names `afplay` as the macOS player. This check did not play a sound, so playback is not verified here.
 - Windows: the mod plays a WAV clip itself, in `hooks/winaudio.ts`. It starts `powershell.exe`, which uses the .NET class `System.Media.SoundPlayer`. The engine has no Windows player. Its `$.audio.play` plays nothing and resolves. Other clips (mp3, m4a, aac, aiff, ogg, `{ asset }` and URLs) go to the engine. The engine's documentation says a terminal with no player plays nothing.
-- Linux: the engine's documentation says a Linux terminal with no player plays nothing, and the call resolves. The mod adds no player for Linux. This was not tested.
+- Linux: the engine has no player, so the cues are silent. The mod adds no player for Linux. The engine's documentation says a Linux terminal with no player plays nothing, and the call resolves. This was not tested.
+- WSL: the mod checks the `OS` variable for `Windows_NT`. WSL does not set `OS` to `Windows_NT` by default, so the mod treats WSL as not Windows and the engine answers each clip. This is from reading the code. What the engine does on WSL was not tested.
 
 On Windows, `gain` changes only 16-bit PCM WAV clips, because `SoundPlayer` has no volume control. Other WAV clips play at their own level.
 
@@ -440,7 +442,7 @@ These values are in the code. You change them by editing the file.
 | `FINALE_MS` | 4200 | `hooks/register.tsx` 14 | Length of the finale, in ms. |
 | `MIN_COLS`, `MAX_COLS` | 32, 240 | `hooks/register.tsx` 15–16 | Limits of the strip width. |
 | Log lines | 300 | `hooks/register.tsx` 69 | The last log lines that `/theme-dump` keeps. |
-| Test tone | 880 Hz, 300 ms, 22,050 samples per second | `hooks/register.tsx` 311; `hooks/wav.ts` 82 | The tone that `/theme-sound-test` plays on Windows. |
+| Test tone | 880 Hz, 300 ms, 22,050 samples per second | `hooks/register.tsx` 318; `hooks/wav.ts` 82 | The tone that `/theme-sound-test` plays on Windows. |
 | `SPEED` | 0.03 | `hooks/draw.ts` 8 | Lead speed, in pixels for each ms. |
 | `GROUND` | 2 | `hooks/draw.ts` 9 | Ground height, in pixels. |
 | Frame step | 110 | `hooks/draw.ts` 37 | Time for each frame of a run cycle, in ms. |
@@ -452,7 +454,7 @@ These values are in the code. You change them by editing the file.
 | Saturation limit | 0.3 | `hooks/theme.ts` 174 | A pixel with a lower saturation keeps its color. |
 | `BUILD` | 1 | `hooks/library.ts` 17 | Raise it to rebuild every cache. |
 | Launcher limit | 10,000 | `hooks/library.ts` 139 | Time that a Python launcher has to answer `--version`, in ms. |
-| Build limit | 120,000 | `hooks/library.ts` 172 | Time that the build can run, in ms. |
+| Build limit | 120,000 | `hooks/library.ts` 173 | Time that the build can run, in ms. |
 | `GLYPHS` | 36 symbols | `scripts/build-theme.py` 24 | The most colors in one frame. |
 | Dark weight | 1.3 for luma below 90 | `scripts/build-theme.py` 194 | Dark pixels count more in the scale vote. |
 | Clear share | 55 percent | `scripts/build-theme.py` 197 | An output pixel is clear above this share of clear area. |
@@ -779,7 +781,7 @@ Each row names one test and the line where the test starts.
 | /theme-sound cues plays the start, success and error cues, but no working loop | 287 | The start clip plays, the working loop does not start, and the success clip plays at the answer. |
 | /theme-sound cues stops a loop that is already playing | 300 | `cues` during a turn ends the loop. The finish cue still plays. |
 | /theme-sound with no argument shows the mode, and an unknown mode is refused | 313 | The reply is `Sounds: all. Set with /theme-sound all, cues or off.` `loud` gets `Unknown mode "loud". Use all, cues or off.` |
-| the build runs under the first Python launcher that answers | 320 | With only `py` installed, the build runs `py -3 -I`. |
+| the build runs under the first Python launcher that answers | 320 | With only `py` installed, the build runs `py -3 -I -X utf8`. |
 | with no Python at all the status says so and the older cache or placeholders stand | 329 | No build runs. The dump says `no Python found`. |
 | with HOME unset, the library is found under USERPROFILE | 338 | The build receives the `USERPROFILE` folder as `--home`. |
 | theme.json paths: drive letters, UNC and ~\ are handled as Windows paths | 352 | The TypeScript path rule treats `C:\`, `C:/`, UNC paths and `~\` as Windows paths. |
@@ -815,7 +817,7 @@ Each row names one test and the line where the test starts.
 | A frame has a colored box around the sprite | The sheet background is not clear. | Set `key` to the background color `[r, g, b]`. Type `/theme-build`. |
 | All companions have the same color | `cast.companion.frame` has no `recolor`, or `recolor.hue` does not match the base frame. | Add `recolor` with `hue` set to the body hue of the base frame. A second fix is below the table. |
 | No sound plays on Windows | The PowerShell player failed. Or the clip is not a WAV, and the engine plays nothing on Windows. | Type `/theme-sound-test`. If it fails, the reply says why, as `Could not play the tone: <cause>`. Type `/theme-dump`. Read the `sounds=` line. Section 7 lists the Windows limits. |
-| No sound plays | The theme has no `sounds` block, the sound mode is `off`, or the platform has no player (Linux). | Type `/theme-sound`. If it shows `off`, type `/theme-sound all`. Type `/theme-dump` and read the `sounds=` and `mode=` line. Section 7 lists the platform limits. |
+| No sound plays | The theme has no `sounds` block, the sound mode is `off`, or the platform has no player (Linux). WSL is not tested. | Type `/theme-sound`. If it shows `off`, type `/theme-sound all`. Type `/theme-dump` and read the `sounds=` and `mode=` line. Section 7 lists the platform limits. |
 | You edited an image and nothing changed | The session loaded the theme before the edit. | Type `/theme-build`. |
 
 For the companion color row, list one frame for each slot in `cast.companion.frames`. Raise `range` if needed.
@@ -850,7 +852,7 @@ In this check, that command printed nothing and exited with 0, run from the repo
 - **No first frame without a band.** A tick does nothing until `ui.render` records the band. The first frame comes from the render.
 - **No survey.** The strip does not show while the engine shows a survey.
 - **Sound mode scope.** The mode holds for the session and a hot reload. Whether a new session starts in `all` mode after `/theme-sound off` was not tested.
-- **Sound on Linux.** The engine has no player on Linux, and the mod adds none. Playback on Linux was not tested.
+- **Sound on Linux and WSL.** The engine has no player on Linux, and the mod adds none. The mod treats WSL as not Windows, because the `OS` variable check does not match there. Playback on Linux and WSL was not tested.
 - **Sound on Windows.** The mod plays WAV clips itself, with PowerShell, in `hooks/winaudio.ts`. Other formats go to the engine, which plays nothing on Windows. The fake-engine tests ran on macOS. Real playback on Windows is unverified. Task T5 in `docs/win-audio-merge-2026-10-25.md` is the Windows check, and it is pending. When the engine ships a Windows player, remove `hooks/winaudio.ts`, the `winAudio(on)` call and the `/theme-sound-test` command in `register.tsx`, and `hooks/wav.ts` if nothing else imports it.
 - **Windows loop stop.** Unverified on Windows. `stopLoop()` ends the child through `stopWindowsLoops()`. The mod then calls `return()` on the child's stream. The engine's documentation says `return()` kills the child. The child's stream is read in a separate task at the same time, so whether `return()` ends a child that writes no output is unverified. A hot reload resets the `loops` set, so `stopWindowsLoops()` cannot stop a child that started before the reload.
 - **Hot reload and the working loop.** A hot reload drops the handle `loop`. The working clip can keep playing, and the mod cannot stop it. This is open question Q4 in `library/theme-mod-spec.md`.

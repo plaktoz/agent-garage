@@ -237,7 +237,17 @@ def source_of(frame, sheets, home, base):
     return path, frame.get("key", (sheet or {}).get("key"))
 
 
+def utf8_streams():
+    """Print any path, even one the console code page cannot hold (a non-ASCII user name)."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)  # Python 3.7 and later
+        if reconfigure is not None:
+            with contextlib.suppress(OSError, ValueError):
+                reconfigure(encoding="utf-8", errors="replace")
+
+
 def main():
+    utf8_streams()
     parser = argparse.ArgumentParser()
     parser.add_argument("--theme", required=True)
     parser.add_argument("--out", required=True)

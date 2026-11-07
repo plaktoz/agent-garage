@@ -40,14 +40,14 @@ installed="$(claude plugin list 2>/dev/null || true)"
 is_installed() { printf '%s\n' "$installed" | grep -qF "$1@$market"; }
 
 if [ "$mode" = list ]; then
-  for name in "${names[@]}"; do
+  for name in ${names[@]+"${names[@]}"}; do
     if is_installed "$name"; then echo "installed  $name"; else echo "missing    $name"; fi
   done
   exit 0
 fi
 
 if [ "$mode" = uninstall ]; then
-  for name in "${names[@]}"; do
+  for name in ${names[@]+"${names[@]}"}; do
     if is_installed "$name"; then
       claude plugin uninstall "$name@$market" --scope "$scope" && echo "removed    $name"
     else
@@ -62,7 +62,7 @@ fi
 claude plugin marketplace add "$repo"
 
 status=0
-for name in "${names[@]}"; do
+for name in ${names[@]+"${names[@]}"}; do
   if is_installed "$name"; then
     claude plugin update "$name@$market" --scope "$scope" || status=1
   else

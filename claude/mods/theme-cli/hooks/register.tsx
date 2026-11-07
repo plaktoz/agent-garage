@@ -308,7 +308,11 @@ export const register: Register = on => {
   })
 
   on('command.run', { command: 'theme-sound-test' }, async ($, _e, next) => {
-    if (!(await readPlatform($))) return { text: 'Not Windows: the engine plays sound itself here.' }
+    if (!(await readPlatform($))) {
+      return {
+        text: 'Not Windows, so this test does not run. macOS: the engine plays the cues. Linux: the engine has no player, so the cues are silent. WSL is not tested.',
+      }
+    }
 
     try {
       await playWav($, tone(880, 300), false, next.signal)

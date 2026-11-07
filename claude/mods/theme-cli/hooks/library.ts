@@ -168,7 +168,8 @@ export async function loadTheme($: EngineInterface, name: string, force = false)
       const python = await pythonLauncher($)
       if (python === undefined) throw new Error('no Python found (tried python3, python, py -3)')
       const run = await $.process.run(
-        [...python, '-I', script, '--theme', dir, '--out', cachePath, '--home', home, '--height', String(heightOf(spec)), '--stamp', stamp],
+        // `-I` ignores PYTHONUTF8, so `-X utf8` makes Python read and write UTF-8 on Windows.
+        [...python, '-I', '-X', 'utf8', script, '--theme', dir, '--out', cachePath, '--home', home, '--height', String(heightOf(spec)), '--stamp', stamp],
         { timeoutMs: 120_000 },
       )
       const lines = `${run.stdout}${run.stderr}`.trim().split('\n').filter(Boolean)
