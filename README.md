@@ -97,7 +97,7 @@ The kit has five systems and four harnesses. Each cell says how it was checked. 
 - **verified by reading**: the code was read. Nothing ran.
 - **from vendor documentation, not run**: the harness documentation says it. Nothing ran.
 
-CI run 42394334472 (commit `4aa64c6`) passed its syntax, fetch, install and doctor steps on all three systems. Its pilot step failed on all three systems with `Cannot find module`: Node 24 does not accept a directory as the `node --test` argument. The workflow now passes a glob instead. That fix is not yet proven by a CI run. No person has run the kit on WSL or native PowerShell.
+CI run 42394334472 (commit `4aa64c6`) passed its syntax, fetch, install and doctor steps on all three systems. Its pilot step failed on all three systems with `Cannot find module`: Node 24 does not accept a directory as the `node --test` argument. The workflow now passes a glob instead. CI run 42423682928 (commit `e91586b`, started by hand) passed every step on all three systems, pilot step included. No person has run the kit on WSL or native PowerShell.
 
 ## Install skills
 
