@@ -11,3 +11,6 @@ scratch/
 .claude/skills/
 .claude/agents/
 .agents/skills/
+
+# Third-party skills and plugins fetched by scripts/fetch-skills.sh, at the commit in skills.lock.json.
+.cache/
