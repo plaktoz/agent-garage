@@ -24,6 +24,7 @@
 #                                 dep_links: lines "<entry>  ->  <target>" (skill entries from the plugin)
 #                                 dep_pstate, dep_pdetail (plugin list), dep_mstate, dep_mkt (marketplace)
 #   dep_plugin_lines              after a scan: one line per finding, "level<TAB>text", level ok|note|warn
+#   dep_path_key PATH             the physical path of a folder, for comparing two folders (lower case on Windows)
 #
 # found_here      installed for PROJECT (user scope, or the project path is PROJECT)
 # found_linked    the plugin's skills are linked in a skill folder (no plugin install needed to find them)
@@ -143,12 +144,12 @@ dep_plugin_installs() {
     return 0
   fi
   if ! out="$(node -e '
-    var j = JSON.parse(process.argv[1]);
+    var j = JSON.parse(require("fs").readFileSync(0, "utf8"));
     j.forEach(function (p) {
-      if (p.id === process.argv[2]) {
+      if (p.id === process.argv[1]) {
         console.log([p.scope, p.version, p.projectPath || "", p.enabled ? "enabled" : "disabled", p.installPath || ""].join("|"));
       }
-    });' "$pjson" "$1" 2>/dev/null)"; then
+    });' "$1" 2>/dev/null <<< "$pjson")"; then
     dep_state=skipped
     dep_detail="the output of claude plugin list --json is not JSON"
     return 0
@@ -177,12 +178,12 @@ dep_marketplace_lookup() {
     return 0
   fi
   if ! out="$(node -e '
-    var j = JSON.parse(process.argv[1]);
+    var j = JSON.parse(require("fs").readFileSync(0, "utf8"));
     j.forEach(function (p) {
-      if (p.name === process.argv[2]) {
+      if (p.name === process.argv[1]) {
         console.log([p.name, p.source || "", p.path || "", p.repo || ""].join("|"));
       }
-    });' "$mjson" "$1" 2>/dev/null)"; then
+    });' "$1" 2>/dev/null <<< "$mjson")"; then
     dep_state=skipped
     dep_detail="the output of claude plugin marketplace list --json is not JSON"
     return 0
@@ -266,6 +267,17 @@ dep_ver_state() {
   }'
 }
 
+# dep_path_key PATH: the physical path of an existing folder, for comparing two folders. Git Bash and
+# Cygwin ignore case in paths, so the key is lower case there. Prints nothing when PATH is not a folder.
+dep_path_key() {
+  local p
+  p="$(cd "$1" 2>/dev/null && pwd -P)" || return 0
+  case "$(uname -s 2>/dev/null)" in
+    MINGW* | MSYS* | CYGWIN*) p="$(printf '%s' "$p" | tr '[:upper:]' '[:lower:]')" ;;
+  esac
+  printf '%s' "$p"
+}
+
 # dep_plugin_scan NAME PROJECT [SKILL_DIR...]: see the header. Read only.
 dep_plugin_scan() {
   local name="$1" proj="$2" scope version ppath enabled ipath pphys start="$PWD"
@@ -296,11 +308,11 @@ dep_plugin_scan() {
   cd "$start" 2>/dev/null || true
   if [ "$dep_pstate" = found ]; then
     pphys="$proj"
-    [ -d "$proj" ] && pphys="$(cd "$proj" && pwd -P)"
+    [ -d "$proj" ] && pphys="$(dep_path_key "$proj")"
     while IFS='|' read -r scope version ppath enabled ipath; do
       [ -n "$scope" ] || continue
       local pp="$ppath"
-      if [ -n "$ppath" ] && [ -d "$ppath" ]; then pp="$(cd "$ppath" && pwd -P)"; fi
+      if [ -n "$ppath" ] && [ -d "$ppath" ]; then pp="$(dep_path_key "$ppath")"; fi
       if [ "$scope" = user ] || [ "$pp" = "$pphys" ]; then
         dep_here="$dep_here$scope|$version|$ppath|$enabled|$ipath
 "

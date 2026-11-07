@@ -40,7 +40,7 @@
 #     a folder that exists.
 #   - A name in both sources (skills/ and the lock) fails, as install-skills.sh refuses it.
 #
-# Exit status: 0 when nothing failed. 1 when something failed (see above). 2 when HOME is not set.
+# Exit status: 0 when nothing failed. 1 when something failed (see above). 2 when HOME and USERPROFILE are not set.
 # A missing claude, node, jq, gh or fetched copy never fails by itself: it is a note or a warning,
 # or a failure only for a skill that is installed (see Lock).
 #
@@ -53,14 +53,14 @@
 #   DOCTOR_PROC_VERSION   a file read in place of /proc/version
 #   DOCTOR_REPO_PATH      a path used in place of the repo path, for the WSL /mnt/ check only
 #
-# Runs on bash 3.2 (macOS), Linux, WSL and Git Bash.
+# Runs on bash 3.2 (macOS), Linux, WSL, Git Bash and Cygwin.
 
 set -u
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 home="${HOME:-${USERPROFILE:-}}"
 if [ -z "$home" ]; then
-  echo "error: HOME is not set" >&2
+  echo "error: neither HOME nor USERPROFILE is set. Set one of them, then run this again." >&2
   exit 2
 fi
 claude_dir="${CLAUDE_SKILLS_DIR:-$home/.claude/skills}"
@@ -86,6 +86,7 @@ case "$(uname -s 2>/dev/null)" in
   Darwin) os_kind=macos ;;
   Linux) os_kind=linux ;;
   MINGW* | MSYS*) os_kind=gitbash ;;
+  CYGWIN*) os_kind=cygwin ;;
   *) os_kind=other ;;
 esac
 
@@ -95,17 +96,39 @@ printf 'Platform: %s (%s)\n' "$os_kind" "$(uname -sr 2>/dev/null)"
 
 # ---- Tools ---------------------------------------------------------------
 
+# linux_install PKG: the install command for PKG with the package manager found on this computer.
+linux_install() {
+  if command -v apt-get >/dev/null 2>&1; then
+    echo "sudo apt-get install $1"
+  elif command -v dnf >/dev/null 2>&1; then
+    echo "sudo dnf install $1"
+  elif command -v brew >/dev/null 2>&1; then
+    echo "brew install $1"
+  else
+    echo "install $1 with your package manager"
+  fi
+}
+
+# win_install PKG: the install command for PKG on Windows (winget or scoop).
+win_install() {
+  case "$1" in
+    git) echo "winget install Git.Git   (or scoop install git)" ;;
+    node) echo "winget install OpenJS.NodeJS.LTS   (or scoop install nodejs-lts)" ;;
+    jq) echo "winget install jqlang.jq   (or scoop install jq)" ;;
+    gh) echo "winget install GitHub.cli   (or scoop install gh)" ;;
+    *) echo "install $1 with winget or scoop" ;;
+  esac
+}
+
 tool_fix() {
   case "$os_kind:$1" in
     *:claude) echo "npm install -g @anthropic-ai/claude-code" ;;
     macos:*) echo "brew install $1" ;;
-    linux:gh) echo "see https://cli.github.com" ;;
-    linux:node) echo "sudo apt-get install nodejs" ;;
-    linux:*) echo "sudo apt-get install $1" ;;
-    gitbash:git) echo "winget install Git.Git" ;;
-    gitbash:node) echo "winget install OpenJS.NodeJS.LTS" ;;
-    gitbash:jq) echo "winget install jqlang.jq" ;;
-    gitbash:gh) echo "winget install GitHub.cli" ;;
+    linux:gh) echo "see https://cli.github.com (or your package manager)" ;;
+    linux:node) linux_install nodejs ;;
+    linux:*) linux_install "$1" ;;
+    gitbash:*) win_install "$1" ;;
+    cygwin:*) echo "install $1 with the Cygwin setup program, or winget" ;;
     *) echo "install $1 with your package manager" ;;
   esac
 }
@@ -161,6 +184,8 @@ else
 fi
 if [ "$os_kind" = gitbash ]; then
   say note "Git Bash: a link needs Developer Mode or MSYS=winsymlinks:nativestrict (not checked here). Without it a link may be a copy, and this check reports it as shadowed."
+elif [ "$os_kind" = cygwin ]; then
+  say note "Cygwin: a link needs CYGWIN=winsymlinks:native (not checked here). Without it a link may be a copy, and this check reports it as shadowed."
 fi
 
 # ---- Skills --------------------------------------------------------------
@@ -206,8 +231,8 @@ classify() {
       st=broken
       detail="link to $(readlink "$t"), whose target is gone"
     else
-      pt="$(cd "$t" 2>/dev/null && pwd -P)"
-      ps="$(cd "$s" 2>/dev/null && pwd -P)"
+      pt="$(dep_path_key "$t")"
+      ps="$(dep_path_key "$s")"
       if [ -n "$pt" ] && [ "$pt" = "$ps" ]; then
         st=ok
       elif [ -n "$pt" ]; then
@@ -331,7 +356,7 @@ else
     dir="$cache/$lsrc/$lpath"
     if [ ! -d "$dir" ]; then
       if installed_here "$lname"; then
-        fail_line error "$lname is installed, but its fetched copy is missing ($dir). Run: $repo/scripts/fetch-skills.sh"
+        fail_line error "$lname is installed, but its fetched copy is missing ($dir). Run: \"$repo/scripts/fetch-skills.sh\""
       else
         not_fetched="$not_fetched $lname"
       fi
@@ -340,16 +365,16 @@ else
     got="$(node "$helper" tree "$dir" 2>/dev/null)"
     if [ "$got" != "$ltree" ]; then
       if installed_here "$lname"; then
-        fail_line error "$lname: the fetched copy differs from skills.lock.json (lock ${ltree:0:7}, copy ${got:0:7}). Run: $repo/scripts/fetch-skills.sh (it restores the recorded commit)"
+        fail_line error "$lname: the fetched copy differs from skills.lock.json (lock ${ltree:0:7}, copy ${got:0:7}). Run: \"$repo/scripts/fetch-skills.sh\" (it restores the recorded commit)"
       else
-        warn_line "$lname: the fetched copy differs from skills.lock.json. Not installed, so this is not an error. Run: $repo/scripts/fetch-skills.sh"
+        warn_line "$lname: the fetched copy differs from skills.lock.json. Not installed, so this is not an error. Run: \"$repo/scripts/fetch-skills.sh\""
       fi
       continue
     fi
     lock_ok=$((lock_ok + 1))
   done <<< "$(dep_rows_of skill)"
   if [ -n "$not_fetched" ]; then
-    warn_line "not fetched:$not_fetched. Run: $repo/scripts/fetch-skills.sh (needed only to install them)"
+    warn_line "not fetched:$not_fetched. Run: \"$repo/scripts/fetch-skills.sh\" (needed only to install them)"
   fi
   say ok "$lock_ok locked skill(s) match skills.lock.json (git tree hash)"
   while IFS='|' read -r _ csrc cname cfrom ctree cdest; do
@@ -452,7 +477,7 @@ for pb in "$repo"/playbooks/*.md; do
   done <<< "$(playbook_tokens "$pb")"
 done
 if [ "$pb_pstack_skipped" -eq 1 ]; then
-  say note "pstack names in the playbooks not checked: the locked pstack copy is missing. Run: $repo/scripts/fetch-skills.sh"
+  say note "pstack names in the playbooks not checked: the locked pstack copy is missing. Run: \"$repo/scripts/fetch-skills.sh\""
 fi
 say ok "$pb_checked name(s) read from the playbooks (a warning above names any that is not found)"
 
@@ -488,9 +513,9 @@ else
     fi
     dep_lines_out
     if [ "$dep_overall" = not_found ]; then
-      fix "bash $repo/scripts/fetch-skills.sh   (once, to fetch the locked copy)"
+      fix "bash \"$repo/scripts/fetch-skills.sh\"   (once, to fetch the locked copy)"
       if [ "$pn" = pstack ]; then
-        fix "bash $repo/scripts/bootstrap-project.sh <project> --pstack <local|user>   (installs it from the locked copy for one project)"
+        fix "bash \"$repo/scripts/bootstrap-project.sh\" <project> --pstack <local|user>   (installs it from the locked copy for one project)"
       else
         fix "install $pn by hand, from $dep_plink"
       fi

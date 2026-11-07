@@ -8,6 +8,7 @@
 set -euo pipefail
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+home="${HOME:-${USERPROFILE:-}}"
 src="$repo/playbooks"
 cache_pstack="$repo/.cache/pstack-claude"
 pstack_link="https://github.com/michael-denyer/pstack-claude"
@@ -75,7 +76,7 @@ run_check() {
 
 # pstack_scan: read only. Sets the dep_* variables for pstack (see scripts/lib-deps.sh).
 pstack_scan() {
-  dep_plugin_scan pstack "$proj" "${HOME:-/nonexistent}/.agents/skills" "$proj/.agents/skills"
+  dep_plugin_scan pstack "$proj" "$home/.agents/skills" "$proj/.agents/skills"
 }
 
 # pstack_lines: prints the findings of pstack_scan, one per line.
@@ -182,8 +183,8 @@ pstack_precheck() {
   fi
   if [ "$dep_mstate" = found ]; then
     mkt_path="$(printf '%s' "$dep_mkt" | awk -F'|' '{ print $3 }')"
-    cache_phys="$(cd "$cache_pstack" && pwd -P)"
-    if [ -n "$mkt_path" ] && [ -d "$mkt_path" ] && [ "$(cd "$mkt_path" && pwd -P)" = "$cache_phys" ]; then
+    cache_phys="$(dep_path_key "$cache_pstack")"
+    if [ -n "$mkt_path" ] && [ -d "$mkt_path" ] && [ "$(dep_path_key "$mkt_path")" = "$cache_phys" ]; then
       mkt_action=present
     else
       blocked_help "a pstack-claude marketplace is already added ($dep_mkt), and it is not the locked copy. Nothing was copied."
@@ -231,10 +232,10 @@ proj="$(cd "$proj_arg" && pwd -P)"
 if ! top="$(git -C "$proj" rev-parse --show-toplevel 2>/dev/null)"; then
   fail "not a git repository: $proj_arg (run git init first, or pick the project's folder)"
 fi
-top="$(cd "$top" && pwd -P)"
-[ "$top" = "$proj" ] || fail "$proj_arg is inside the git repository $top. Give that folder instead."
+[ "$(dep_path_key "$top")" = "$(dep_path_key "$proj")" ] || fail "$proj_arg is inside the git repository $top. Give that folder instead."
 
 [ -d "$src" ] || fail "no playbooks folder at $src"
+[ -n "$home" ] || fail "neither HOME nor USERPROFILE is set. The pstack check reads ~/.agents/skills, so set one of them. Nothing was copied."
 
 # Every check that can fail is made before the first change.
 pstack_precheck
@@ -296,8 +297,8 @@ else
   pstack_report
   if [ "$dep_overall" != found_here ] && [ "$dep_overall" != found_linked ]; then
     echo "To install pstack for this project ($pstack_link):"
-    echo "  1. bash $repo/scripts/fetch-skills.sh     (once, to make the locked copy in .cache/)"
-    echo "  2. bash $repo/scripts/bootstrap-project.sh $proj --pstack <local|user>"
+    echo "  1. bash \"$repo/scripts/fetch-skills.sh\"     (once, to make the locked copy in .cache/)"
+    echo "  2. bash \"$repo/scripts/bootstrap-project.sh\" \"$proj\" --pstack <local|user>"
     echo "     (that adds the locked copy as the pstack-claude marketplace, then installs the plugin;"
     echo "      it does nothing when pstack is already there)"
   fi
@@ -305,7 +306,7 @@ fi
 
 echo ""
 echo "Next steps, by hand (this script runs neither):"
-echo "  1. Link the skills if they are not installed: bash $repo/scripts/install-skills.sh"
+echo "  1. Link the skills if they are not installed: bash \"$repo/scripts/install-skills.sh\""
 echo "  2. In the project, run /setup-matt-pocock-skills in Claude Code."
 echo "  3. Optional: /git-guardrails-claude-code. It needs jq, and its hook blocks every git push."
 echo "     Add it only to a project where that is wanted."
