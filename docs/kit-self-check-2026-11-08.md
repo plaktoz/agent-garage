@@ -31,7 +31,7 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
 
 ### Phase 1: the drift checks (no network, no harness)
 
-- [ ] **S1. Write the claim drift check for command options and `--help` text.** Branch: `docs/kit-self-check`.
+- [x] **S1. Write the claim drift check for command options and `--help` text.** Branch: `docs/kit-self-check`. Result (2026-11-08): `scripts/check-claims.sh` in commit `052fcfe`. Verified on macOS, bash 3.2.57: the current tree passes (25 claims checked, 0 stale after S2). The three planted faults fail with file and line: a renamed `--project` option, an extra source name, and a changed exit code. Not verified on Linux or Windows; CI (S8) will cover them.
   Do: write `scripts/check-claims.sh`. It reads each `--help` header of `scripts/*.sh` and `claude/scripts/*.sh`, and compares each option and exit code with the README. It also compares the source names that `--help` lists with the keys under `sources` in `skills.lock.json`.
   Acceptance:
   - It exits 0 on the current tree only if every option and exit code matches.
@@ -40,11 +40,11 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   - It runs under bash 3.2 and needs no network.
   Known starting failures: `fetch-skills.sh --help` and `check-upstream.sh --help` list two source names, and the lock has four. The check must find these and fail until the help text is fixed in S2.
 
-- [ ] **S2. Fix the `--help` source lists.** Branch: `docs/kit-self-check`. Depends on S1 (for the check to name the faults).
+- [x] **S2. Fix the `--help` source lists.** Branch: `docs/kit-self-check`. Depends on S1 (for the check to name the faults). Result (2026-11-08): commit `ceeefc5`. Both `--help` texts now name all four sources. `fetch-skills.sh --help` and `check-upstream.sh --help` both exit 0. `bash -n` passes on both.
   Do: change the source names in the `--help` text of `scripts/fetch-skills.sh` and `scripts/check-upstream.sh` to all four keys in `skills.lock.json`.
   Acceptance: `bash scripts/fetch-skills.sh --help` and `bash scripts/check-upstream.sh --help` name all four sources. `check-claims.sh` finds no fault for these two scripts. Both scripts pass `bash -n` under bash 3.2.
 
-- [ ] **S3. Write the claim drift check for skill and playbook names.** Branch: `docs/kit-self-check`.
+- [ ] **S3. Write the claim drift check for skill and playbook names.** Branch: `docs/kit-self-check`. Partly done (2026-11-08), commit `7b92fdb`, still open. Done: the skill counts in the README and `docs/skills-sources.md` (17 installed, 13 locked, 11 mattpocock, 1 ambition, 1 good-readme, 4 own) are checked against `skills/` and the lock. A planted count of 16 fails with file and line. Not done as written: a renamed skill in a playbook does not fail `check-claims.sh`, and a skill name missing from the lock or `skills/` in README is not checked. `doctor.sh` already reports a renamed skill inside a playbook "Skills used" block (planted test: exit 1, warning). Decision needed: keep playbook names with `doctor.sh` (default), or move that check into `check-claims.sh`.
   Do: extend `scripts/check-claims.sh` (or add `scripts/check-skill-claims.sh`) to compare each skill name in the README and in `playbooks/*.md` with the skills that exist: `skills/`, the locked sources in `.cache/`, and the `copies` in the lock. It also checks the counts in the README (4 own skills, 13 locked skills, 17 in total) against the files.
   Acceptance:
   - It exits 0 on the current tree only if every named skill exists and every count matches.
