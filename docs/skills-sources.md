@@ -15,8 +15,12 @@ Where each skill and plugin of this kit comes from, what it does outside the con
 |--------|------------|-------------------|----------------------|---------|-------------------|
 | mattpocock-skills | https://github.com/mattpocock/skills | `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d` | 2026-10-31 | MIT, Copyright (c) 2026 Matt Pocock | 11 skills, fetched into `.cache/mattpocock-skills/` |
 | pstack-claude | https://github.com/michael-denyer/pstack-claude | `7bad1ebc26faa268806bfbb84e5af55d178b68e4` (plugin version 0.9.92) | 2026-10-17 | see the repository | the `pstack` plugin, fetched into `.cache/pstack-claude/` |
+| ambition | https://github.com/jakedahn/ambition | `02dd70c28aeb436dc30f72cbd777d1982943ad88` | 2026-10-15 | none declared (no LICENSE file; GitHub reports none) | 1 skill, fetched into `.cache/ambition/` |
+| good-readme | https://github.com/adewale/good-readme | `17c42e29537ab9316339b73d57cbc74316cf01bd` | 2026-11-05 | MIT, Copyright (c) 2026 Ade | 1 skill, fetched into `.cache/good-readme/` |
 
 The licence of mattpocock/skills is MIT. Its text is at https://github.com/mattpocock/skills (the LICENSE file), and after a fetch it is also at `.cache/mattpocock-skills/LICENSE`.
+
+`jakedahn/ambition` declares no licence. The kit therefore fetches it and links it. It never copies the files into this repository. Do not copy them into `skills/` unless the author gives permission. The repository is public, although its README says it is private.
 
 Two own skills are copies of upstream skills, made by hand and recorded under `copies` in `skills.lock.json`: `diagnosing-bugs` and `triage`. They live in `skills/` and are not fetched. `skills/ste-docs` and `skills/unslop` are own skills with no upstream source.
 
@@ -29,7 +33,7 @@ Two own skills are copies of upstream skills, made by hand and recorded under `c
 | `to-spec` | `skills/engineering/to-spec` | Replaces `to-prd`. | | |
 | `to-tickets` | `skills/engineering/to-tickets` | Replaces `to-issues`. | | `setup-matt-pocock-skills` |
 | `improve-codebase-architecture` | `skills/engineering/improve-codebase-architecture` | Finds structural problems. | `codebase-design`, `grilling`, `domain-modeling` | |
-| `git-guardrails-claude-code` | `skills/misc/git-guardrails-claude-code` | Blocks dangerous git commands. | | |
+| `git-guardrails-claude-code` | `skills/misc/git-guardrails-claude-code` | Optional. Blocks dangerous git commands. | | |
 | `setup-matt-pocock-skills` | `skills/engineering/setup-matt-pocock-skills` | Writes the per-project settings that other skills read. | | `to-spec`, `to-tickets` |
 | `grilling` | `skills/productivity/grilling` | Dependency of `grill-me`, `grill-with-docs` and `improve-codebase-architecture`. | | |
 | `domain-modeling` | `skills/engineering/domain-modeling` | Dependency of `grill-with-docs` and `improve-codebase-architecture`. | | |
@@ -37,6 +41,18 @@ Two own skills are copies of upstream skills, made by hand and recorded under `c
 | `writing-for-agents` | `skills/productivity/writing-for-agents` | Guides the writing of skills, `AGENTS.md` and `CLAUDE.md`. | | |
 
 The calls and mentions are typed by hand from the SKILL.md files. `fetch-skills.sh --update` does not change them. `doctor.sh` checks that each name exists.
+
+### Locked skills (jakedahn/ambition)
+
+| Skill | Upstream path | Why the kit uses it | Calls (Skill tool) | Mentions (name only) |
+|-------|---------------|---------------------|--------------------|----------------------|
+| `ambition` | `skills/ambition` | Turns a task into the more ambitious version of itself, and says what that version needs. The method is from Felix Rieseberg's post "How to be more ambitious". | | |
+
+### Locked skills (adewale/good-readme)
+
+| Skill | Upstream path | Why the kit uses it | Calls (Skill tool) | Mentions (name only) |
+|-------|---------------|---------------------|--------------------|----------------------|
+| `good-readme` | `skills/good-readme` | Creates, improves and audits a project's README.md. Its reference files hold example READMEs and a quality checklist. | | |
 
 ## 4. What each skill does outside the conversation
 
@@ -55,6 +71,12 @@ The text of each SKILL.md was read on 2026-11-07. The table shows only what the 
 | `setup-matt-pocock-skills` | Edits `CLAUDE.md` or `AGENTS.md`. Writes `docs/agents/*.md`. Can run `git init`, `git remote add origin`, `gh repo view` and `glab repo view`. | **Yes.** Can run `gh label create` or `glab label create` to create labels on the tracker. |
 | `git-guardrails-claude-code` | Copies a hook script. Runs `chmod +x`. Edits `.claude/settings.json` or `~/.claude/settings.json`. | No. |
 | `writing-for-agents` | No. The text gives advice only. | No. |
+| `ambition` | No. It reads a project reference, `references/<project>.md` beside the `SKILL.md`, when one exists. With `/ambition <area>` it reads the README, contributor guide, plan and recent commits of that directory. | No. |
+| `good-readme` | No. It reads the project's source and manifests, and the README it is asked to change. The text names no command to run. | No. |
+
+The `ambition` row was read on 2026-11-08 from `SKILL.md` and its README at commit `02dd70c`. The skill names no model and calls no other skill. Its README and example mention Claude Code as the product. The repository also holds a README, an example and `.claude-plugin/` files outside `skills/ambition`. The kit links only the `skills/ambition` folder, so those files are not installed. The folder itself holds `SKILL.md`, `references/` and `evals/`.
+
+The `good-readme` row was read on 2026-11-08 from `SKILL.md` and its five files in `references/` at commit `17c42e2`. The skill names no model and calls no other skill. Its front matter says it works with Codex, OpenCode, Pi, Gemini CLI and Claude Code. It says to use it only when the user asks for a README. It overlaps with the kit's `ste-docs` skill, which the repo rules require for module READMEs: for a README in this repo, use `ste-docs`. The kit links only the `skills/good-readme` folder.
 
 ### Approval before publishing
 
@@ -68,7 +90,7 @@ The hook script `scripts/block-dangerous-git.sh` reads the command with `jq`. If
 
 Tested on 2026-11-07 on macOS, with `jq` removed from the `PATH` and `grep` present. The input was `git push origin main`. The script printed `jq: command not found` and exited with code 0. Claude Code treats exit code 0 as allow. With `jq` present, the same input exited with code 2 and the message `BLOCKED`.
 
-The script blocks every `git push`, not only force pushes. Do not turn it on in a project that uses the Opening a PR or Babysit playbooks.
+The script blocks every `git push`, not only force pushes. The guardrail is opt-in: no playbook requires it. Do not turn it on in a project that uses the Opening a PR or Babysit playbooks, because those playbooks push. `playbooks/togaf-app-delivery.md` (Phase 3, step 3) and `playbooks/togaf-bug-fix.md` list it as optional and say the same.
 
 `doctor.sh` warns when `jq` is missing.
 
@@ -76,7 +98,7 @@ The script blocks every `git push`, not only force pushes. Do not turn it on in 
 
 Installed copies in `~/.agents/skills` on one machine date from 2026-07-17. They differ from the locked commit in the 10 skills that were checked. The installed set has no `writing-for-agents`. It has `writing-great-skills` instead. Two differences matter:
 
-- The installed `setup-matt-pocock-skills` writes `CONTEXT.md`. The locked version writes `GLOSSARY.md`, and offers to rename an existing `CONTEXT.md`. The TOGAF playbooks still say `CONTEXT.md`.
+- The installed `setup-matt-pocock-skills` writes `CONTEXT.md`. The locked version writes `GLOSSARY.md`, and offers to rename an existing `CONTEXT.md`. The TOGAF playbooks in this repository do not name `CONTEXT.md`; the term file they use is `GLOSSARY.md`.
 - The installed `grill-me` says "Run a `/grilling` session." The locked `grill-me` says to call the Skill tool with `grilling`.
 
 Installed copies in `~/.claude/skills` that link into `~/.agents/skills` are shadowed for the kit: `doctor.sh` reports them. Remove the link or the folder by hand, then run `scripts/install-skills.sh`.
