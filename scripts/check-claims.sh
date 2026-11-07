@@ -171,6 +171,61 @@ if [ "$rows" != "$LOCK_KEYS" ]; then
   fail "README.md:${hl:-?}: the skills.lock.json table lists [$(echo $rows)], the lock has [$(echo $LOCK_KEYS)]"
 fi
 
+# skill counts: the numbers that the README and docs/skills-sources.md give for the skills.
+SKILL_ROWS=$(node "$REPO/scripts/skills-lock.cjs" list "$LOCK" | awk -F'|' '$1 == "skill" { print $2 }')
+OWN=0
+for d in "$REPO"/skills/*/; do
+  [ -f "${d}SKILL.md" ] && OWN=$((OWN + 1))
+done
+LOCKED=$(printf '%s\n' "$SKILL_ROWS" | grep -c .)
+TOTAL=$((OWN + LOCKED))
+
+# count_claim FILE PATTERN WANT LABEL: each match of PATTERN (an extended regex whose first number
+# is the claim) in FILE must give WANT.
+count_claim() {
+  _f=$1; _p=$2; _want=$3; _label=$4
+  text "$_f" | grep -n -o -E -e "$_p" | while IFS=: read -r _ln _hit; do
+    _got=$(printf '%s\n' "$_hit" | grep -o -E '[0-9]+' | head -1)
+    echo "$_ln:$_got"
+  done > "$TMPCOUNT"
+  if [ ! -s "$TMPCOUNT" ]; then
+    CHECKS=$((CHECKS + 1))
+    fail "${_f#"$REPO"/}: no claim \"$_label\" found; the sentence changed or moved"
+    return
+  fi
+  while IFS=: read -r _ln _got; do
+    CHECKS=$((CHECKS + 1))
+    if [ "$_got" != "$_want" ]; then
+      fail "${_f#"$REPO"/}:$_ln: \"$_label\" says $_got, the files give $_want"
+    fi
+  done < "$TMPCOUNT"
+}
+
+TMPCOUNT=$(mktemp "${TMPDIR:-/tmp}/check-claims.XXXXXX")
+trap 'rm -f "$TMPCOUNT"' EXIT
+
+count_claim "$README" 'prints `installed` for [0-9]+ skills' "$TOTAL" "installed for N skills"
+count_claim "$README" 'links all [0-9]+ skills' "$TOTAL" "links all N skills"
+count_claim "$README" 'links only the [0-9]+ own skills' "$OWN" "links only the N own skills"
+count_claim "$README" 'the lock names [0-9]+ skills' "$LOCKED" "the lock names N skills"
+for src in $LOCK_KEYS; do
+  n=$(printf '%s\n' "$SKILL_ROWS" | grep -c -x -F "$src")
+  [ "$n" -gt 0 ] || continue
+  case "$src" in
+    mattpocock-skills)
+      count_claim "$README" '[0-9]+ from mattpocock/skills' "$n" "N from mattpocock/skills"
+      count_claim "$README" '`mattpocock-skills` \| [^|]*\| [0-9]+ skills' "$n" "table row mattpocock-skills"
+      count_claim "$REPO/docs/skills-sources.md" '[0-9]+ skills, fetched into' "$n" "sources row mattpocock-skills"
+      ;;
+    ambition)
+      count_claim "$README" '[0-9]+ from ambition' "$n" "N from ambition"
+      ;;
+    good-readme)
+      count_claim "$README" '[0-9]+ from good-readme' "$n" "N from good-readme"
+      ;;
+  esac
+done
+
 echo "$CHECKS claims checked, $FAILS stale."
 if [ "$FAILS" -gt 0 ]; then
   exit 1
