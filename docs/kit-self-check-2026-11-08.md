@@ -93,7 +93,19 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   - the `--list` after `--uninstall` names none of them;
   - the real `~/.claude` checksum is the same before and after step 2.
   Verify on this Mac, and record it as "run on macOS".
-  Not verified yet: whether `claude plugin test` or `install` needs a login or the network, and whether the `claude` CLI keeps its registry under `$HOME`. The first run answers both. If the registry is not under `$HOME`, record it and stop step 2 before any install.
+  Result (2026-11-08, run on macOS). Status `[ ]`: step 1 is done, step 2 is not run. Reason: the shell of the agent that ran this refuses any command that sets `HOME`, so no temp-home install ran.
+  - Step 1, exit codes read with `$?` right after each command: all 7 mods exit 0 for `validate` and for `test`.
+  - `validate` warning on cache-warm, handoff, screen-share and switchboard: `author: No author information provided. Consider adding author details for plugin attribution`.
+  - `validate` directory warning `ICON_MISSING` on brain-dump, cache-warm, handoff, reflect, screen-share and switchboard. theme-cli shows no directory warning.
+  - `validate` directory problem `LICENSE_MISSING` on cache-warm, handoff, screen-share and switchboard. These four have no LICENSE file and no `license` field. The result stays "passed". brain-dump, reflect and theme-cli have a MIT LICENSE file.
+  - `test` results, pass and fail, with file count: brain-dump 10/0/1, cache-warm 12/0/1, handoff 10/0/1, reflect 45/0/2, screen-share 13/0/1, switchboard 5/0/1, theme-cli 42/0/3.
+  - Real `install-mods.sh --list`, read only, no install: all 7 show `installed` (user scope). This is the real home, not a round trip.
+  - Step 2, not run: no temp-home install, list or uninstall ran, so the acceptance items for the install list and the uninstall list are open.
+  - Real `~/.claude` check, before and after this run: the per-file checksums differ. The changed files are live session transcripts and one rotated `.claude.json` backup. No plugin file changed. The `claude plugin list --json` ids and scopes are the same 12 before and after. The hash of `~/.claude.json` changed (mtime 07:53:51). Its cause is not known.
+  - Not verified: the round trip. Whether `install` needs a login or the network is open. `validate` and `test` showed no login prompt. The network was not checked.
+  - Not verified: whether the CLI registry follows `$HOME`. The real registry is under `~/.claude/plugins`, which suggests it does. No temp-home run tested it.
+  - Not verified: Linux, and Windows (`install-mods.ps1`).
+  - Next: run step 2 from a plain terminal, with `REAL_HOME` set and checked, then update this entry.
 
 - [ ] **S7. Run the skill installs under each harness that can run here.** Branch: `docs/kit-self-check`. Depends on decision 2.
   Do: for Codex, install with `--agents` into a temp project and check that the skill file is where Codex reads it. Send a live Codex request only if the user approves it under decision 2. For OpenCode and Gemini CLI, record "not run: not installed" unless decision 4 gives a runner.
