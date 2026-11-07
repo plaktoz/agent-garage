@@ -2,7 +2,7 @@
 
 Used by `ste-docs` (see `SKILL.md`, section 1). Use this profile when the subject is code or a tool: a mod, skill, agent, hook, script or library. The rules in `SKILL.md` also apply. This file adds the fixed layout, the code checks and the report items. The output is one file: `README.md`.
 
-Worked examples in this repo: `mods/cache-warm/README.md` and `mods/handoff/README.md`. Read them before the first use. Copy their structure. Do not copy their facts.
+Worked examples in this repo: `claude/mods/cache-warm/README.md` and `claude/mods/handoff/README.md`. Read them before the first use. Copy their structure. Do not copy their facts.
 
 ## 1. Inputs
 

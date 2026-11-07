@@ -31,7 +31,7 @@
 #
 # Rules for the skill folders:
 #   - CLAUDE_SKILLS_DIR, when set, replaces ~/.claude/skills (install-skills.sh does the same).
-#     It also moves install-skills.sh's target, so the --codex fix line is wrong while it is set.
+#     It also moves install-skills.sh's target, so the --agents fix line is wrong while it is set.
 #   - A folder that does not exist is "not used", not an error. So is a shared folder that holds
 #     no kit skill at all (for example one another tool made). The Claude Code folder with no kit
 #     skill is a warning, not a failure, because the user may not use Claude Code.
@@ -231,7 +231,7 @@ classify() {
   fi
 }
 
-# folder_check DIR LABEL FLAG ROLE: FLAG is "" or " --codex" (the install-skills.sh option for this folder).
+# folder_check DIR LABEL FLAG ROLE: FLAG is "" or " --agents" (the install-skills.sh option for this folder).
 # ROLE is primary (Claude Code) or shared (~/.agents/skills, read by other harnesses).
 folder_check() {
   local dir="$1" label="$2" flag="$3" role="$4" i name src t st detail present parent redo=""
@@ -302,11 +302,11 @@ while IFS='|' read -r _ lsrc lname lpath _; do
 done <<< "$(dep_rows_of skill)"
 printf '  %d kit skill(s): own in skills/, locked in .cache/ (skills.lock.json)\n' "$kit_n"
 folder_check "$claude_dir" "Claude Code" "" primary
-folder_check "$agents_dir" "Codex, OpenCode, Gemini CLI" " --codex" shared
+folder_check "$agents_dir" "Codex, OpenCode, Gemini CLI" " --agents" shared
 if [ "$used" -eq 0 ]; then
   warn_line "No kit skill is installed in any skill folder. Install them:"
   fix "\"$repo/scripts/install-skills.sh\"   (Claude Code)"
-  fix "\"$repo/scripts/install-skills.sh\" --codex   (Codex, OpenCode, Gemini CLI)"
+  fix "\"$repo/scripts/install-skills.sh\" --agents   (Codex, OpenCode, Gemini CLI)"
 fi
 
 # ---- Lock ----------------------------------------------------------------

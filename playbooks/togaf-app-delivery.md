@@ -24,9 +24,11 @@ Skills used
 - pstack: `/how`, `/why`, `/architect`, `/interrogate`, `swarm`, `arena`, `blast-radius`,
   `unslop`, `tdd`, `/create-verification-skill`, Feature playbook, Opening a PR, Babysit.
 - Pocock: `setup-matt-pocock-skills`, `grill-me`, `grill-with-docs`, `to-spec`, `to-tickets`,
-  `git-guardrails-claude-code`, `improve-codebase-architecture`, `writing-for-agents`.
+  `improve-codebase-architecture`, `writing-for-agents`. Optional: `git-guardrails-claude-code`
+  (Phase 3, step 3).
 - Overlap rule: use ONE tdd skill (pstack's by default). Use `/how` to orient on unfamiliar code.
-  Use pstack's Bug fix playbook instead of `diagnosing-bugs`/`triage`.
+  For a defect: where pstack is installed, use pstack's Bug fix playbook. Where it is not, use
+  `diagnosing-bugs` for the root-cause step and `triage` for issue intake.
 - Call Pocock skills by name inside the steps below; `poteto-mode` does not route to them.
 
 Artifacts (create if missing)
@@ -83,12 +85,15 @@ Convert decisions into checks, strongest layer first:
    import-linter). Forbidden imports fail the build.
 2. Static analysis: a lint rule for each recurring mistake and each ADR rule (secrets,
    direct DB calls from UI, banned patterns).
-3. Git safety: install `git-guardrails-claude-code` hooks to block dangerous git commands
-   (push, reset --hard, clean) before unattended or parallel agents run.
+3. Git safety (optional, opt-in): `git-guardrails-claude-code` installs a hook that blocks
+   dangerous git commands. It blocks every `git push`, and also `git reset --hard`, `git clean -f`
+   and `git branch -D`. It needs `jq`; without `jq` the hook allows every command. Do not install
+   it if Phase 6 will push or open PRs (Opening a PR, Babysit). Skip this step when in doubt.
 4. Rules file: only what cannot be enforced above.
 
 Exit: for each boundary and lint rule, a deliberately violating change fails CI. Show the
-failing output as evidence. Guardrail hook blocks a test dangerous command.
+failing output as evidence. If the guardrail hook was installed, it blocks a test dangerous
+command.
 
 ## Phase 4: Verification harness and walking skeleton
 

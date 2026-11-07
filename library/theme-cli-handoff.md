@@ -5,10 +5,10 @@ Handoff prompt for starting `theme-cli`, the terminal build of the theme mod. Pa
 ## State
 
 - The theme idea is specced in `library/theme-mod-spec.md` (Mario first, Zelda second, themes as data, music, a Helper Desk view).
-- The desktop build is parked as **`mods/theme-desk`** (KIV). It validates but has never been seen drawing. Its only run was in the terminal, where `Svg` doesn't exist, so the strip and pane stayed empty.
-- `theme-cli` does not exist yet. It is a new mod for the terminal surface: `mods/theme-cli/`.
+- The desktop build is parked as **`claude/mods/theme-desk`** (KIV). It validates but has never been seen drawing. Its only run was in the terminal, where `Svg` doesn't exist, so the strip and pane stayed empty.
+- `theme-cli` does not exist yet. It is a new mod for the terminal surface: `claude/mods/theme-cli/`.
 
-## What carries over from theme-desk (read `mods/theme-desk/hooks/register.tsx`)
+## What carries over from theme-desk (read `claude/mods/theme-desk/hooks/register.tsx`)
 
 - Agent tracking from `classic.SubagentStart` / `classic.SubagentStop`. Unknown stop ids are ignored.
 - Per-agent `tool.call` activity (last two tools).
@@ -37,17 +37,17 @@ Handoff prompt for starting `theme-cli`, the terminal build of the theme mod. Pa
 
 ## Prompt
 
-> Start `theme-cli`: a Claude Code mod for the terminal surface, in `mods/theme-cli/` of `/Users/tianhonglee/Developer/claude-mods`.
+> Start `theme-cli`: a Claude Code mod for the terminal surface, in `claude/mods/theme-cli/` of `/Users/tianhonglee/Developer/claude-mods`.
 >
-> Read first: `library/theme-cli-handoff.md`, `library/theme-mod-spec.md`, and `mods/theme-desk/hooks/register.tsx` (the engine to reuse).
+> Read first: `library/theme-cli-handoff.md`, `library/theme-mod-spec.md`, and `claude/mods/theme-desk/hooks/register.tsx` (the engine to reuse).
 >
 > Goal: Mario Bros. sprites run across a strip above the prompt while Claude works. One extra sprite per running subagent (a Yoshi), removed when that agent stops. When the task completes, the end-stage beat plays. Use `Raster` instead of `Svg`.
 >
 > Steps:
-> 1. Load the plugin-authoring skill. Scaffold `mods/theme-cli/` with `.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/register.tsx`, `types/index.d.ts`, `tsconfig.json`.
+> 1. Load the plugin-authoring skill. Scaffold `claude/mods/theme-cli/` with `.claude-plugin/plugin.json`, `hooks/hooks.json`, `hooks/register.tsx`, `types/index.d.ts`, `tsconfig.json`.
 > 2. Copy the agent and turn tracking from theme-desk. Drop its `Svg` code.
 > 3. Draw a placeholder 2-frame sprite with `Raster` in the `AbovePrompt` band. Animate it with `$.clock.every` and `$.ui.blit`. Check it by writing the draw result to a log file, since I can't always see command output.
 > 4. Add a `/theme-dump` command that writes a log, as theme-desk's `/desk-dump` does.
-> 5. Run `claude plugin validate mods/theme-cli` and add a `register.test.tsx`.
+> 5. Run `claude plugin validate claude/mods/theme-cli` and add a `register.test.tsx`.
 >
 > Rules: don't commit unless I ask. Update `README.md` if the layout changes. Keep real Nintendo assets out of git.

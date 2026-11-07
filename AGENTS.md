@@ -60,7 +60,7 @@ How documents are written, and how they are kept true to the code.
 ### Write
 
 - Use the `ste-docs` skill with its technical profile to write or rewrite any module README (`README.md` only; do not write `README.html`), and any other technical document about a mod, skill, agent or hook.
-- Use `mods/cache-warm/README.md` and `mods/handoff/README.md` as the structure reference, as the skill says.
+- Use `claude/mods/cache-warm/README.md` and `claude/mods/handoff/README.md` as the structure reference, as the skill says.
 
 ### Keep in sync
 

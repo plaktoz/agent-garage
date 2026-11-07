@@ -21,7 +21,8 @@ Principles
 Skills used
 - pstack: `/how`, `/architect`, `/interrogate`, `blast-radius`, `swarm`, `tdd`, `unslop`,
   Feature playbook, Multi-phase plan, Opening a PR, Babysit.
-- Pocock: `grill-me`, `grill-with-docs`, `to-spec` (optional), `to-tickets`.
+- Pocock: `grill-me`, `grill-with-docs`, `to-spec` (optional), `to-tickets`. Not used:
+  `git-guardrails-claude-code`, because Step 7 pushes and opens a PR.
 - Use ONE tdd skill (pstack's by default). Pocock skills are called by name; `poteto-mode`
   does not route to them.
 

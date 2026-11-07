@@ -19,7 +19,7 @@ description: One line on what this behavior changes about how Claude works.
 parts:
   skills: [skills/some-skill]
   agents: [agents/some-agent.md]
-  hooks: [hooks/some-hook]
+  hooks: [claude/hooks/some-hook]
   library: [library/some-doc.md]
 ---
 

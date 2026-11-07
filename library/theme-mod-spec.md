@@ -2,7 +2,7 @@ Brain-dump spec for `theme`, a claude-mods mod that turns Claude Code's activity
 
 # Theme mod: spec (brain dump)
 
-- **Status:** the desktop build is parked as `mods/theme-desk` (KIV, never seen drawing). The terminal build is next, as `theme-cli`; see `library/theme-cli-handoff.md`.
+- **Status:** the desktop build is parked as `claude/mods/theme-desk` (KIV, never seen drawing). The terminal build is next, as `theme-cli`; see `library/theme-cli-handoff.md`.
 - **Date:** 2026-10-24
 - **API basis:** the plugin-authoring reference and `types/claude-code.d.ts` bundled with Claude Code 2.1.310, plus facts confirmed in the previous session. The reference says the API "is early access and moves between releases". When this spec and the declaration file disagree, the declaration file wins.
 
@@ -310,7 +310,7 @@ Format notes:
 | Q12 | **Live tokens and model while an agent runs.** Answered by the spike log: `turn.step` fires once per model request, and each stop chunk's usage is that request's whole context, not a delta. A card's tokens are the latest request's total, not a running sum. The spike's sum double-counted, so the card must not add them. | Sets how live the card's token figure can be. | Answered; see §8.1. |
 | Q13 | **Progress bar.** Answered by the user: indeterminate while running, full when done. | None. | Answered. |
 | Q14 | **Time tile.** Answered by the user: the current turn's elapsed time. | None. | Answered. |
-| Q10 | Where does the mod's source live in this repo (`mods/theme/`? `hooks/`?) and how does it deploy into the dev-mods folder? | The repo layout is provisional (README). | Decide alongside the behavior-manifest question. |
+| Q10 | Where does the mod's source live in this repo (`claude/mods/theme/`? `hooks/`?) and how does it deploy into the dev-mods folder? | The repo layout is provisional (README). | Decide alongside the behavior-manifest question. |
 
 ### Constraints carried in from the previous session
 
