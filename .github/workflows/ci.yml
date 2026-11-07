@@ -168,7 +168,8 @@ jobs:
           cp -R sample/notes-cli "$copy"
           bash scripts/install-skills.sh --project "$copy" unslop
           cd "$copy"
-          node --test test/
+          # Node 24 needs a file or glob here, not a directory (a directory gives "Cannot find module").
+          node --test 'test/*.test.js'
 
   shellcheck:
     name: shellcheck (ubuntu-latest)
