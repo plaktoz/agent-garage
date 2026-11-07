@@ -5,7 +5,7 @@
 # Usage: scripts/fetch-skills.sh [--source <name>] [--update]
 #   (no option)      Check the cache against the lock. Network is used only when a clone, a commit
 #                    or a checkout is missing. With everything present it makes no network call.
-#   --source <name>  Only this source (mattpocock-skills or pstack-claude).
+#   --source <name>  Only this source (mattpocock-skills, ambition, good-readme or pstack-claude).
 #   --update         Move each source to the newest commit of its default branch (network),
 #                    recompute each path and tree hash, and rewrite skills.lock.json. Review the
 #                    change with `git diff skills.lock.json`. calls and mentions are NOT changed:
@@ -47,7 +47,7 @@ Usage: scripts/fetch-skills.sh [--source <name>] [--update]
 Fetches the skills and plugins that skills.lock.json names into .cache/<source>/ (git-ignored),
 at the recorded commit, and checks each tree hash against the lock.
 
-  --source <name>  Only this source (mattpocock-skills or pstack-claude).
+  --source <name>  Only this source (mattpocock-skills, ambition, good-readme or pstack-claude).
   --update         Move each source to the newest commit of its default branch (network),
                    recompute paths and tree hashes, rewrite skills.lock.json, and list what changed.
                    Review it with: git diff skills.lock.json
