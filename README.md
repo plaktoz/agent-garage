@@ -1,8 +1,62 @@
 # claude-mods
 
-A centralized framework for customizing, structuring and deploying behaviors and evolving context libraries for coding agents. Skills, playbooks, scripts and shared instructions work with any agent that reads them. Everything that needs Claude Code is under `claude/`. See "Layout" and "Use with Codex CLI".
+A kit of skills, playbooks, agents and Claude Code mods for coding agents. One clone gives every project the same tested skills, the same delivery playbooks and the same checks.
 
-> Status: early scaffold. Structure is expected to change as we learn what works.
+- **Skills and playbooks work with any agent** that reads `SKILL.md` folders and markdown. That includes Claude Code and Codex CLI.
+- **Third-party skills stay pinned.** `skills.lock.json` records the commit and the tree hash of each source. A weekly check reports when a source moves.
+- **Mods change Claude Code itself.** They add panels, bands and commands. They need Claude Code.
+
+> Status: early scaffold. The structure is expected to change as we learn what works.
+
+## Contents
+
+- [Quick start](#quick-start)
+- [Requirements](#requirements)
+- [Layout](#layout)
+- [Supported systems and harnesses](#supported-systems-and-harnesses)
+- [Install skills](#install-skills)
+- [Install agents](#install-agents)
+- [Use with Codex CLI](#use-with-codex-cli)
+- [Install mods](#install-mods)
+- [Scripts](#scripts)
+- [Playbooks](#playbooks)
+- [Limits](#limits)
+- [Concepts](#concepts)
+- [Open questions](#open-questions)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Quick start
+
+Clone the repository. From its root, fetch the locked skills, install them, and check the result.
+
+```bash
+git clone https://github.com/plaktoz/claude-mods.git
+cd claude-mods
+bash scripts/fetch-skills.sh
+bash scripts/install-skills.sh
+bash scripts/doctor.sh
+```
+
+Expected result:
+
+- `install-skills.sh` prints `installed` for 17 skills.
+- `doctor.sh` ends with a line that starts `Result:`. A new machine can show warnings. A failure makes `doctor.sh` exit 1.
+
+Then start a new Claude Code session. Type `/` and check that a skill name, for example `ste-docs`, is in the list.
+
+## Requirements
+
+| Need | For | Notes |
+|------|-----|-------|
+| `bash` | Every script | macOS bash 3.2.57 ran the scripts. On Windows, use Git Bash |
+| `git` | `fetch-skills.sh`, `check-upstream.sh`, `bootstrap-project.sh` | |
+| `node` | `fetch-skills.sh`, `check-upstream.sh` | CI uses Node 24. The repository records no minimum version |
+| `claude` command | Mods, `install-mods.*`, `--pstack` | Claude Code |
+| `jq` | The optional `git-guardrails-claude-code` hook | Without `jq`, the hook allows every command |
+| Developer Mode (Windows) | Links made by the install scripts | See "Windows" under "Install skills" |
+
+`bash scripts/doctor.sh` checks the tools on your machine. It changes nothing.
 
 ## Layout
 
@@ -16,53 +70,20 @@ The top level holds what any agent can use. Everything that needs Claude Code is
 | `.cache/` | Any agent. Git-ignored | The fetched copies of the locked sources, made by `scripts/fetch-skills.sh` |
 | `playbooks/` | Any agent can read them. They name pstack skills, so they run as written only where pstack is installed | The TOGAF-lite delivery playbooks |
 | `agents/` | Claude Code (`<name>.md`). `.codex/agents/<name>.toml` is the Codex CLI form and points back to the `.md` file | Subagent definitions |
-| `behaviors/` | Any agent | Named, composable bundles that combine parts below into one deployable unit |
+| `behaviors/` | Any agent | Named, composable bundles that combine parts into one deployable unit |
 | `library/` | Any agent | Context documents, snippets, and reference material that evolve over time |
 | `scripts/` | Any agent. Bash scripts, and a `node` helper. On Windows, run them in Git Bash | Install, fetch, check and doctor tooling for skills and agents |
 | `sample/` | Any agent | Pilot projects. `sample/notes-cli` tests the bootstrap script, the playbooks and the upstream checks |
-| `docs/` | Any agent | Review reports and task lists for the repo |
+| `docs/` | Any agent | Review reports, task lists and handoffs for the repo |
 | `.github/workflows/` | GitHub | `ci.yml` checks the kit on Linux, macOS and Windows. `upstream-check.yml` checks the locked sources every week |
-| `claude/mods/` | Claude Code only | Plugins of function hooks (`<mod>/.claude-plugin/plugin.json` + `hooks/register.ts`). Test with `claude plugin test claude/mods/<mod>` |
-| `claude/hooks/` | Claude Code only | Hook scripts and settings fragments |
+| `claude/mods/` | Claude Code only | Plugins of function hooks (`<mod>/.claude-plugin/plugin.json` and `hooks/register.ts`). Test with `claude plugin test claude/mods/<mod>` |
+| `claude/hooks/` | Claude Code only | Hook scripts and settings fragments. The folder is empty now |
 | `claude/scripts/` | Claude Code only | `install-mods.sh` and `install-mods.ps1`. They need the `claude` command |
-| `.claude-plugin/` | Claude Code only | `marketplace.json`: lists the mods so `claude plugin install` can find them. It stays at the top level because `claude plugin marketplace add <url>` reads it there |
-
-### theme-cli themes
-
-`claude/mods/theme-cli` draws a pixel-art strip above the prompt. It ships no art. Themes live in your own `~/.claude/theme-cli/`. They sit outside every project, so one library serves all of them.
-
-```
-~/.claude/theme-cli/
-  config.json                         {"theme": "<name>"}: the theme on show
-  themes/<name>/theme.json            what the theme draws, and where its images are
-  themes/<name>/<your images>         or point `sheets` at images anywhere (absolute or ~/ paths)
-  themes/<name>/.cache/frames.json    scaled sprites, built for you
-```
-
-`theme.json` names `sheets`: image files, or folders of images. It names `frames`. A frame is a `box` of `[x, y, w, h]` on a sheet, or a `file` in a folder sheet. A frame can have an optional `key` colour.
-
-A `cast` gives the frames their parts. It names `lead` (run and jump frames) and `goal`. It can name an optional `partner`. The `companion` is one frame per subagent. Recolour it per slot with `recolor`, or list its `frames`.
-
-`height` sets the sprite height in pixels. The strip takes `ceil((height + 2) / 2)` terminal rows. Anything left out draws as a placeholder.
-
-Scaling happens once. At session start, the mod stamps `theme.json`, its images and the height. It compares that stamp with the one in `.cache/frames.json`. A match reads the cache. A mismatch runs `claude/mods/theme-cli/scripts/build-theme.py` and caches the result. The script needs Python 3 standard library only, and no Pillow for 8-bit PNGs. Drawing never scales anything.
-
-| Command | Effect |
-|---------|--------|
-| `/theme-list` | List the themes. The one on show has `*` |
-| `/theme-use <name>` | Switch now and keep it for later sessions. `default` is the built-in placeholders |
-| `/theme-new <name>` | Write a `theme.json` template to fill in |
-| `/theme-build` | Rebuild the cache even if nothing changed |
-| `/theme-hide`, `/theme-show` | Turn the strip off and on |
-| `/theme-sound [all\|cues\|off]` | Set the theme sounds. `all`, `cues` (start, success and error, no working loop) or `off`. No argument shows the mode |
-| `/theme-dump` | Write `theme-cli-log.txt` in the working directory, for debugging |
-| `/theme-sound-test` | Play a short test tone through the Windows player. On other systems it says the engine plays sound itself |
-
-Images you use can be protected by copyright. Keep them in your own folder, never in this repository.
+| `.claude-plugin/` | Claude Code only | `marketplace.json` lists the mods so `claude plugin install` can find them. It stays at the top level because `claude plugin marketplace add <url>` reads it there |
 
 ## Supported systems and harnesses
 
-The kit runs on five systems and four harnesses. Each cell says how it was checked. The CI workflow runs the kit scripts on Linux, macOS and Windows (Git Bash). No CI job runs a harness.
+The kit has five systems and four harnesses. Each cell says how it was checked. The CI workflow runs the kit scripts on Linux, macOS and Windows (Git Bash). No CI job runs a harness.
 
 | System | Claude Code | Codex CLI | OpenCode | Gemini CLI |
 |--------|-------------|-----------|----------|------------|
@@ -87,17 +108,6 @@ Skills come from two sources.
 
 The install script links all 17 skills into `~/.claude/skills/`. A link means that a change in this repository shows in Claude Code at once. The script does not copy files.
 
-From the repository root, fetch the locked skills, then install them:
-
-```bash
-bash scripts/fetch-skills.sh
-bash scripts/install-skills.sh
-```
-
-The fetch needs `git`, `node` and a network connection for each source that is not yet in `.cache/`.
-
-Then start a new Claude Code session. Type `/` and check that the skill name (for example `ste-docs`) is in the list.
-
 Without the fetch, the install links only the 4 own skills. It prints a note to run `scripts/fetch-skills.sh`. It does not fail.
 
 | Command | Effect |
@@ -110,9 +120,7 @@ Without the fetch, the install links only the 4 own skills. It prints a note to 
 | `bash scripts/install-skills.sh --agents` | Link into `~/.agents/skills/` in place of `~/.claude/skills/`. The alias `--codex` does the same. See "Use with Codex CLI". |
 | `bash scripts/install-skills.sh --project <folder>` | Link into `<folder>/.claude/skills`. With `--agents`, link into `<folder>/.agents/skills`. The folder must exist. It does not have to be a git repository. |
 
-The script never replaces a skill that you did not install from this repository, unless you use `--force`. It never removes such a skill.
-
-To install into a different folder, set `CLAUDE_SKILLS_DIR`:
+The script never replaces a skill that you did not install from this repository, unless you use `--force`. It never removes such a skill. To install into a different folder, set `CLAUDE_SKILLS_DIR`:
 
 ```bash
 CLAUDE_SKILLS_DIR=/path/to/skills bash scripts/install-skills.sh
@@ -131,7 +139,7 @@ Before it links a skill that needs a plugin, the script checks read only whether
 | `bash scripts/install-skills.sh --project <folder>` | `<folder>/.claude/skills` | Claude Code. OpenCode also reads it, per its documentation. |
 | `bash scripts/install-skills.sh --project <folder> --agents` | `<folder>/.agents/skills` | Codex, OpenCode and Gemini CLI, per their documentation. |
 
-The links point into this repository. A project folder with links in it is not portable to another computer. Add `/.claude/skills/` and `/.agents/skills/` to the project's `.gitignore`, as `sample/notes-cli/.gitignore` does. Then run the install again on each computer.
+The links point into this repository, so a project folder with links in it is not portable to another computer. Add `/.claude/skills/` and `/.agents/skills/` to the project's `.gitignore`, as `sample/notes-cli/.gitignore` does. Then run the install again on each computer.
 
 Those two lines hide every file in the two folders. That includes a skill that the project keeps there by hand. To keep such a skill in git, list only the link names in `.gitignore`. Or move the skill elsewhere.
 
@@ -141,7 +149,7 @@ The `--project` option is tested on macOS only, in temporary folders and in a co
 
 Run the scripts in Git Bash. The scripts set `MSYS=winsymlinks:nativestrict`, so `ln -s` makes a real link or fails. Creating links needs Windows Developer Mode. If `ln -s` makes a copy instead, the script removes the copy and exits with an error. A copy does not follow changes in this repository.
 
-This note comes from reading the script. A person has not tested it on Windows. CI probes a symbolic link on Windows, and the probe passed (see "Supported systems and harnesses").
+This note comes from reading the script. A person has not tested it on Windows. CI probes a symbolic link on Windows, and the probe passed.
 
 ## Install agents
 
@@ -157,7 +165,7 @@ To install an agent into one project, set `CLAUDE_AGENTS_DIR` to `<project>/.cla
 
 The script exits 0 on success. It exits 1 when an agent is missing or skipped. It exits 2 on an unknown option.
 
-On Windows, run it in Git Bash with Developer Mode on. The warning in "Install skills" applies here too.
+On Windows, run it in Git Bash with Developer Mode on. The warning in "Windows" applies here too.
 
 ## Use with Codex CLI
 
@@ -167,7 +175,7 @@ Codex CLI reads the same shared instructions and the same skills. It does not ru
 |------|-----------|
 | `AGENTS.md` | Works. Codex reads it. |
 | `skills/` and the locked skills | Works. Run `scripts/fetch-skills.sh`, then `bash scripts/install-skills.sh --agents`. The program file shows Codex reads `~/.agents/skills/` and a project's `.agents/skills/`. Not run live. |
-| `skills/unslop` | Works. `agents/openai.yaml` turns off implicit use, so Codex runs it only when you name it. |
+| `skills/unslop` | Works. `skills/unslop/agents/openai.yaml` turns off implicit use, so Codex runs it only when you name it. |
 | `agents/alfred.md` | Partly. `.codex/agents/alfred.toml` tells Codex to follow it. Not confirmed: that Codex loads agents from a project folder. If it does not, ask Codex to follow `agents/alfred.md`. |
 | `claude/mods/` | Does not work. Mods use Claude Code calls that Codex does not have. Do not add the marketplace in Codex. |
 | `claude/scripts/install-mods.*` | Does not work. They need the `claude` command. |
@@ -180,7 +188,7 @@ bash /path/to/claude-mods/scripts/install-skills.sh --project /path/to/your-proj
 
 ## Install mods
 
-A mod is a Claude Code plugin in `claude/mods/<name>/`. `.claude-plugin/marketplace.json` lists them. So you install a mod from this repository as from a marketplace. Add the marketplace once, with the URL of the repository:
+A mod is a Claude Code plugin in `claude/mods/<name>/`. `.claude-plugin/marketplace.json` lists them, so you install a mod from this repository as from a marketplace. Add the marketplace once, with the URL of the repository:
 
 ```bash
 claude plugin marketplace add https://github.com/plaktoz/claude-mods
@@ -253,13 +261,23 @@ claude --plugin-dir /path/to/claude-mods/claude/mods/switchboard
 | `handoff` | Packages the session into a prompt for a fresh chat. It offers this at 250,000 tokens, or when the cache has likely gone cold. See `claude/mods/handoff/README.md`. |
 | `reflect` | Spots a lasting rule in a prompt you type. After the reply, it asks where to save the rule: auto memory or a `CLAUDE.md` file. See `claude/mods/reflect/README.md`. |
 | `screen-share` | Draws names, emails, phone numbers and amounts as shaded bars during a screen share. See `claude/mods/screen-share/README.md`. |
-| `theme-cli` | Pixel-art characters run along a strip above the prompt while Claude Code works. Terminal only. See `claude/mods/theme-cli/README.md`. |
+| `theme-cli` | Pixel-art characters run along a strip above the prompt while Claude Code works. Terminal only. Themes live in `~/.claude/theme-cli/`, and the mod ships no art. The theme file format, the `/theme-*` commands and the cache are in `claude/mods/theme-cli/README.md`. |
 
 `claude/mods/theme-desk` is KIV (keep in view). It is not in the marketplace, and work on it is stopped. See `claude/mods/theme-desk/README.md`.
 
 ## Scripts
 
-The scripts in `scripts/` run under bash. `fetch-skills.sh` and `check-upstream.sh` need `git` and `node`. `doctor.sh` reports a missing `node` as a note. Each script except `doctor.sh` and `skills-lock.cjs` prints its options with `--help`. `doctor.sh` takes no options, so `--help` runs the report. `skills-lock.cjs` prints its usage when called wrongly.
+The scripts in `scripts/` run under bash. `fetch-skills.sh` and `check-upstream.sh` need `git` and `node`. `doctor.sh` reports a missing `node` as a note. Each script except `doctor.sh`, `lib-deps.sh` and `skills-lock.cjs` prints its options with `--help`. `doctor.sh` takes no options, so `--help` runs the report. `lib-deps.sh` is sourced by other scripts and is not run. `skills-lock.cjs` prints its usage when called wrongly.
+
+| Script | Does | Changes files |
+|--------|------|---------------|
+| `doctor.sh` | Reports tools, skill folders, the lock, playbook skill names and pstack | No |
+| `bootstrap-project.sh` | Copies the playbooks into a project. Installs pstack on request | Yes, in the project |
+| `fetch-skills.sh` | Fetches the locked sources into `.cache/`. `--update` rewrites the lock | `.cache/`, and the lock with `--update` |
+| `check-upstream.sh` | Reports whether a locked source moved upstream | No |
+| `install-skills.sh`, `install-agents.sh` | Link skills and agents. See "Install skills" and "Install agents" | Links in the target folder |
+| `lib-deps.sh` | Read-only dependency checks that other scripts source | No |
+| `skills-lock.cjs` | A `node` helper for `skills.lock.json` | Only through `fetch-skills.sh --update` |
 
 ### `scripts/doctor.sh`
 
@@ -287,9 +305,7 @@ bash scripts/bootstrap-project.sh <project-path> [--force] [--pstack <local|user
 
 It copies `playbooks/*.md` into `<project-path>/.agents/playbooks/`. The project path must be the top folder of a git repository. Each file prints one status: `copied`, `up to date`, `replaced` or `skipped`. A changed file is skipped unless you use `--force`.
 
-With `--pstack`, it installs pstack. See "pstack" below.
-
-It prints the next steps by hand. It runs none of them.
+With `--pstack`, it installs pstack. See "pstack" below. It prints the next steps by hand and runs none of them.
 
 It exits 0 on success. It exits 1 when the work fails, for example when the folder is not a git repository. It exits 2 on a usage error, such as `--pstack project` or an unknown scope.
 
@@ -299,7 +315,7 @@ It exits 0 on success. It exits 1 when the work fails, for example when the fold
 bash scripts/fetch-skills.sh [--source <name>] [--update]
 ```
 
-It fetches each locked source into `.cache/<source>/` at the commit that the lock records. It checks each tree hash against the lock. It needs `git` and `node`.
+It fetches each locked source into `.cache/<source>/` at the commit that the lock records. It checks each tree hash against the lock.
 
 - `--source <name>` limits the run to one source. The names are the keys under `sources` in `skills.lock.json`.
 - `--update` moves each source to the newest commit of its default branch. It needs the network. It recomputes the paths and tree hashes, and rewrites `skills.lock.json`. It does not change `calls` or `mentions`. Check those by hand. Review the change with `git diff skills.lock.json`.
@@ -312,30 +328,20 @@ It exits 0 on success. It exits 1 on a problem: the network, a missing skill, a 
 bash scripts/check-upstream.sh [--source <name>]
 ```
 
-It reports whether a locked source moved upstream. It writes no file in the repository. It compares the locked commit with the upstream head (`git ls-remote`). When the head moved, it makes a temporary clone and reports:
+It compares the locked commit of each source with the upstream head (`git ls-remote`). It writes no file in the repository. When the head moved, it makes a temporary clone and reports:
 
 - how many commits the head is ahead;
 - each locked skill that changed, moved or is gone;
 - each skill added upstream;
 - for pstack, the new version against the lock and the minimum.
 
-It ends with one recommended next step. It never acts. Only `fetch-skills.sh --update` changes the lock. It needs `git` and `node`.
-
-`--source <name>` limits the check to one source, as above.
+It ends with one recommended next step. It never acts. Only `fetch-skills.sh --update` changes the lock.
 
 It exits 0 when nothing moved. It exits 1 when upstream moved. It exits 2 on a usage error. It exits 3 when it cannot run, for example with no network or a bad lock.
 
-### `scripts/install-skills.sh` and `scripts/install-agents.sh`
-
-These install scripts are described in "Install skills" and "Install agents".
-
-### `scripts/lib-deps.sh`
-
-A file that other scripts source. It is not run by itself. `doctor.sh`, `install-skills.sh` and `bootstrap-project.sh` use it for read-only checks of tools, plugins and skill folders. It installs nothing.
-
 ### `scripts/skills-lock.cjs`
 
-A `node` helper for `skills.lock.json`, with no packages. Its subcommands are:
+Its subcommands are:
 
 - `list <lock>`: rows for the shell scripts, fields separated by `|`;
 - `field <file.json> <key>`: one value;
@@ -353,11 +359,9 @@ The lock records what the fetch scripts use. It holds four sources:
 | `mattpocock-skills` | https://github.com/mattpocock/skills | 11 skills, commit `4ae2317` | MIT |
 | `ambition` | https://github.com/jakedahn/ambition | 1 skill, commit `02dd70c` | None declared upstream |
 | `good-readme` | https://github.com/adewale/good-readme | 1 skill, commit `17c42e2` | MIT |
-| `pstack-claude` | https://github.com/michael-denyer/pstack-claude | Plugin version 0.9.92, commit `7bad1eb`. Minimum 0.9.57 | See the source |
+| `pstack-claude` | https://github.com/michael-denyer/pstack-claude | Plugin version 0.9.92, commit `7bad1eb`. Minimum 0.9.57 | Not recorded in the lock |
 
-Under `mattpocock-skills`, the lock also records `copies`: the two skills copied into `skills/`. It records `requires`, the tools and the plugin that the skills need.
-
-Sources, licence notices and the reasons for each skill are in `docs/skills-sources.md`.
+Under `mattpocock-skills`, the lock also records `copies`: the two skills copied into `skills/`. It records `requires`, the tools and the plugin that the skills need. Sources, licence notices and the reasons for each skill are in `docs/skills-sources.md`.
 
 ### `.github/workflows/`
 
@@ -372,7 +376,7 @@ The playbooks are in `playbooks/`:
 - `togaf-feature-delivery.md`: new behavior in an existing codebase;
 - `togaf-bug-fix.md`: a defect with a known symptom.
 
-Each file has a `when:` line in its front matter that says when to use it. Each playbook has a "Skills used" block. Those blocks name pstack skills. So a playbook runs as written only where pstack is installed. `bootstrap-project.sh` copies the playbooks into a project's `.agents/playbooks/`.
+Each file has a `when:` line in its front matter that says when to use it. Each playbook has a "Skills used" block. Those blocks name pstack skills, so a playbook runs as written only where pstack is installed. `bootstrap-project.sh` copies the playbooks into a project's `.agents/playbooks/`.
 
 ### pstack
 
@@ -395,12 +399,23 @@ The install needs the `claude` command. A pilot install ran in a copy of `sample
 
 ### Optional guardrail: `git-guardrails-claude-code`
 
-`git-guardrails-claude-code` is an opt-in Claude Code skill. It adds a hook that blocks dangerous git commands. Add it only to a project that needs it.
+`git-guardrails-claude-code` is an opt-in Claude Code skill from the mattpocock-skills source. It adds a hook that blocks dangerous git commands. Add it only to a project that needs it.
 
 - It blocks every `git push`, including `--force`. It also blocks `git reset --hard`, `git clean -f`, `git branch -D`, `git checkout .` and `git restore .`.
 - It needs `jq`. Without `jq`, the hook exits 0 and allows every command, including `git push`.
 - `doctor.sh` warns when `jq` is missing.
 - Do not add it to a project that needs `git push`. The feature playbook pushes and opens a pull request in its Step 7.
+
+## Limits
+
+- The kit is an early scaffold. The structure can change.
+- Only macOS ran the scripts and Claude Code. Linux, WSL, Git Bash and PowerShell results come from reading, or from CI that runs the scripts only.
+- No person has run OpenCode or Gemini CLI. Their rows in the support table come from documentation.
+- Codex CLI was checked in its program file only. It does not run the mods.
+- `behaviors/` has a provisional manifest format and no behavior.
+- The playbooks need pstack. Whether they work outside Claude Code is not verified.
+- Node has no recorded minimum version.
+- `ambition` declares no licence upstream. Whether its author permits redistribution is not confirmed.
 
 ## Concepts
 
@@ -414,3 +429,13 @@ The install needs the `claude` command. A pilot install ran in a copy of `sample
 - Manifest format for behaviors (see `behaviors/README.md`).
 - How a behavior deploys its parts to a target: copy, link, or plugin packaging.
 - How library content gets promoted from usage (for example, memory files) and reviewed.
+
+## Contributing
+
+Report a problem or propose a change as an issue at https://github.com/plaktoz/claude-mods/issues. Agents and people follow `AGENTS.md`. It sets how requirements, task lists, commits and documentation work. Write documents with the `ste-docs` skill.
+
+Before you change a script, the lock or a playbook, try the change on `sample/notes-cli`. That project is the pilot for the kit.
+
+## License
+
+The repository has no root `LICENSE` file, so the kit as a whole has no stated licence. These mods have their own `LICENSE` file, and each is MIT: `brain-dump`, `reflect` and `theme-cli`. The other mods and the own skills state no licence. The third-party sources keep their own licences. See `docs/skills-sources.md`.
