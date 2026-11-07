@@ -1,0 +1,59 @@
+name: upstream-check
+
+# Weekly check of the sources in skills.lock.json (mattpocock/skills, pstack).
+# It only reports. It changes no lock, branch or pull request.
+# When upstream moved, it opens one issue, or adds a comment to the open one.
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"   # Mondays 03:17 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run the check
+        id: check
+        run: |
+          set +e
+          bash scripts/check-upstream.sh > report.txt 2>&1
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+          cat report.txt
+
+      - name: Open or update the issue
+        if: steps.check.outputs.code == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Upstream check: a locked source moved"
+          {
+            echo "The weekly check found that a source in \`skills.lock.json\` moved upstream."
+            echo "Nothing was changed. The lock is the same as before."
+            echo
+            echo '```text'
+            cat report.txt
+            echo '```'
+            echo
+            echo "Run \`bash scripts/check-upstream.sh\` to repeat the check. Follow the recommended step."
+            echo "Only \`bash scripts/fetch-skills.sh --update\` changes the lock."
+          } > body.md
+          n="$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')"
+          if [ -n "$n" ]; then
+            gh issue comment "$n" --body-file body.md
+          else
+            gh issue create --title "$title" --body-file body.md
+          fi
+
+      - name: Fail when the check could not run
+        if: steps.check.outputs.code == '2' || steps.check.outputs.code == '3'
+        run: |
+          echo "check-upstream.sh exited ${{ steps.check.outputs.code }}: it could not run."
+          exit 1
