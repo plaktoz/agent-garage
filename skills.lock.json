@@ -1,0 +1,179 @@
+{
+  "version": 1,
+  "note": "Recorded, not pinned. Only scripts/fetch-skills.sh --update changes this file. Tree hashes are git tree ids: git rev-parse <commit>:<path>. calls = skills that the SKILL.md loads with the Skill tool. mentions = skills that the SKILL.md only names.",
+  "sources": {
+    "mattpocock-skills": {
+      "url": "https://github.com/mattpocock/skills.git",
+      "commit": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+      "commitDate": "2026-10-31",
+      "licence": "MIT, Copyright (c) 2026 Matt Pocock",
+      "skills": {
+        "codebase-design": {
+          "path": "skills/engineering/codebase-design",
+          "tree": "4cbe1c131e1ea54109cb1e4e5f3c505810db6606",
+          "calls": []
+        },
+        "domain-modeling": {
+          "path": "skills/engineering/domain-modeling",
+          "tree": "ea30ee454ba264543dbe40737973b1a5afb9f0e6",
+          "calls": []
+        },
+        "git-guardrails-claude-code": {
+          "path": "skills/misc/git-guardrails-claude-code",
+          "tree": "ceed97af09633b300826d0ca0b1464c527ec9a35",
+          "calls": []
+        },
+        "grill-me": {
+          "path": "skills/productivity/grill-me",
+          "tree": "3df14e2d3a89459bf300614be9247e3ce74798f8",
+          "calls": [
+            "grilling"
+          ]
+        },
+        "grill-with-docs": {
+          "path": "skills/engineering/grill-with-docs",
+          "tree": "eedaf2562c83155115e9c649fa3ecaac2e10e81d",
+          "calls": [
+            "domain-modeling",
+            "grilling"
+          ]
+        },
+        "grilling": {
+          "path": "skills/productivity/grilling",
+          "tree": "f551b6e0d219fdda0b6abf277f8f915b3127d1e9",
+          "calls": []
+        },
+        "improve-codebase-architecture": {
+          "path": "skills/engineering/improve-codebase-architecture",
+          "tree": "587147dd230da299cc5e84971cb0a33f6676f8a6",
+          "calls": [
+            "codebase-design",
+            "domain-modeling",
+            "grilling"
+          ]
+        },
+        "setup-matt-pocock-skills": {
+          "path": "skills/engineering/setup-matt-pocock-skills",
+          "tree": "b644b684781fd5baae57f6be000a180a4d4448d7",
+          "calls": [],
+          "mentions": [
+            "to-spec",
+            "to-tickets"
+          ]
+        },
+        "to-spec": {
+          "path": "skills/engineering/to-spec",
+          "tree": "136b9651747cfccbfbb7c50a6b0dfb757e7547d2",
+          "calls": []
+        },
+        "to-tickets": {
+          "path": "skills/engineering/to-tickets",
+          "tree": "2dee20ad722a31c04ededf9f2d83842473573045",
+          "calls": [],
+          "mentions": [
+            "setup-matt-pocock-skills"
+          ]
+        },
+        "writing-for-agents": {
+          "path": "skills/productivity/writing-for-agents",
+          "tree": "ad2925850efb8973a72d2e666f7a975f9a2d4a9b",
+          "calls": []
+        }
+      },
+      "copies": {
+        "note": "Copied unmodified into skills/ (own skills), not fetched. Fetch does not touch them. Re-copy by hand only, and say so in docs/skills-sources.md.",
+        "diagnosing-bugs": {
+          "from": "skills/engineering/diagnosing-bugs",
+          "tree": "5fdd6cc53385395441910b026c72d71768e993d4",
+          "destination": "skills/diagnosing-bugs",
+          "calls": [],
+          "mentions": []
+        },
+        "triage": {
+          "from": "skills/engineering/triage",
+          "tree": "4cb951d62ecccaed601cdc5f9a1b7b3d8a799635",
+          "destination": "skills/triage",
+          "calls": [
+            "grilling",
+            "domain-modeling"
+          ],
+          "mentions": [
+            "setup-matt-pocock-skills"
+          ]
+        }
+      }
+    },
+    "pstack-claude": {
+      "url": "https://github.com/michael-denyer/pstack-claude.git",
+      "commit": "7bad1ebc26faa268806bfbb84e5af55d178b68e4",
+      "version": "0.9.92",
+      "minimumVersion": "0.9.57",
+      "plugin": {
+        "path": "plugins/pstack",
+        "tree": "641b4c7800e49a24c25bcdf6dfa541d41ff65616"
+      },
+      "commitDate": "2026-10-17",
+      "note": "One entry for the whole plugin. Its skills route to each other. Upstream HEAD moves on; this is the version the playbook checker was tested on. Use --update to move it."
+    }
+  },
+  "requires": {
+    "note": "Not fetched. scripts/lib-deps.sh checks these, read only. A tool has level warn (doctor.sh warns when it is missing) or note. A plugin's minimumVersion and link come from its entry in sources.",
+    "tools": {
+      "git": {
+        "why": "The kit and the project checks need git. fetch-skills.sh needs it to fetch the locked skills.",
+        "level": "warn",
+        "link": "https://git-scm.com",
+        "usedBy": [
+          "scripts/fetch-skills.sh",
+          "scripts/doctor.sh"
+        ]
+      },
+      "node": {
+        "why": "fetch-skills.sh, doctor.sh and the installer read skills.lock.json with it. pstack's playbook checker (check-playbooks.mjs) needs it.",
+        "level": "note",
+        "link": "https://nodejs.org",
+        "usedBy": [
+          "scripts/fetch-skills.sh and scripts/doctor.sh (read the lock)",
+          "pstack check-playbooks.mjs"
+        ]
+      },
+      "jq": {
+        "why": "Without jq the git-guardrails hook cannot read the command, so it allows every git push.",
+        "level": "warn",
+        "link": "https://jqlang.github.io/jq/",
+        "usedBy": [
+          "git-guardrails-claude-code (its hook reads the command with jq)"
+        ]
+      },
+      "claude": {
+        "why": "Needed to read and install plugins. pstack is checked only when claude is installed.",
+        "level": "note",
+        "link": "https://claude.com/claude-code",
+        "usedBy": [
+          "scripts/bootstrap-project.sh --pstack",
+          "pstack (claude plugin commands)"
+        ]
+      },
+      "gh": {
+        "why": "Needed only for the GitHub tracker of to-spec and to-tickets.",
+        "level": "note",
+        "link": "https://cli.github.com",
+        "usedBy": [
+          "setup-matt-pocock-skills (GitHub issue tracker)"
+        ]
+      }
+    },
+    "plugins": {
+      "pstack": {
+        "id": "pstack@pstack-claude",
+        "source": "pstack-claude",
+        "marketplace": "pstack-claude",
+        "usedBy": [
+          "playbooks/togaf-app-delivery.md",
+          "playbooks/togaf-bug-fix.md",
+          "playbooks/togaf-feature-delivery.md"
+        ]
+      }
+    }
+  }
+}
