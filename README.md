@@ -88,7 +88,7 @@ The kit has five systems and four harnesses. Each cell says how it was checked. 
 
 | System | Claude Code | Codex CLI | OpenCode | Gemini CLI |
 |--------|-------------|-----------|----------|------------|
-| macOS | Run: the scripts under bash 3.2.57. `claude plugin validate` on the 7 marketplace mods exits 0 each. 4 mods show an author warning, 6 show an icon warning, and 4 report a missing LICENSE. `claude plugin test` on the 7 mods: 0 fail (2026-11-08). `install-mods.sh --list` on the real home shows all 7 installed. Not run: the install round trip in a temp home. Alfred through `claude -p --agent alfred` on 2026-11-03 | Program file read (Codex 0.164.0). Not run live: the login returns 401 | From vendor documentation, not run. Not installed | From vendor documentation, not run. Not installed |
+| macOS | Run: the scripts under bash 3.2.57. `claude plugin validate` on the 7 marketplace mods exits 0 each. 4 mods show an author warning, 6 show an icon warning, and 4 report a missing LICENSE. `claude plugin test` on the 7 mods: 0 fail (2026-11-08). `install-mods.sh --list` on the real home shows all 7 installed. Not run: the install round trip in a temp home. Alfred through `claude -p --agent alfred` on 2026-11-03 | Program file read (Codex 0.164.0). Install checked on 2026-11-08 in a temp project: `--agents` and `--codex` linked 17 skills; `--list` and `--uninstall` ran. Not run live: `codex login status` shows an API key, but its validity is unproven. No request sent | From vendor documentation, not run. Not installed | From vendor documentation, not run. Not installed |
 | Linux | Verified by reading. CI ran the scripts, not Claude Code | Verified by reading. Not run | From vendor documentation, not run | From vendor documentation, not run |
 | WSL | Verified by reading. The doctor WSL check ran only with simulated input | Verified by reading. Not run | From vendor documentation, not run | From vendor documentation, not run |
 | Git Bash (Windows) | Verified by reading. CI ran the scripts and a symbolic link probe on Windows, not Claude Code | Verified by reading. Not run | From vendor documentation, not run | From vendor documentation, not run |
@@ -170,12 +170,12 @@ On Windows, run it in Git Bash with Developer Mode on. The warning in "Windows" 
 
 ## Use with Codex CLI
 
-Codex CLI reads the same shared instructions and the same skills. It does not run the mods. The Codex 0.164.0 program file was checked. Codex was not run live, because this machine has no working Codex login.
+Codex CLI reads the same shared instructions and the same skills. It does not run the mods. The Codex 0.164.0 program file was checked. Codex was not run live. `codex login status` shows an API key, but it does not check the key. Codex checks the key only when a request is sent. No request was sent, because a request can cost money.
 
 | Part | Codex CLI |
 |------|-----------|
 | `AGENTS.md` | Works. Codex reads it. |
-| `skills/` and the locked skills | Works. Run `scripts/fetch-skills.sh`, then `bash scripts/install-skills.sh --agents`. The program file shows Codex reads `~/.agents/skills/` and a project's `.agents/skills/`. Not run live. |
+| `skills/` and the locked skills | Works. Run `scripts/fetch-skills.sh`, then `bash scripts/install-skills.sh --agents`. The program file contains the name `.agents/skills`. It does not show that Codex reads a project's `.agents/skills/`: that claim is not confirmed. Not run live. The install into a temp project linked 17 skills on 2026-11-08. |
 | `skills/unslop` | Works. `skills/unslop/agents/openai.yaml` turns off implicit use, so Codex runs it only when you name it. |
 | `agents/alfred.md` | Partly. `.codex/agents/alfred.toml` tells Codex to follow it. Not confirmed: that Codex loads agents from a project folder. If it does not, ask Codex to follow `agents/alfred.md`. |
 | `claude/mods/` | Does not work. Mods use Claude Code calls that Codex does not have. Do not add the marketplace in Codex. |

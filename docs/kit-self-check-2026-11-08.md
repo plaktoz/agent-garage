@@ -23,9 +23,9 @@ A claim in the kit's documents that a machine can test is tested in CI on every 
 These are open. The task that depends on each one stays `[ ]` until the user decides. Each one has a default that the agent would use if the user says "use the default".
 
 1. **Repo licence.** The README says there is no root `LICENSE`. Default: add no licence, and leave the README as it is. Task S5 depends on this.
-2. **Codex live run.** `codex login status` on 2026-11-08 shows an API key is configured, but it says authentication is checked only when a request is sent. No live request was sent, so whether the key works is not known. A live request can cost money. Default: do not send one, and keep Codex as "program file read, not run live". Task S7 depends on this.
+2. **Codex live run.** `codex login status` on 2026-11-08 shows an API key is configured, but it says authentication is checked only when a request is sent. No live request was sent, so whether the key works is not known. A live request can cost money. Default: do not send one, and keep Codex as "program file read, not run live". Task S7 depends on this. Default applied (S7, 2026-11-08): no live request was sent. The user has not decided whether to allow one.
 3. **`ambition` in the lock.** It declares no licence upstream. Default: keep it locked and fetched only. Task S9 depends on this.
-4. **Runners for OpenCode and Gemini CLI.** Neither command is on `PATH` on this Mac (`command -v` found only `codex` and `claude`). Default: keep both as "from vendor documentation, not run". Task S7 depends on this.
+4. **Runners for OpenCode and Gemini CLI.** Neither command is on `PATH` on this Mac (`command -v` found only `codex` and `claude`). Default: keep both as "from vendor documentation, not run". Task S7 depends on this. Default applied (S7, 2026-11-08): both stay "from vendor documentation, not run. Not installed".
 
 ## Tasks
 
@@ -107,9 +107,15 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   - Not verified: Linux, and Windows (`install-mods.ps1`).
   - Next: run step 2 from a plain terminal, with `REAL_HOME` set and checked, then update this entry.
 
-- [ ] **S7. Run the skill installs under each harness that can run here.** Branch: `docs/kit-self-check`. Depends on decision 2.
-  Do: for Codex, install with `--agents` into a temp project and check that the skill file is where Codex reads it. Send a live Codex request only if the user approves it under decision 2. For OpenCode and Gemini CLI, record "not run: not installed" unless decision 4 gives a runner.
-  Acceptance: the support table cell for each harness states the result of this run, or the reason it was not run.
+- [x] **S7. Run the skill installs under each harness that can run here.** Branch: `docs/s7-codex-install` (from `docs/kit-self-check` at `61fbb71`). Depends on decision 2. Result (2026-11-08, macOS): done with no live Codex request. Codex install checked in a temp project; OpenCode and Gemini CLI not run, not installed. Details below.
+  - Install, temp project `git init`ed, with `--agents`: exit 0, 17 `installed` lines. All 17 links resolve to a `SKILL.md`, and their targets are in this worktree (`skills/` or `.cache/`). `--list` after install: 17 `installed`. `--uninstall`: exit 0, 17 `removed`; `--list` after: 17 `missing`.
+  - `--codex` (alias): output identical to `--agents`; 17 `installed`, then 17 `removed` by `--uninstall`.
+  - Real `~/.agents/skills` (47 entries): the `ls -la` listing and the `stat` checksum (470723321) are identical before and after. The temp HOME was not used: the tool blocked `HOME=` in a worktree-isolated run. The `--project` install writes only under the project folder, so the real HOME was not written.
+  - Codex 0.164.0 (`/opt/homebrew/bin/codex`): `codex login status` says an API key is configured and "Authentication is checked when you send a request". No model request was sent. `codex --help`, `codex features list` and `codex features --help` were read. The binary names `.agents/skills` and a `user-agent-skills` root. It does not show a project `.agents/skills` string. Codex ships no docs.
+  - Not run: `codex debug prompt-input` renders the model prompt. Its help does not say it sends no request, so it was not run.
+  - OpenCode and Gemini CLI: `command -v` found neither. From vendor documentation, not run. Not installed.
+  - Checks: `bash scripts/check-claims.sh` exit 0, "34 claims checked, 0 stale." `bash scripts/doctor.sh` exit 1, "34 failure(s)", every one a `shadowed` line: the real `~/.agents/skills` and `~/.claude/skills` links point into the main checkout's `.cache` and `skills/`, not into this worktree. A run with `CLAUDE_SKILLS_DIR` set to an empty temp folder: exit 1, 17 `shadowed` lines under `~/.agents/skills`, and one warning that the temp folder holds no kit skill. A run with `HOME` set to a temp folder was blocked by the tool guard. Doctor reads only, so the real HOME was not changed.
+  - Not verified: a live Codex read of the skills; Codex loading a project `.agents/skills`; Windows and Linux (by reading only). The README support table and the Codex section are updated.
 
 - [ ] **S8. Add the drift checks to CI on all three systems.** Branch: `docs/kit-self-check`. Depends on S1, S3, S4.
   Do: add a job to `.github/workflows/ci.yml` that runs `scripts/check-claims.sh` and `scripts/check-skill-claims.sh` on `ubuntu-latest`, `macos-latest` and `windows-latest` (Git Bash). Add `pull_request` to the trigger if it is not already there, and add `push` for every branch, not only `main`.
