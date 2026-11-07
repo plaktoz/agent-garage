@@ -1,5 +1,5 @@
 # Install the mods of this repo as Claude Code plugins through its marketplace.
-# Usage: scripts\install-mods.ps1 [-Scope user|project|local] [-Uninstall] [-List] [mod-name ...]
+# Usage: claude\scripts\install-mods.ps1 [-Scope user|project|local] [-Uninstall] [-List] [mod-name ...]
 # -Scope project installs into the folder you run this from, not into this repo.
 param(
   [ValidateSet('user', 'project', 'local')][string]$Scope = 'user',
@@ -9,7 +9,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 
-$repo = Split-Path -Parent $PSScriptRoot
+$repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $market = 'claude-mods'
 $manifest = Join-Path $repo '.claude-plugin/marketplace.json'
 
@@ -18,11 +18,11 @@ if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
   exit 1
 }
 
-# A mod is a folder in mods/ that the marketplace manifest lists.
+# A mod is a folder in claude/mods/ that the marketplace manifest lists.
 if ($Names.Count -eq 0) {
   $text = Get-Content -Raw $manifest
-  $Names = Get-ChildItem (Join-Path $repo 'mods') -Directory |
-    Where-Object { $text.Contains("`"./mods/$($_.Name)`"") } |
+  $Names = Get-ChildItem (Join-Path $repo 'claude/mods') -Directory |
+    Where-Object { $text.Contains("`"./claude/mods/$($_.Name)`"") } |
     ForEach-Object Name
 }
 

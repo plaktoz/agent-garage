@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Install the mods of this repo as Claude Code plugins through its marketplace.
-# Usage: scripts/install-mods.sh [--scope user|project|local] [--uninstall] [--list] [mod-name ...]
+# Usage: claude/scripts/install-mods.sh [--scope user|project|local] [--uninstall] [--list] [mod-name ...]
 # --scope project installs into the folder you run this from, not into this repo.
 set -euo pipefail
 
-repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 market=claude-mods
 manifest="$repo/.claude-plugin/marketplace.json"
 mode=install
@@ -28,11 +28,11 @@ if ! command -v claude >/dev/null 2>&1; then
   exit 1
 fi
 
-# A mod is a folder in mods/ that the marketplace manifest lists.
+# A mod is a folder in claude/mods/ that the marketplace manifest lists.
 if [ "${#names[@]}" -eq 0 ]; then
-  for dir in "$repo"/mods/*/; do
+  for dir in "$repo"/claude/mods/*/; do
     name="$(basename "$dir")"
-    grep -qF "\"./mods/$name\"" "$manifest" && names+=("$name")
+    grep -qF "\"./claude/mods/$name\"" "$manifest" && names+=("$name")
   done
 fi
 

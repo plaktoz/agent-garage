@@ -218,7 +218,7 @@ On Windows PowerShell, run this command:
 cd $HOME\Developer\claude-mods
 ```
 
-On Windows, `scripts\install-mods.ps1` does the marketplace steps in 5.5 for you. See the root `README.md`. The Windows steps in this document are not tested.
+On Windows, `claude\scripts\install-mods.ps1` does the marketplace steps in 5.5 for you. See the root `README.md`. The Windows steps in this document are not tested.
 
 ### 5.2 Choose a method
 
@@ -234,7 +234,7 @@ On Windows, `scripts\install-mods.ps1` does the marketplace steps in 5.5 for you
 2. Start Claude Code with the flag:
 
    ```bash
-   claude --plugin-dir mods/cache-warm
+   claude --plugin-dir claude/mods/cache-warm
    ```
 
 3. Do the check in 5.6.
@@ -247,7 +247,7 @@ On Windows, `scripts\install-mods.ps1` does the marketplace steps in 5.5 for you
    ```json
    {
      "env": {
-       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/mods/cache-warm"
+       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/cache-warm"
      }
    }
    ```
@@ -256,7 +256,7 @@ On Windows, `scripts\install-mods.ps1` does the marketplace steps in 5.5 for you
 4. Save the file. Start a new Claude Code session.
 5. Do the check in 5.6.
 
-On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Use forward slashes in the path, for example `C:/Users/your-name/Developer/claude-mods/mods/cache-warm`. Or double each backslash in the JSON. In PowerShell, run `(Get-Location).Path` in the repository root to print the path. This Windows step is not tested.
+On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Use forward slashes in the path, for example `C:/Users/your-name/Developer/claude-mods/claude/mods/cache-warm`. Or double each backslash in the JSON. In PowerShell, run `(Get-Location).Path` in the repository root to print the path. This Windows step is not tested.
 
 To remove the mod from every session, delete the line and start a new session.
 
@@ -286,10 +286,10 @@ Add the marketplace with the repository URL. Do not use the GitHub link to `.cla
 
 To use your copy of the repository instead, run the install script from the repository root. The script points the marketplace at your copy. Run one of these commands:
 
-- Linux, macOS, or Git Bash: `bash scripts/install-mods.sh cache-warm`
-- Windows PowerShell: `powershell -ExecutionPolicy Bypass -File scripts\install-mods.ps1 cache-warm`
+- Linux, macOS, or Git Bash: `bash claude/scripts/install-mods.sh cache-warm`
+- Windows PowerShell: `powershell -ExecutionPolicy Bypass -File claude\scripts\install-mods.ps1 cache-warm`
 
-To remove the mod, run `bash scripts/install-mods.sh --uninstall cache-warm`. The Windows PowerShell script uses `-Uninstall`. These Windows commands are not tested.
+To remove the mod, run `bash claude/scripts/install-mods.sh --uninstall cache-warm`. The Windows PowerShell script uses `-Uninstall`. These Windows commands are not tested.
 
 ### 5.6 Check that the install worked
 
@@ -326,7 +326,7 @@ To validate means to check that the mod works as this document says. There are t
 2. Run:
 
    ```bash
-   claude plugin validate mods/cache-warm
+   claude plugin validate claude/mods/cache-warm
    ```
 
 3. Read the last line of the output.
@@ -359,7 +359,7 @@ If the output lists a hook or a call not in this list, the code and this documen
 2. Run:
 
    ```bash
-   claude plugin test mods/cache-warm
+   claude plugin test claude/mods/cache-warm
    ```
 
 3. Check the last lines.
@@ -417,7 +417,7 @@ Do this once after you install. Use `ttl` = `5m`, the default, so that you wait 
 | `claude: command not found` | Claude Code is not installed, or the terminal cannot find it. | Install Claude Code. Open a new terminal. |
 | `claude plugin validate` shows `File not found` | You are not in the repository root. | Run `pwd`. Run `cd` to the repository root. Run the command again. |
 | `✘ Validation failed` | A file of the mod has an error. | Read the lines under the `✘ Found` heading. Fix the file they name. |
-| No band after you send a prompt | The mod did not load. | Run `claude plugin validate mods/cache-warm` from the repository root. Read any `✘` line. Check that the path in the flag or the setting is correct. |
+| No band after you send a prompt | The mod did not load. | Run `claude plugin validate claude/mods/cache-warm` from the repository root. Read any `✘` line. Check that the path in the flag or the setting is correct. |
 | No band after you send a prompt, and no error | The last turn gave no usage data, for example because you interrupted it. | Send a new prompt. Wait for the full answer. |
 | The band shows `Pinging to keep the cache warm…` for more than 30 seconds | The ping has not ended. The timeout should end it within 30 seconds. | Send a new prompt. Wait for the full answer. Tell the owner of the mod how long the text stayed. |
 | The band disappears after about 30 seconds of pinging. No toast says why. | The ping got no reply within 30 seconds. The mod writes one line to the debug log. | Send a new prompt. The next reply starts the cache timer again. |

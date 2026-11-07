@@ -384,7 +384,7 @@ The script uses no sample from any game. The script does not read `theme.json`.
 Run `/theme-new mario` first. The template names four files in `assets`, and the script writes files with those names:
 
 ```bash
-python3 -I mods/theme-cli/scripts/make-mario-sounds.py --out ~/.claude/theme-cli/themes/mario/assets
+python3 -I claude/mods/theme-cli/scripts/make-mario-sounds.py --out ~/.claude/theme-cli/themes/mario/assets
 ```
 
 In this check the script printed these lines and exited with 0:
@@ -485,7 +485,7 @@ On Windows PowerShell, the same step is:
 cd $HOME\Developer\claude-mods
 ```
 
-On Windows, `scripts\install-mods.ps1` installs the mods through the marketplace. See section 5.5 and the root `README.md`.
+On Windows, `claude\scripts\install-mods.ps1` installs the mods through the marketplace. See section 5.5 and the root `README.md`.
 
 ### 5.2 Choose a method
 
@@ -501,7 +501,7 @@ On Windows, `scripts\install-mods.ps1` installs the mods through the marketplace
 2. Start Claude Code with the flag:
 
    ```bash
-   claude --plugin-dir mods/theme-cli
+   claude --plugin-dir claude/mods/theme-cli
    ```
 
 3. Do the check in 5.6.
@@ -516,14 +516,14 @@ This check did not test whether Claude Code reloads the mod after a file changes
    ```json
    {
      "env": {
-       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/mods/theme-cli"
+       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/theme-cli"
      }
    }
    ```
 
 3. Replace `/Users/your-name/Developer/claude-mods` with the real path to your repository. To print the path, run `pwd` in the repository root.
 
-   On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Write the path with forward slashes, for example `C:/Users/your-name/Developer/claude-mods/mods/theme-cli`, or double each backslash in the JSON. In PowerShell, `(Get-Location).Path` prints the path of the repository root. The Windows form was not tested.
+   On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Write the path with forward slashes, for example `C:/Users/your-name/Developer/claude-mods/claude/mods/theme-cli`, or double each backslash in the JSON. In PowerShell, `(Get-Location).Path` prints the path of the repository root. The Windows form was not tested.
 4. Save the file. Start a new Claude Code session.
 5. Do the check in 5.6.
 
@@ -574,13 +574,13 @@ The install scripts do the same steps. They add this repository as the marketpla
 2. Run the script for your system, and name the mod:
 
    ```bash
-   scripts/install-mods.sh theme-cli
+   claude/scripts/install-mods.sh theme-cli
    ```
 
    On Windows PowerShell, run this instead:
 
    ```powershell
-   scripts\install-mods.ps1 theme-cli
+   claude\scripts\install-mods.ps1 theme-cli
    ```
 
 The shell script accepts `--scope user`, `--scope project` or `--scope local`, `--list` and `--uninstall`. The PowerShell script accepts `-Scope user`, `-Scope project` or `-Scope local`, `-List` and `-Uninstall`. The default scope is `user`. `--scope project` installs into the folder where you run the script, not into this repository.
@@ -632,7 +632,7 @@ To validate means to prove that the mod works as this document says. There are f
 2. Run:
 
    ```bash
-   claude plugin validate mods/theme-cli
+   claude plugin validate claude/mods/theme-cli
    ```
 
 3. Read the last line of the output.
@@ -671,7 +671,7 @@ If the output lists a hook or call that is not in this list, the code and this d
 2. Run:
 
    ```bash
-   claude plugin test mods/theme-cli
+   claude plugin test claude/mods/theme-cli
    ```
 
 3. **Expected result:** the last lines are `42 pass` and `0 fail`. The runner reports 13 tests in `register.test.tsx`, 21 in `theme.test.tsx` and 8 in `winaudio.test.tsx`.
@@ -684,7 +684,7 @@ In this check, the output ended with these lines, and the exit code was 0:
 Ran 42 tests across 3 files. [1.30s]
 ```
 
-Do not use `bun test` for these tests. In this check, `bun test` in `mods/theme-cli` printed this error: `error: Cannot find module 'claude-code/testing'`. The output then ended with these lines, and the exit code was 1:
+Do not use `bun test` for these tests. In this check, `bun test` in `claude/mods/theme-cli` printed this error: `error: Cannot find module 'claude-code/testing'`. The output then ended with these lines, and the exit code was 1:
 
 ```text
  0 pass
@@ -705,7 +705,7 @@ If a test fails, the output shows the test name and the reason. Find the test na
 2. Run the script on the theme folder. Replace `castle` with your theme name:
 
    ```bash
-   python3 -I mods/theme-cli/scripts/build-theme.py --theme ~/.claude/theme-cli/themes/castle --out /tmp/theme-check.json --height 8
+   python3 -I claude/mods/theme-cli/scripts/build-theme.py --theme ~/.claude/theme-cli/themes/castle --out /tmp/theme-check.json --height 8
    ```
 
 3. **Expected result:** the output is `built N frames to /tmp/theme-check.json`. N is the number of frames in `theme.json`.
@@ -824,9 +824,9 @@ For the companion color row, list one frame for each slot in `cast.companion.fra
 
 A type-check finds mistakes in the code types. It needs `tsc`, the TypeScript compiler. The file `tsconfig.json` extends `.claude-plugin/types/tsconfig.json`. The repository ignores the folder `mods/*/.claude-plugin/types/` (see `.gitignore`). The folder existed in this check. Who creates it was not checked.
 
-Run `npx -y -p typescript@5.6 tsc -p mods/theme-cli`. **Expected result:** no output and exit code 0.
+Run `npx -y -p typescript@5.6 tsc -p claude/mods/theme-cli`. **Expected result:** no output and exit code 0.
 
-In this check, that command printed nothing and exited with 0, run from the repository root. A second run with `typescript@5.6.3` inside `mods/theme-cli`, using `tsconfig.json`, also printed nothing and exited with 0. Both runs were on macOS.
+In this check, that command printed nothing and exited with 0, run from the repository root. A second run with `typescript@5.6.3` inside `claude/mods/theme-cli`, using `tsconfig.json`, also printed nothing and exited with 0. Both runs were on macOS.
 
 ## 7. Known limits
 

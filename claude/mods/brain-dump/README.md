@@ -216,7 +216,7 @@ On Windows PowerShell, the same step is:
 cd $HOME\Developer\claude-mods
 ```
 
-On Windows, `scripts\install-mods.ps1` installs every mod through the marketplace. It does not use the steps in 5.3 and 5.4. See 5.5 and the root `README.md`.
+On Windows, `claude\scripts\install-mods.ps1` installs every mod through the marketplace. It does not use the steps in 5.3 and 5.4. See 5.5 and the root `README.md`.
 
 ### 5.2 Choose a method
 
@@ -232,7 +232,7 @@ On Windows, `scripts\install-mods.ps1` installs every mod through the marketplac
 2. Start Claude Code with the flag:
 
    ```bash
-   claude --plugin-dir mods/brain-dump
+   claude --plugin-dir claude/mods/brain-dump
    ```
 
 3. Do the check in 5.6.
@@ -247,14 +247,14 @@ To load a change to the mod, start a new session.
    ```json
    {
      "env": {
-       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/mods/brain-dump"
+       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/brain-dump"
      }
    }
    ```
 
 3. Replace `/Users/your-name/Developer/claude-mods` with the real path to your repository. To print the path, run `pwd` in the repository root.
 
-   On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Write the path with forward slashes, for example `C:/Users/your-name/Developer/claude-mods/mods/brain-dump`, or double each backslash in the JSON. In PowerShell, `(Get-Location).Path` prints the path of the current folder. Run it in the repository root.
+   On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Write the path with forward slashes, for example `C:/Users/your-name/Developer/claude-mods/claude/mods/brain-dump`, or double each backslash in the JSON. In PowerShell, `(Get-Location).Path` prints the path of the current folder. Run it in the repository root.
 4. Save the file. Start a new Claude Code session.
 5. Do the check in 5.6.
 
@@ -284,13 +284,13 @@ Add the marketplace with the repository URL. Do not use the GitHub link to `.cla
 To install from your own clone of this repository, run one script from the repository root. The script points the `claude-mods` marketplace at your clone. It installs the mod that you name, and it makes no symlinks:
 
 ```bash
-bash scripts/install-mods.sh brain-dump
+bash claude/scripts/install-mods.sh brain-dump
 ```
 
 Windows PowerShell:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\install-mods.ps1 brain-dump
+powershell -ExecutionPolicy Bypass -File claude\scripts\install-mods.ps1 brain-dump
 ```
 
 Then restart Claude Code.
@@ -301,7 +301,7 @@ To uninstall, run:
 claude plugin uninstall brain-dump@claude-mods --scope user
 ```
 
-Or run `bash scripts/install-mods.sh --uninstall brain-dump`.
+Or run `bash claude/scripts/install-mods.sh --uninstall brain-dump`.
 
 ### 5.6 Check that the install worked
 
@@ -317,7 +317,7 @@ If no dialog appears, see the table in 6.5.
 
 ### 5.7 Change the fixed values
 
-1. Open `mods/brain-dump/hooks/register.ts` in a text editor.
+1. Open `claude/mods/brain-dump/hooks/register.ts` in a text editor.
 2. Change the number after `MIN_CHARS =` (line 4) or `MAX_QUESTIONS =` (line 5).
 3. Save the file. Start a new session to load the change.
 4. Run the tests (see 6.2). The test prompt has 616 characters. A `MIN_CHARS` above 616 fails the first test. The test at line 21 expects 3 questions. A `MAX_QUESTIONS` value other than 3 fails that test.
@@ -340,7 +340,7 @@ To validate means to prove that the mod works as this document says. There are t
 2. Run:
 
    ```bash
-   claude plugin validate mods/brain-dump
+   claude plugin validate claude/mods/brain-dump
    ```
 
 3. Read the last line of the output.
@@ -373,7 +373,7 @@ If the output lists a hook or a call that is not in this list, the code and this
 2. Run:
 
    ```bash
-   claude plugin test mods/brain-dump
+   claude plugin test claude/mods/brain-dump
    ```
 
 3. **Expected result:** the last lines are `10 pass` and `0 fail`. The real run on 2026-10-25 with Claude Code 2.1.310 printed:
@@ -433,7 +433,7 @@ The tests do not cover a failed classify, a failed or timed-out question request
 | `claude: command not found` | Claude Code is not installed, or the terminal cannot find it. | Install Claude Code. Open a new terminal. |
 | `claude plugin validate` prints `File not found` | You are not in the repository root, or the path is wrong. | Run `pwd`. Run `cd` to the repository root. Try again. |
 | Validation fails | A file of the mod has an error. | Read the `✘` lines and the `❯` lines above the last line. Fix the file they name. |
-| No dialog after you send a long prompt | The mod did not load, or a model request failed. The mod shows no message for a failed request. | Check that the path in the flag or the setting is correct. Run `claude plugin validate mods/brain-dump`. Send the sample prompt again. |
+| No dialog after you send a long prompt | The mod did not load, or a model request failed. The mod shows no message for a failed request. | Check that the path in the flag or the setting is correct. Run `claude plugin validate claude/mods/brain-dump`. Send the sample prompt again. |
 | No dialog, but no error | The prompt is shorter than 400 characters, you did not type it (for example, it came from a command), or the model said it is clear. | Send a longer and less clear prompt. |
 | Only the final dialog appears, with no question | The question request gave no question, or it had no answer (for example, a 20-second timeout). | None needed. The mod goes on to the rewrite. |
 | A long wait, then the prompt is sent as typed | The classify request failed, or the rewrite request failed or ran out of time (60 seconds). | Send the prompt again. |
@@ -444,7 +444,7 @@ The tests do not cover a failed classify, a failed or timed-out question request
 
 A type-check finds mistakes in the code types. It needs `tsc`, the TypeScript program. `tsc` is not on the PATH in the environment where this document was checked, so this check was **not run**.
 
-The file `tsconfig.json` of this mod extends `.claude-plugin/types/tsconfig.json`. The folder `mods/brain-dump/.claude-plugin/types/` is not in this repository. So this check cannot run from the repository as it is now.
+The file `tsconfig.json` of this mod extends `.claude-plugin/types/tsconfig.json`. The folder `claude/mods/brain-dump/.claude-plugin/types/` is not in this repository. So this check cannot run from the repository as it is now.
 
 ## 7. Known limits
 

@@ -227,7 +227,7 @@ This review did not run any Windows or Linux step. There is no OS-specific code 
 ### 5.3 Method A: try the mod for one session
 
 1. Open a terminal. Go to the repository root.
-2. Start Claude Code with this flag: `claude --plugin-dir mods/screen-share`.
+2. Start Claude Code with this flag: `claude --plugin-dir claude/mods/screen-share`.
 3. Do the check in 5.6.
 
 This review did not start a session with this flag.
@@ -235,7 +235,7 @@ This review did not start a session with this flag.
 ### 5.4 Method B: load the mod in every session
 
 1. Open the file `~/.claude/settings.json` in a text editor.
-2. Add the full path of the mod folder to an `env` block. The line is `"CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/mods/screen-share"`.
+2. Add the full path of the mod folder to an `env` block. The line is `"CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/screen-share"`.
 3. Replace `/Users/your-name/Developer/claude-mods` with the real path to your repository.
 4. Save the file. Start a new Claude Code session.
 5. Do the check in 5.6.
@@ -245,7 +245,7 @@ The file has this shape:
 ```json
 {
   "env": {
-    "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/mods/screen-share"
+    "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/screen-share"
   }
 }
 ```
@@ -287,7 +287,7 @@ This mod has no settings in `/config`. To change a value, see section 4.
 Run this command from the repository root:
 
 ```bash
-claude plugin validate mods/screen-share
+claude plugin validate claude/mods/screen-share
 ```
 
 The last lines of the real output in this review:
@@ -310,7 +310,7 @@ The output also lists the hooks, calls and state keys that the module uses.
 Run this command from the repository root:
 
 ```bash
-claude plugin test mods/screen-share
+claude plugin test claude/mods/screen-share
 ```
 
 The last lines of the real output in this review:

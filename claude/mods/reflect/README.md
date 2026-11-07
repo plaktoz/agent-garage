@@ -216,7 +216,7 @@ The Windows steps in this document are not tested.
 2. Start Claude Code with the flag:
 
    ```bash
-   claude --plugin-dir mods/reflect
+   claude --plugin-dir claude/mods/reflect
    ```
 
 3. Do the check in 5.6.
@@ -229,7 +229,7 @@ The Windows steps in this document are not tested.
    ```json
    {
      "env": {
-       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/mods/reflect"
+       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/reflect"
      }
    }
    ```
@@ -238,7 +238,7 @@ The Windows steps in this document are not tested.
 4. Save the file. Start a new Claude Code session.
 5. Do the check in 5.6.
 
-On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Use forward slashes in the path, for example `C:/Users/your-name/Developer/claude-mods/mods/reflect`. Or double each backslash in the JSON.
+On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Use forward slashes in the path, for example `C:/Users/your-name/Developer/claude-mods/claude/mods/reflect`. Or double each backslash in the JSON.
 
 To remove the mod from every session, delete the line and start a new session.
 
@@ -268,10 +268,10 @@ Add the marketplace with the repository URL. Do not use the GitHub link to `.cla
 
 To use your copy of the repository instead, run the install script from the repository root. Run one of these commands:
 
-- Linux, macOS, or Git Bash: `bash scripts/install-mods.sh reflect`
-- Windows PowerShell: `powershell -ExecutionPolicy Bypass -File scripts\install-mods.ps1 reflect`
+- Linux, macOS, or Git Bash: `bash claude/scripts/install-mods.sh reflect`
+- Windows PowerShell: `powershell -ExecutionPolicy Bypass -File claude\scripts\install-mods.ps1 reflect`
 
-To remove the mod, run `bash scripts/install-mods.sh --uninstall reflect`. The Windows PowerShell script uses `-Uninstall`. Neither script was run for this review.
+To remove the mod, run `bash claude/scripts/install-mods.sh --uninstall reflect`. The Windows PowerShell script uses `-Uninstall`. Neither script was run for this review.
 
 ### 5.6 Check that the install worked
 
@@ -310,7 +310,7 @@ To validate means to check that the mod works as this document says. There are t
 2. Run:
 
    ```bash
-   claude plugin validate mods/reflect
+   claude plugin validate claude/mods/reflect
    ```
 
 3. Read the last line of the output.
@@ -354,7 +354,7 @@ If the output lists a hook or a call not in this list, the code and this documen
 2. Run:
 
    ```bash
-   claude plugin test mods/reflect
+   claude plugin test claude/mods/reflect
    ```
 
 3. Check the last lines.
@@ -453,7 +453,7 @@ Writer tests, in `hooks/save.test.ts`:
 | `claude: command not found` | Claude Code is not installed, or the terminal cannot find it. | Install Claude Code. Open a new terminal. |
 | `claude plugin validate` shows `File not found` | You are not in the repository root. | Run `pwd`. Run `cd` to the repository root. Run the command again. |
 | `✘ Validation failed` | A file of the mod has an error. | Read the lines under the `✘ Found` heading. Fix the file they name. |
-| No pop-up after a prompt with a rule | The mod did not load. | Run `claude plugin validate mods/reflect` from the repository root. Read any `✘` line. Check that the path in the flag or the setting is correct. |
+| No pop-up after a prompt with a rule | The mod did not load. | Run `claude plugin validate claude/mods/reflect` from the repository root. Read any `✘` line. Check that the path in the flag or the setting is correct. |
 | No pop-up after a prompt with a rule, and no error | The prompt has no cue word, or it is longer than 1000 characters. Or the turn did not end with an answer. | Use a cue word from the list in section 4. Keep the prompt short. Send a new prompt and wait for the full answer. |
 | No pop-up, and the cue word is in the prompt | Haiku said NONE, the call failed, or the rule was handled before in this session. The mod writes no log line for these cases. | Start a new session to ask again. Use a clearer rule, such as one that starts with `never` or `always`. |
 | The pop-up has no `Project CLAUDE.md` option | `toProjectClaudeMd` is off. | Turn it on in `/config`, then start a new session. |

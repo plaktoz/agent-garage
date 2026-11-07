@@ -213,7 +213,7 @@ No install has been run on Windows.
 | B. Marketplace, project scope | You want the mod in one project, for everyone who opens it. | Until you remove it |
 | C. Flag `--plugin-dir` | You want to try the mod. | One session |
 
-To install from your clone, run `claude plugin marketplace add /path/to/claude-mods` in place of step 2 of 5.3. The scripts `scripts/install-mods.sh` and `scripts/install-mods.ps1` install every mod. See the root `README.md`.
+To install from your clone, run `claude plugin marketplace add /path/to/claude-mods` in place of step 2 of 5.3. The scripts `claude/scripts/install-mods.sh` and `claude/scripts/install-mods.ps1` install every mod. See the root `README.md`.
 
 ### 5.3 Method A: install for every folder
 
@@ -264,7 +264,7 @@ Add the marketplace with the repository URL. Do not use the GitHub link to `.cla
 2. Start Claude Code with this flag:
 
    ```bash
-   claude --plugin-dir mods/switchboard
+   claude --plugin-dir claude/mods/switchboard
    ```
 
 The pane does not list this mod itself. Its scope is `session`, and the pane shows no `session` plugins (section 3.1).
@@ -287,8 +287,8 @@ To validate means to prove that the mod works as this document says. There are t
 
 | Level | What it proves | Command | Model request |
 |-------|----------------|---------|---------------|
-| 1. Validate | The files are correct. The engine reads the mod. | `claude plugin validate mods/switchboard` | No |
-| 2. Test | The five tests pass. They cover the empty pane, one stored row, a failed switch, a list that is not an array, and a refresh that rejects. | `claude plugin test mods/switchboard` | No |
+| 1. Validate | The files are correct. The engine reads the mod. | `claude plugin validate claude/mods/switchboard` | No |
+| 2. Test | The five tests pass. They cover the empty pane, one stored row, a failed switch, a list that is not an array, and a refresh that rejects. | `claude plugin test claude/mods/switchboard` | No |
 | 3. Live check | The pane lists plugins, and a switch works in a real session. | The steps in 6.3 | No |
 
 ### 6.1 Level 1: validate the files
@@ -297,7 +297,7 @@ To validate means to prove that the mod works as this document says. There are t
 2. Run:
 
    ```bash
-   claude plugin validate mods/switchboard
+   claude plugin validate claude/mods/switchboard
    ```
 
 3. Read the last line of the output.
@@ -328,7 +328,7 @@ The output also lists what the mod uses. Compare it with this list:
 
 If the output lists an unknown hook or call, the code and this document differ. Tell the owner of the mod.
 
-The directory profile checks what a plugin directory accepts. Run it with `claude plugin validate mods/switchboard --profile directory`. The run on 2026-10-25 printed `✘ Validation failed (--profile directory: the plugin directory would refuse a submission of this plugin)`. The problem is `LICENSE: License missing`. The warning is `ICON_MISSING`. This profile is not part of the install check.
+The directory profile checks what a plugin directory accepts. Run it with `claude plugin validate claude/mods/switchboard --profile directory`. The run on 2026-10-25 printed `✘ Validation failed (--profile directory: the plugin directory would refuse a submission of this plugin)`. The problem is `LICENSE: License missing`. The warning is `ICON_MISSING`. This profile is not part of the install check.
 
 ### 6.2 Level 2: run the tests
 
@@ -336,7 +336,7 @@ The directory profile checks what a plugin directory accepts. Run it with `claud
 2. Run:
 
    ```bash
-   claude plugin test mods/switchboard
+   claude plugin test claude/mods/switchboard
    ```
 
 3. **Expected result:** the last lines are `5 pass` and `0 fail`. The run on 2026-10-25 printed these last lines:

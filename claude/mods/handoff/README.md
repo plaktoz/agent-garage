@@ -249,7 +249,7 @@ On Windows PowerShell, the same step is:
 cd $HOME\Developer\claude-mods
 ```
 
-On Windows, `scripts\install-mods.ps1` installs the mods through the marketplace. It needs none of the steps in 5.3 or 5.4. See the root `README.md`. This review did not run any Windows step in this document.
+On Windows, `claude\scripts\install-mods.ps1` installs the mods through the marketplace. It needs none of the steps in 5.3 or 5.4. See the root `README.md`. This review did not run any Windows step in this document.
 
 ### 5.2 Choose a method
 
@@ -265,7 +265,7 @@ On Windows, `scripts\install-mods.ps1` installs the mods through the marketplace
 2. Start Claude Code with this flag:
 
    ```bash
-   claude --plugin-dir mods/handoff
+   claude --plugin-dir claude/mods/handoff
    ```
 
 3. Do the check in 5.6.
@@ -280,7 +280,7 @@ This review did not check whether a file change reloads the mod in an open sessi
    ```json
    {
      "env": {
-       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/mods/handoff"
+       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/handoff"
      }
    }
    ```
@@ -291,7 +291,7 @@ This review did not check whether a file change reloads the mod in an open sessi
 
 To remove the mod, delete the line. Start a new session.
 
-On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Write the path with forward slashes, for example `C:/Users/your-name/Developer/claude-mods/mods/handoff`. Or double each backslash in the JSON. In PowerShell, `(Get-Location).Path` prints the current folder. Run it in the repository root. This review did not test these Windows values.
+On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Write the path with forward slashes, for example `C:/Users/your-name/Developer/claude-mods/claude/mods/handoff`. Or double each backslash in the JSON. In PowerShell, `(Get-Location).Path` prints the current folder. Run it in the repository root. This review did not test these Windows values.
 
 ### 5.5 Method C: marketplace
 
@@ -323,7 +323,7 @@ To use your clone, add the marketplace from its path. Use this when your branch 
 claude plugin marketplace add /path/to/claude-mods
 ```
 
-The scripts in `scripts/` run these steps for you. Run `scripts/install-mods.sh handoff` on Linux, macOS or Git Bash. Run `powershell -ExecutionPolicy Bypass -File scripts\install-mods.ps1 handoff` in PowerShell. See the root `README.md`.
+The scripts in `scripts/` run these steps for you. Run `claude/scripts/install-mods.sh handoff` on Linux, macOS or Git Bash. Run `powershell -ExecutionPolicy Bypass -File claude\scripts\install-mods.ps1 handoff` in PowerShell. See the root `README.md`.
 
 This review did not run method C. It needs network access to GitHub and it changes your Claude Code setup.
 
@@ -356,7 +356,7 @@ To validate means to prove that the mod works as this document says. There are t
 2. Run:
 
    ```bash
-   claude plugin validate mods/handoff
+   claude plugin validate claude/mods/handoff
    ```
 
 3. Read the last line of the output.
@@ -392,7 +392,7 @@ If the output lists a hook or a call that is not in this list, the code and this
 2. Run:
 
    ```bash
-   claude plugin test mods/handoff
+   claude plugin test claude/mods/handoff
    ```
 
 3. **Expected result:** the last lines are `10 pass` and `0 fail`. The time in brackets varies.
@@ -467,7 +467,7 @@ A type check finds mistakes in the code types. It needs `tsc`, the TypeScript pr
 
 `tsconfig.json` extends `./.claude-plugin/types/tsconfig.json`. That folder does not exist in this clone. The commands `claude plugin validate` and `claude plugin test` did not create it during this review.
 
-To run the check, install TypeScript. Load the mod in a session one time. The engine should write the folder `.claude-plugin/types/`. Run `tsc -p mods/handoff`.
+To run the check, install TypeScript. Load the mod in a session one time. The engine should write the folder `.claude-plugin/types/`. Run `tsc -p claude/mods/handoff`.
 
 **Expected result:** no output and no errors. This result is not verified.
 
