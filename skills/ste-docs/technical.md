@@ -1,6 +1,6 @@
 # Technical profile
 
-Used by `ste-docs` (see `SKILL.md`, section 1). Use this profile when the subject is code or a tool: a mod, skill, agent, hook, script or library. The rules in `SKILL.md` also apply. This file adds the fixed layout, the code checks and the report items.
+Used by `ste-docs` (see `SKILL.md`, section 1). Use this profile when the subject is code or a tool: a mod, skill, agent, hook, script or library. The rules in `SKILL.md` also apply. This file adds the fixed layout, the code checks and the report items. The output is one file: `README.md`.
 
 Worked examples in this repo: `mods/cache-warm/README.md` and `mods/handoff/README.md`. Read them before the first use. Copy their structure. Do not copy their facts.
 
@@ -38,7 +38,7 @@ Sections 5 and 6 follow the pattern in the worked examples. Adapt the names to t
 
 ## 4. Extra checks
 
-Run these checks too. They extend the checks in `SKILL.md`, section 7. Report the real output.
+Run these checks too. They extend the checks in `SKILL.md`, section 6. Report the real output.
 
 1. Run the subject's validate command and test command, if it has them. Quote the last lines.
 2. Check each cited line number. Confirm that the name appears on that line.

@@ -17,7 +17,7 @@
 
 - A code review must read this file first. Report the known issues below as "KIV, known". Do not report them as new findings.
 - Do not start a fix or a docs pass for this mod without the user's go-ahead.
-- Do not write `README.html` or a full `ste-docs` README for this mod while it is KIV.
+- Do not write a full `ste-docs` README for this mod while it is KIV.
 - If the user lifts KIV, change the status line above, and the matching row in the root `README.md`.
 
 ## Known issues

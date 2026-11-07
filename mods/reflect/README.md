@@ -2,8 +2,6 @@
 
 A Claude Code mod. It finds a lasting rule in a prompt you type. After Claude replies, it asks where to save the rule.
 
-An HTML version of this document is in `README.html`. It has the same content and the same diagrams.
-
 To install the mod, go to section 5. To check that it works, go to section 6.
 
 ## 1. Purpose

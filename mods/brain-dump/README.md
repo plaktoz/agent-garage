@@ -2,8 +2,6 @@
 
 A Claude Code mod. It turns a long, messy prompt into a clear, structured prompt before Claude reads it.
 
-An HTML version of this document is in `README.html`. It has the same content and the same diagrams.
-
 To install the mod, go to section 5. To prove that it works, go to section 6.
 
 ## 1. Purpose

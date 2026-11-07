@@ -2,8 +2,6 @@
 
 A Claude Code mod. Pixel characters from your own images run along a strip above the prompt while Claude works.
 
-An HTML version of this document is in `README.html`. It has the same content as this file.
-
 To install the mod, go to section 5. To prove that it works, go to section 6.
 
 ## 1. Purpose
