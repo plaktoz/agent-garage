@@ -65,6 +65,7 @@ The top level holds what any agent can use. Everything that needs Claude Code is
 | Path | Works with | Purpose |
 |------|------------|---------|
 | `AGENTS.md` | Any agent | The shared instructions for every agent. `CLAUDE.md` imports it |
+| `LICENSE` | Any agent | The MIT licence of the repository |
 | `skills/` | Any agent that reads `SKILL.md` folders | The own skills (`<name>/SKILL.md`) |
 | `skills.lock.json` | Any agent | The third-party skills and plugins: source, commit, tree hash and minimum version. Only `scripts/fetch-skills.sh --update` changes it |
 | `.cache/` | Any agent. Git-ignored | The fetched copies of the locked sources, made by `scripts/fetch-skills.sh` |
@@ -351,7 +352,8 @@ Read only. It needs no network. It checks the claims that a machine can test:
 - each option in a script's usage text is named in its README section;
 - the exit codes that a script's `Exit status:` line gives are the codes its README section names;
 - each source named in a `--source` help line is a key under `sources` in `skills.lock.json`;
-- the sources table under `skills.lock.json` lists the same keys.
+- the sources table under `skills.lock.json` lists the same keys;
+- the License section agrees with the root `LICENSE` file. With the file, it names MIT. Without it, it says there is no root `LICENSE`.
 
 It prints one `FAIL` line for each stale claim, with the file and line. It exits 0 when no claim is stale, 1 when one is, and 2 when it cannot run.
 
@@ -454,4 +456,8 @@ Before you change a script, the lock or a playbook, try the change on `sample/no
 
 ## License
 
-The repository has no root `LICENSE` file, so the kit as a whole has no stated licence. These mods have their own `LICENSE` file, and each is MIT: `brain-dump`, `reflect` and `theme-cli`. The other mods and the own skills state no licence. The third-party sources keep their own licences. See `docs/skills-sources.md`.
+The repository is MIT licensed under the root `LICENSE` file. The copyright holder is plaktoz.
+
+- The mods `brain-dump`, `reflect` and `theme-cli` also keep their own MIT `LICENSE` file.
+- The third-party sources keep their own licences. See section 9 of `docs/skills-sources.md`.
+- `ambition` has no upstream licence. The kit fetches it and never copies it.
