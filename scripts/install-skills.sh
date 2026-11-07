@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install the skills of this repo as symlinks.
-# Usage: scripts/install-skills.sh [--agents | --codex] [--force] [--uninstall] [--list] [skill-name ...]
+# Usage: scripts/install-skills.sh [--project DIR] [--agents | --codex] [--force] [--uninstall] [--list] [skill-name ...]
 # Two sources: skills/ (own skills) and .cache/<source>/<path> for each skill in skills.lock.json
 # (fetched by scripts/fetch-skills.sh, git-ignored). Without .cache, the own skills are still
 # installed and the script says to run scripts/fetch-skills.sh.
@@ -9,7 +9,11 @@
 # --agents: target ~/.agents/skills, the harness-neutral folder. Codex, OpenCode and Gemini CLI
 #   read it, per pstack's README. Not run here for OpenCode or Gemini CLI.
 # --codex: an alias of --agents, with the same behaviour.
-# CLAUDE_SKILLS_DIR overrides the target folder.
+# --project DIR: install for one project. The target is DIR/.claude/skills (Claude Code, and
+#   OpenCode reads it at project level too). With --agents, the target is DIR/.agents/skills
+#   (Codex, OpenCode and Gemini CLI read it at project level, per their docs; not run here).
+#   DIR must exist. It does not have to be a git repository.
+# CLAUDE_SKILLS_DIR overrides the target folder. Do not use it with --project.
 # Before it links a skill that mentions a plugin named in skills.lock.json (requires.plugins), it
 # checks, read only, whether the computer already has that plugin (scripts/lib-deps.sh). It never
 # installs a plugin.
@@ -22,22 +26,40 @@ lock="$repo/skills.lock.json"
 agents=0
 force=0
 mode=install
+project=""
 names=()
 
-for arg in "$@"; do
-  case "$arg" in
+while [ "$#" -gt 0 ]; do
+  case "$1" in
     --agents | --codex) agents=1 ;;
     --force) force=1 ;;
     --uninstall) mode=uninstall ;;
     --list) mode=list ;;
-    -h | --help) sed -n '2,15p' "$0"; exit 0 ;;
-    -*) echo "Unknown option: $arg" >&2; exit 2 ;;
-    *) names+=("$arg") ;;
+    --project)
+      [ "$#" -ge 2 ] || { echo "error: --project needs a folder" >&2; exit 2; }
+      project="$2"
+      shift ;;
+    -h | --help) sed -n '2,/^set -euo pipefail/p' "$0" | sed '$d'; exit 0 ;;
+    -*) echo "Unknown option: $1" >&2; exit 2 ;;
+    *) names+=("$1") ;;
   esac
+  shift
 done
 
-if [ "$agents" -eq 1 ]; then default_dest="$HOME/.agents/skills"; else default_dest="$HOME/.claude/skills"; fi
-dest="${CLAUDE_SKILLS_DIR:-$default_dest}"
+# proj_root is the project that dependency checks look at: the --project folder, else the current folder.
+proj_root="$PWD"
+if [ -n "$project" ]; then
+  if [ -n "${CLAUDE_SKILLS_DIR:-}" ]; then
+    echo "error: use --project or CLAUDE_SKILLS_DIR, not both." >&2
+    exit 2
+  fi
+  [ -d "$project" ] || { echo "error: --project folder not found: $project" >&2; exit 2; }
+  proj_root="$(cd "$project" && pwd)"
+  if [ "$agents" -eq 1 ]; then dest="$proj_root/.agents/skills"; else dest="$proj_root/.claude/skills"; fi
+else
+  if [ "$agents" -eq 1 ]; then default_dest="$HOME/.agents/skills"; else default_dest="$HOME/.claude/skills"; fi
+  dest="${CLAUDE_SKILLS_DIR:-$default_dest}"
+fi
 
 # A skill is a folder with a SKILL.md file. Plain files, such as LICENSE, are not skills.
 # all_names and all_froms are parallel lists: the skill name and the folder it comes from.
@@ -151,7 +173,7 @@ dep_report() {
       continue
     fi
     echo "dependency $pname: needed by${hits}. Checking whether this computer already has it (read only)."
-    dep_plugin_scan "$pname" "$PWD" "$HOME/.claude/skills" "$HOME/.agents/skills" "$PWD/.agents/skills"
+    dep_plugin_scan "$pname" "$proj_root" "$HOME/.claude/skills" "$HOME/.agents/skills" "$proj_root/.claude/skills" "$proj_root/.agents/skills"
     while IFS="$(printf '\t')" read -r lvl txt; do
       [ -n "$lvl" ] || continue
       echo "dependency   $lvl: $txt"
@@ -164,6 +186,9 @@ dep_report() {
 }
 dep_report
 
+if [ -n "$project" ] && [ "$mode" != list ]; then
+  echo "target     $dest"
+fi
 mkdir -p "$dest"
 status=0
 

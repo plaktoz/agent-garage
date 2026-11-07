@@ -5,7 +5,7 @@ Where each skill and plugin of this kit comes from, what it does outside the con
 ## 1. How the sources are kept
 
 - Third-party skills are not copied into this repository. `scripts/fetch-skills.sh` fetches them into `.cache/<source>/` (git-ignored) at the commit that `skills.lock.json` records, and checks each skill's git tree hash against the lock.
-- `scripts/install-skills.sh` links each skill from `skills/` (own skills) or from `.cache/` (locked skills) into `~/.claude/skills` or `~/.agents/skills`.
+- `scripts/install-skills.sh` links each skill from `skills/` (own skills) or from `.cache/` (locked skills) into `~/.claude/skills` or `~/.agents/skills`. With `--project <folder>` it links into `<folder>/.claude/skills`, or into `<folder>/.agents/skills` when `--agents` is also given.
 - `scripts/doctor.sh` checks the lock against the fetched copies and the installed links. It changes nothing.
 - The lock is recorded, not pinned. Only `scripts/fetch-skills.sh --update` changes it, and only after review.
 

@@ -76,7 +76,18 @@ CLAUDE_SKILLS_DIR=/path/to/skills bash scripts/install-skills.sh
 
 A skill is a folder in `skills/` that has a `SKILL.md` file.
 
-For Codex CLI, add `--codex`. The script then links into `~/.agents/skills/` in place of `~/.claude/skills/`. See "Use with Codex CLI".
+To install for other harnesses, add `--agents` (the alias `--codex` does the same). The script then links into `~/.agents/skills/` in place of `~/.claude/skills/`. See "Use with Codex CLI".
+
+To install for one project only, add `--project <folder>`. The folder must exist. It does not have to be a git repository.
+
+| Command | Target folder | Read by |
+|---------|---------------|---------|
+| `bash scripts/install-skills.sh --project <folder>` | `<folder>/.claude/skills` | Claude Code. OpenCode also reads it, per its documentation. |
+| `bash scripts/install-skills.sh --project <folder> --agents` | `<folder>/.agents/skills` | Codex, OpenCode and Gemini CLI, per their documentation. |
+
+`--list` and `--uninstall` take the same `--project` option. Do not combine `--project` with `CLAUDE_SKILLS_DIR`: the script stops with an error. The links point into this repository, so a project folder with links in it is not portable to another computer. Add the folder to the project's `.gitignore`, or install the links again on each computer.
+
+The `--project` option is tested on macOS only, in temporary folders and in a copy of `sample/notes-cli`. No person has run Codex, OpenCode or Gemini CLI against the project folders. The statement that they read these folders comes from their published documentation.
 
 On Windows, run the script in Git Bash. It makes symbolic links with `ln -s`. In Git Bash, `ln -s` copies the folder unless Developer Mode is on and `MSYS=winsymlinks:nativestrict` is set. A copy does not follow changes in this repository, and the script then reports the skill as not installed from this repository. Not tested on Windows: this note is from reading the script.
 
@@ -97,7 +108,7 @@ Codex CLI reads the same shared instructions and the same skills. It does not ru
 | Part | Codex CLI |
 |------|-----------|
 | `AGENTS.md` | Works. Codex reads it. |
-| `skills/` | Works. Run `bash scripts/install-skills.sh --codex`. Codex reads `~/.agents/skills/` and a project's `.agents/skills/`. |
+| `skills/` | Works. Run `bash scripts/install-skills.sh --agents`. Codex reads `~/.agents/skills/` and a project's `.agents/skills/`. For one project, add `--project <folder>`. |
 | `skills/unslop` | Works. `agents/openai.yaml` turns off implicit use, so Codex runs it only when you name it. |
 | `agents/alfred.md` | Partly. `.codex/agents/alfred.toml` tells Codex to follow it. Not confirmed: that Codex loads agents from a project folder. If it does not, ask Codex to follow `agents/alfred.md`. |
 | `mods/` | Does not work. Mods use Claude Code calls that Codex does not have. Do not add the marketplace in Codex. |
@@ -106,7 +117,7 @@ Codex CLI reads the same shared instructions and the same skills. It does not ru
 To install one skill into a project for Codex, run the script with the project's folder:
 
 ```bash
-CLAUDE_SKILLS_DIR=/path/to/your-project/.agents/skills bash /path/to/claude-mods/scripts/install-skills.sh unslop
+bash /path/to/claude-mods/scripts/install-skills.sh --project /path/to/your-project --agents unslop
 ```
 
 ## Install mods

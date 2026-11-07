@@ -9,7 +9,7 @@
 #   Skills    each kit skill: the own skills in skills/ and the locked skills (their fetched
 #             copies in .cache/, from skills.lock.json), in two skill folders:
 #               ~/.claude/skills   Claude Code
-#               ~/.agents/skills   Codex, OpenCode, Gemini CLI (install-skills.sh --codex)
+#               ~/.agents/skills   Codex, OpenCode, Gemini CLI (install-skills.sh --agents)
 #             ok        a link that resolves to this repo's folder (skills/ or .cache/)
 #             shadowed  another link, or a real folder or file, is in the way (named)
 #             broken    a link whose target is gone
