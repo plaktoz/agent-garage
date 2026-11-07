@@ -61,10 +61,39 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
 
 ### Phase 2: the harness and CI checks
 
-- [ ] **S6. Run `claude plugin test` for each mod and record the result.** Branch: `docs/kit-self-check`.
-  Do: run `claude plugin test claude/mods/<name>` for each of the 7 mods in `.claude-plugin/marketplace.json`. Run a real `bash claude/scripts/install-mods.sh` into a temp `HOME`, and then `--uninstall`. Record each real output in the task list.
-  Acceptance: each of the 7 mods passes, or the failure and its cause are recorded. The `--list` output after the install names the 7 mods. This check needs the `claude` command and a Claude Code login. Verify on this Mac, and record it as "run on macOS".
-  Note: the install writes to the real Claude Code settings. Run it in a temp `HOME`, and say so in the record.
+- [ ] **S6. Run the mod checks and the install round trip, and record the result.** Branch: `docs/kit-self-check`.
+  Scope: the 7 mods in `.claude-plugin/marketplace.json`: brain-dump, cache-warm, handoff, reflect, screen-share, switchboard, theme-cli. `theme-desk` is not in the marketplace and is left out.
+  Do, step 1 (validate and test each mod; read only, no install):
+  ```bash
+  REPO=/Users/tianhonglee/Developer/claude-mods
+  for m in brain-dump cache-warm handoff reflect screen-share switchboard theme-cli; do
+    claude plugin validate "$REPO/claude/mods/$m" || echo "VALIDATE FAILED $m"
+    claude plugin test "$REPO/claude/mods/$m"     || echo "TEST FAILED $m"
+  done
+  ```
+  Do, step 2 (install round trip in a temp home, so the real `~/.claude` is not used):
+  ```bash
+  REPO=/Users/tianhonglee/Developer/claude-mods
+  REAL_HOME=$HOME
+  before=$(find "$REAL_HOME/.claude" -type f -exec cksum {} + 2>/dev/null | sort | cksum)
+  export HOME=$(mktemp -d)
+  mkdir -p "$HOME/project" && cd "$HOME/project"
+  bash "$REPO/claude/scripts/install-mods.sh" --scope project
+  bash "$REPO/claude/scripts/install-mods.sh" --scope project --list
+  bash "$REPO/claude/scripts/install-mods.sh" --scope project --uninstall
+  bash "$REPO/claude/scripts/install-mods.sh" --scope project --list
+  export HOME=$REAL_HOME
+  after=$(find "$REAL_HOME/.claude" -type f -exec cksum {} + 2>/dev/null | sort | cksum)
+  [ "$before" = "$after" ] && echo "real ~/.claude unchanged" || echo "real ~/.claude CHANGED"
+  ```
+  Record in this entry: the real output of each `validate` and `test` run, the `--list` output after the install, the `--list` output after `--uninstall`, and the result of the real `~/.claude` comparison.
+  Acceptance:
+  - each of the 7 mods passes `validate` and `test`, or the failure and its cause are recorded;
+  - the `--list` after the install names the 7 mods;
+  - the `--list` after `--uninstall` names none of them;
+  - the real `~/.claude` checksum is the same before and after step 2.
+  Verify on this Mac, and record it as "run on macOS".
+  Not verified yet: whether `claude plugin test` or `install` needs a login or the network, and whether the `claude` CLI keeps its registry under `$HOME`. The first run answers both. If the registry is not under `$HOME`, record it and stop step 2 before any install.
 
 - [ ] **S7. Run the skill installs under each harness that can run here.** Branch: `docs/kit-self-check`. Depends on decision 2.
   Do: for Codex, install with `--agents` into a temp project and check that the skill file is where Codex reads it. Send a live Codex request only if the user approves it under decision 2. For OpenCode and Gemini CLI, record "not run: not installed" unless decision 4 gives a runner.
@@ -86,7 +115,11 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
 - [ ] **S10. Turn the weekly upstream check into a pull request.** Branch: `docs/kit-self-check`. Depends on S8 and on a rule from the user about which upstream changes can merge without a read.
   Do: change `.github/workflows/upstream-check.yml` so that, when upstream moved, it opens a pull request. The pull request updates the lock with `fetch-skills.sh --update`, and runs the drift checks. A person merges it.
   Acceptance: the workflow opens a pull request on a test branch, and the check results are in its description. The rule from the user is written in `docs/skills-sources.md`.
-  Not started until the user gives the rule. Keep this `[ ]`.
+  Owner (requested 2026-11-08, "put this as the responsibility of Alfred"): Alfred, `agents/alfred.md`. Alfred is read only today: it edits no file, and it does not commit, push, merge or edit a pull request. So Alfred cannot open the update pull request as the agent is written. Two readings, and the user must pick one before S10 starts:
+  - A. Alfred reviews. The workflow opens the pull request. Alfred reports on it (the lock diff, the `check-claims.sh` result, the playbook skill names) and does not merge. This fits the agent as it is, and its check 5 already covers merged branches. Default.
+  - B. Alfred authors. The agent definition changes to allow it to run `fetch-skills.sh --update` and open the pull request. That removes the "Changes no file" rule, which needs the user's approval, and `skills.lock.json` still cannot change without it.
+  In both readings a person merges, and the merge rule from the user is still needed.
+  Not started until the user gives the rule and picks A or B. Keep this `[ ]`.
 
 ## Not verified and out of scope
 
