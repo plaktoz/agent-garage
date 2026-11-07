@@ -85,7 +85,7 @@ To install for one project only, add `--project <folder>`. The folder must exist
 | `bash scripts/install-skills.sh --project <folder>` | `<folder>/.claude/skills` | Claude Code. OpenCode also reads it, per its documentation. |
 | `bash scripts/install-skills.sh --project <folder> --agents` | `<folder>/.agents/skills` | Codex, OpenCode and Gemini CLI, per their documentation. |
 
-`--list` and `--uninstall` take the same `--project` option. Do not combine `--project` with `CLAUDE_SKILLS_DIR`: the script stops with an error. The links point into this repository, so a project folder with links in it is not portable to another computer. Add the folder to the project's `.gitignore`, or install the links again on each computer.
+`--list` and `--uninstall` take the same `--project` option. Do not combine `--project` with `CLAUDE_SKILLS_DIR`: the script stops with an error. The links point into this repository, so a project folder with links in it is not portable to another computer. Add `/.claude/skills/` and `/.agents/skills/` to the project's `.gitignore`, as `sample/notes-cli/.gitignore` does. Then install the links again on each computer. Note: those lines hide every file in the two folders, including a skill that the project keeps there by hand. To keep such a skill in git, list only the link names in `.gitignore`, or move the skill elsewhere.
 
 The `--project` option is tested on macOS only, in temporary folders and in a copy of `sample/notes-cli`. No person has run Codex, OpenCode or Gemini CLI against the project folders. The statement that they read these folders comes from their published documentation.
 

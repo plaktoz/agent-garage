@@ -1,2 +1,6 @@
 notes.json
 node_modules/
+
+# Skill links made by install-skills.sh --project. They point at this machine's copy of the kit.
+/.claude/skills/
+/.agents/skills/
