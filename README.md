@@ -159,7 +159,7 @@ The script `scripts/install-agents.sh` links each agent in `agents/` into `~/.cl
 bash scripts/install-agents.sh alfred
 ```
 
-`alfred` reviews this repository and reports drift. He changes no file. Start a new Claude Code session, then ask for `alfred`.
+`alfred` reviews this repository and reports drift. It changes a file only when you ask for that change in the same request. Then it works on a new branch, opens a pull request and never merges. It does not change `skills.lock.json` unless you approve that lock update. Start a new Claude Code session, then ask for `alfred`.
 
 To install an agent into one project, set `CLAUDE_AGENTS_DIR` to `<project>/.claude/agents`. The root `.gitignore` already lists `.claude/agents/`.
 
