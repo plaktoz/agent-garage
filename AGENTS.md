@@ -4,6 +4,8 @@ Shared instructions for every coding agent that works in this repo (Claude Code,
 
 This repo is a framework for defining and deploying agent behaviors and evolving context libraries. See `README.md` for the layout and concepts.
 
+`docs/agent-lessons-2026-11-08.md` gives the cause behind the rules below, from real cases. Read it before you plan work with subagents, worktrees or CI.
+
 ## Conventions
 
 - Keep each part (skill, agent, hook, library doc) self-contained and single-purpose.
@@ -35,6 +37,11 @@ How a piece of work goes from request to done. Follow the steps in order.
 
 - If a task or subtask is independent, send it to a subagent to complete the work. Give each independent task or subtask its own subagent, and start them in one message so they run in parallel.
 - Do not send a task or subtask to a subagent when it is small or when it depends on another task's output.
+- When a task does not run in parallel, write the reason next to the task in the task list, so the user can see the dependency. Name what it waits for: the task, and the output or decision it needs (for example, "waits for T2: it reads the file that T2 writes"). For a small task, say that it is small. The order of the tasks in the list is not a reason.
+- A subagent in its own worktree commits its work on its branch before it reports done. Uncommitted, untracked and ignored files exist only in the worktree folder, and they are lost when the worktree is removed.
+- The subagent then pushes the branch, if the user approved pushing, or reports the branch name and the worktree path.
+- Do not remove a worktree until `git status` in it shows a clean tree. If it is not clean, compare each changed file with the committed or merged file first. Use `git worktree remove --force` only after that comparison.
+- Give each subagent the limits of its work in the prompt: what it must not do (for example merge, delete a branch, push, or change the lock). The user's approval to you does not pass to the subagent.
 - The agent doing a task tests and verifies it against its acceptance criteria.
 - Hand verification to the user only when the agent cannot do it, such as a Windows-only check on a macOS machine. Say why in the task list.
 
