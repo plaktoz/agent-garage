@@ -131,14 +131,14 @@
     },
     "pstack-claude": {
       "url": "https://github.com/michael-denyer/pstack-claude.git",
-      "commit": "7bad1ebc26faa268806bfbb84e5af55d178b68e4",
-      "version": "0.9.92",
+      "commit": "91ab921ab92d9ccfe503c93c3524410277f012e1",
+      "version": "0.9.133",
       "minimumVersion": "0.9.57",
       "plugin": {
         "path": "plugins/pstack",
-        "tree": "641b4c7800e49a24c25bcdf6dfa541d41ff65616"
+        "tree": "8ede20dfa70442d19c1ddb957dcca0af7a7f0cab"
       },
-      "commitDate": "2026-10-17",
+      "commitDate": "2026-11-07",
       "note": "One entry for the whole plugin. Its skills route to each other. Upstream HEAD moves on; this is the version the playbook checker was tested on. Use --update to move it."
     }
   },
