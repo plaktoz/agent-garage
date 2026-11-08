@@ -99,7 +99,9 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   Do: for Codex, install with `--agents` into a temp project and check that the skill file is where Codex reads it. Send a live Codex request only if the user approves it under decision 2. For OpenCode and Gemini CLI, record "not run: not installed" unless decision 4 gives a runner.
   Acceptance: the support table cell for each harness states the result of this run, or the reason it was not run.
 
-- [ ] **S8. Add the drift checks to CI on all three systems.** Branch: `docs/kit-self-check`. Depends on S1, S3, S4.
+- [ ] **S8. Add the drift checks to CI on all three systems.** Branch: `docs/s8-ci-drift-2026-11-08` (from `main` at `f23880a`). Depends on S1, S3, S4.
+  Note (2026-11-08): `scripts/check-skill-claims.sh` does not exist. S3 kept the playbook and skill-name checks in `doctor.sh`, and the `kit` job already runs `doctor.sh` on all three systems. So the new `drift` job runs `scripts/check-claims.sh` only. The `push` trigger is now `branches: ['**']`.
+  Next: push the branch and check the `drift` job on all three systems. Then push a test branch with a planted stale claim, check that `drift` fails, and delete the test branch.
   Do: add a job to `.github/workflows/ci.yml` that runs `scripts/check-claims.sh` and `scripts/check-skill-claims.sh` on `ubuntu-latest`, `macos-latest` and `windows-latest` (Git Bash). Add `pull_request` to the trigger if it is not already there, and add `push` for every branch, not only `main`.
   Acceptance:
   - The job passes on the current tree on all three systems.

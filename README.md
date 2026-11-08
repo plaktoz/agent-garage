@@ -76,7 +76,7 @@ The top level holds what any agent can use. Everything that needs Claude Code is
 | `scripts/` | Any agent. Bash scripts, and a `node` helper. On Windows, run them in Git Bash | Install, fetch, check and doctor tooling for skills and agents |
 | `sample/` | Any agent | Pilot projects. `sample/notes-cli` tests the bootstrap script, the playbooks and the upstream checks |
 | `docs/` | Any agent | Review reports, task lists and handoffs for the repo |
-| `.github/workflows/` | GitHub | `ci.yml` checks the kit on Linux, macOS and Windows. `upstream-check.yml` checks the locked sources every week |
+| `.github/workflows/` | GitHub | `ci.yml` checks the kit and the README claims on Linux, macOS and Windows. `upstream-check.yml` checks the locked sources every week |
 | `claude/mods/` | Claude Code only | Plugins of function hooks (`<mod>/.claude-plugin/plugin.json` and `hooks/register.ts`). Test with `claude plugin test claude/mods/<mod>` |
 | `claude/hooks/` | Claude Code only | Hook scripts and settings fragments. The folder is empty now |
 | `claude/scripts/` | Claude Code only | `install-mods.sh` and `install-mods.ps1`. They need the `claude` command |
@@ -383,7 +383,7 @@ Under `mattpocock-skills`, the lock also records `copies`: the two skills copied
 
 ### `.github/workflows/`
 
-- `ci.yml` runs on each pull request, on each push to `main` and by hand. It runs the kit scripts on Ubuntu, macOS and Windows (Git Bash). Each job uses a temporary home folder. It has no secrets and it reads only the repository.
+- `ci.yml` runs on each pull request, on each push to any branch and by hand. It runs the kit scripts and `scripts/check-claims.sh` on Ubuntu, macOS and Windows (Git Bash). Each job uses a temporary home folder. It has no secrets and it reads only the repository.
 - `upstream-check.yml` runs on Mondays at 03:17 UTC and by hand. It runs `scripts/check-upstream.sh`. When upstream moved (exit 1), it opens one issue titled "Upstream check: a locked source moved", or adds a comment to the open one. When the check cannot run (exit 2 or 3), the job fails. It changes no lock, branch or pull request.
 
 ## Playbooks
