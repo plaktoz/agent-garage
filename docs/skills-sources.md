@@ -15,7 +15,7 @@ Where each skill and plugin of this kit comes from, what it does outside the con
 | Source | Repository | Commit (recorded) | Upstream commit date | Licence | What the kit uses |
 |--------|------------|-------------------|----------------------|---------|-------------------|
 | mattpocock-skills | https://github.com/mattpocock/skills | `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d` | 2026-10-31 | MIT, Copyright (c) 2026 Matt Pocock | 11 skills, fetched into `.cache/mattpocock-skills/` |
-| pstack-claude | https://github.com/michael-denyer/pstack-claude | `7bad1ebc26faa268806bfbb84e5af55d178b68e4` (plugin version 0.9.92) | 2026-10-17 | see the repository | the `pstack` plugin, fetched into `.cache/pstack-claude/` |
+| pstack-claude | https://github.com/michael-denyer/pstack-claude | `91ab921ab92d9ccfe503c93c3524410277f012e1` (plugin version 0.9.133) | 2026-11-07 | see the repository | the `pstack` plugin, fetched into `.cache/pstack-claude/` |
 | ambition | https://github.com/jakedahn/ambition | `02dd70c28aeb436dc30f72cbd777d1982943ad88` | 2026-10-15 | none declared (no LICENSE file; GitHub reports none) | 1 skill, fetched into `.cache/ambition/` |
 | good-readme | https://github.com/adewale/good-readme | `17c42e29537ab9316339b73d57cbc74316cf01bd` | 2026-11-05 | MIT, Copyright (c) 2026 Ade | 1 skill, fetched into `.cache/good-readme/` |
 
@@ -138,7 +138,7 @@ The tier is written in the description of the update pull request or issue.
 
 | Name | Source | Locked version | Minimum version | Notes |
 |------|--------|----------------|-----------------|-------|
-| pstack | https://github.com/michael-denyer/pstack-claude | 0.9.92 (commit `7bad1eb`) | 0.9.57, for project playbooks | Optional. Its skills route to each other, so install it as one plugin. |
+| pstack | https://github.com/michael-denyer/pstack-claude | 0.9.133 (commit `91ab921`) | 0.9.57, for project playbooks | Optional. Its skills route to each other, so install it as one plugin. |
 
 - The kit fetches the locked copy into `.cache/pstack-claude/`. `scripts/bootstrap-project.sh <project> --pstack <local|user>` adds that copy as a local marketplace and installs the plugin from it. It never installs again when pstack is already there, and it never removes or replaces a marketplace. `project` scope is refused, because it writes the plugin into the project's shared `.claude/settings.json`.
 - Install it per project, with a scope that fits the project: `local` for one project, `user` for every project.

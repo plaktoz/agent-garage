@@ -248,6 +248,8 @@ Then restart Claude Code.
 
 The installed mods load from your clone, so `git pull` brings in changes. Restart Claude Code to load them. Installs made before the rename used the marketplace name `claude-mods`. Those installs keep that name. The script adds the marketplace as `agent-garage` and points it at your clone. The script keeps the mods that you installed. To add a mod, put it in `claude/mods/` and add it to `.claude-plugin/marketplace.json`.
 
+The mods moved from `mods/` to `claude/mods/`. If you installed from a clone that still had `mods/`, run `git pull`, then run `claude/scripts/install-mods.sh` again. If the marketplace still points at an old path, run `claude plugin marketplace add /path/to/agent-garage` again, then install the mods again.
+
 To try one mod for one session without installing it:
 
 ```bash
@@ -378,7 +380,7 @@ The lock records what the fetch scripts use. It holds four sources:
 | `mattpocock-skills` | https://github.com/mattpocock/skills | 11 skills, commit `4ae2317` | MIT |
 | `ambition` | https://github.com/jakedahn/ambition | 1 skill, commit `02dd70c` | None declared upstream |
 | `good-readme` | https://github.com/adewale/good-readme | 1 skill, commit `17c42e2` | MIT |
-| `pstack-claude` | https://github.com/michael-denyer/pstack-claude | Plugin version 0.9.92, commit `7bad1eb`. Minimum 0.9.57 | Not recorded in the lock |
+| `pstack-claude` | https://github.com/michael-denyer/pstack-claude | Plugin version 0.9.133, commit `91ab921`. Minimum 0.9.57 | Not recorded in the lock |
 
 The lock also records `requires`: the tools and the plugin that the skills need. Sources, licence notices and the reasons for each skill are in `docs/skills-sources.md`.
 
@@ -403,7 +405,7 @@ pstack is an optional Claude Code plugin. It is not part of this repository. Its
 
 - Install it per project, with the scope that fits the project: `local` for one project, or `user` for every project.
 - `bootstrap-project.sh` refuses `project` scope. That scope writes the plugin into the project's shared `.claude/settings.json`, which every clone of the project loads.
-- The minimum version is 0.9.57, for project playbooks. The lock records 0.9.92.
+- The minimum version is 0.9.57, for project playbooks. The lock records 0.9.133.
 - The kit installs the locked copy from `.cache/pstack-claude/` as a local marketplace. It never installs pstack again when pstack is present. It never removes or replaces a marketplace.
 - If a marketplace named `pstack-claude` already exists from GitHub, the script stops. It prints the commands to run by hand.
 
