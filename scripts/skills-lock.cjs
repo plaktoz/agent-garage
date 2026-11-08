@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Reads and writes skills.lock.json for the claude-mods scripts. Node only, no packages.
+// Reads and writes skills.lock.json for the agent-garage scripts. Node only, no packages.
 //
 //   node scripts/skills-lock.cjs list <lock.json>
 //       One row per line, fields separated by "|" (bash reads them with IFS='|'):

@@ -212,7 +212,7 @@ You need:
 - A copy of this repository on your computer.
 - A terminal. A terminal is a window where you type commands.
 
-In this document, the **repository root** is the top folder of the repository. The folder is named `claude-mods`. All commands in this document start from this folder.
+In this document, the **repository root** is the top folder of the repository. The folder is named `agent-garage`. All commands in this document start from this folder.
 
 This review did not run any Windows or Linux step. There is no OS-specific code in this mod.
 
@@ -235,8 +235,8 @@ This review did not start a session with this flag.
 ### 5.4 Method B: load the mod in every session
 
 1. Open the file `~/.claude/settings.json` in a text editor.
-2. Add the full path of the mod folder to an `env` block. The line is `"CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/screen-share"`.
-3. Replace `/Users/your-name/Developer/claude-mods` with the real path to your repository.
+2. Add the full path of the mod folder to an `env` block. The line is `"CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/agent-garage/claude/mods/screen-share"`.
+3. Replace `/Users/your-name/Developer/agent-garage` with the real path to your repository.
 4. Save the file. Start a new Claude Code session.
 5. Do the check in 5.6.
 
@@ -245,7 +245,7 @@ The file has this shape:
 ```json
 {
   "env": {
-    "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/screen-share"
+    "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/agent-garage/claude/mods/screen-share"
   }
 }
 ```
@@ -258,11 +258,11 @@ This review did not test method B.
 
 The repository marketplace file, `.claude-plugin/marketplace.json`, lists `screen-share` at line 28.
 
-1. Add the marketplace once. Run this command: `claude plugin marketplace add https://github.com/plaktoz/claude-mods`.
-2. Install the mod. Run this command: `claude plugin install screen-share@claude-mods`.
+1. Add the marketplace once. Run this command: `claude plugin marketplace add https://github.com/plaktoz/agent-garage`.
+2. Install the mod. Run this command: `claude plugin install screen-share@agent-garage`.
 3. Restart Claude Code to load the mod.
 
-Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/claude-mods` and `/plugin install screen-share@claude-mods`. Then run `/reload-plugins`, or start a new session.
+Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/agent-garage` and `/plugin install screen-share@agent-garage`. Then run `/reload-plugins`, or start a new session.
 
 Add the marketplace with the repository URL. Do not use the GitHub link to `.claude-plugin/marketplace.json`: the command treats a link as a git repository and fails with `repository ... not found`.
 

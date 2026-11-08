@@ -17,7 +17,7 @@ function Invoke-Claude {
 }
 
 $repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$market = 'claude-mods'
+$market = 'agent-garage'
 $manifest = Join-Path $repo '.claude-plugin/marketplace.json'
 
 if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {

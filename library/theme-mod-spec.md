@@ -1,4 +1,4 @@
-Brain-dump spec for `theme`, a claude-mods mod that turns Claude Code's activity into a themed sprite animation with music, in a strip under the prompt. Mario is the first theme and Zelda the second.
+Brain-dump spec for `theme`, a agent-garage mod that turns Claude Code's activity into a themed sprite animation with music, in a strip under the prompt. Mario is the first theme and Zelda the second.
 
 # Theme mod: spec (brain dump)
 

@@ -461,7 +461,7 @@ These values are in the code. You change them by editing the file.
 
 ## 5. Install
 
-You install this mod by telling Claude Code where its folder is. You can also install it from the `claude-mods` marketplace.
+You install this mod by telling Claude Code where its folder is. You can also install it from the `agent-garage` marketplace.
 
 ### 5.1 Before you start
 
@@ -478,13 +478,13 @@ This mod folder holds no theme images. Use only images that you are allowed to u
 In this document, the **repository root** is the top folder of the repository. All commands in this document start from that folder. To go there, type `cd` and the path to the folder. Example:
 
 ```bash
-cd ~/Developer/claude-mods
+cd ~/Developer/agent-garage
 ```
 
 On Windows PowerShell, the same step is:
 
 ```powershell
-cd $HOME\Developer\claude-mods
+cd $HOME\Developer\agent-garage
 ```
 
 On Windows, `claude\scripts\install-mods.ps1` installs the mods through the marketplace. See section 5.5 and the root `README.md`.
@@ -518,14 +518,14 @@ This check did not test whether Claude Code reloads the mod after a file changes
    ```json
    {
      "env": {
-       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/theme-cli"
+       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/agent-garage/claude/mods/theme-cli"
      }
    }
    ```
 
-3. Replace `/Users/your-name/Developer/claude-mods` with the real path to your repository. To print the path, run `pwd` in the repository root.
+3. Replace `/Users/your-name/Developer/agent-garage` with the real path to your repository. To print the path, run `pwd` in the repository root.
 
-   On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Write the path with forward slashes, for example `C:/Users/your-name/Developer/claude-mods/claude/mods/theme-cli`, or double each backslash in the JSON. In PowerShell, `(Get-Location).Path` prints the path of the repository root. The Windows form was not tested.
+   On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Write the path with forward slashes, for example `C:/Users/your-name/Developer/agent-garage/claude/mods/theme-cli`, or double each backslash in the JSON. In PowerShell, `(Get-Location).Path` prints the path of the repository root. The Windows form was not tested.
 4. Save the file. Start a new Claude Code session.
 5. Do the check in 5.6.
 
@@ -533,19 +533,19 @@ To uninstall, delete the line and start a new session. This check did not test t
 
 ### 5.5 Method C: marketplace install
 
-The repository has a marketplace file, `.claude-plugin/marketplace.json`. The marketplace is named `claude-mods`. It lists `theme-cli`.
+The repository has a marketplace file, `.claude-plugin/marketplace.json`. The marketplace is named `agent-garage`. It lists `theme-cli`.
 
 1. Open a terminal.
 2. Add the marketplace once:
 
    ```bash
-   claude plugin marketplace add https://github.com/plaktoz/claude-mods
+   claude plugin marketplace add https://github.com/plaktoz/agent-garage
    ```
 
 3. Install the mod:
 
    ```bash
-   claude plugin install theme-cli@claude-mods
+   claude plugin install theme-cli@agent-garage
    ```
 
 4. Start a new session. Do the check in 5.6.
@@ -560,17 +560,17 @@ The `--scope` option sets the scope of the install. The scope names and the defa
 
 This check did not test where each scope writes its setting.
 
-Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/claude-mods` and `/plugin install theme-cli@claude-mods`. Then run `/reload-plugins`, or start a new session.
+Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/agent-garage` and `/plugin install theme-cli@agent-garage`. Then run `/reload-plugins`, or start a new session.
 
 Add the marketplace with the repository URL. Use the repository URL, not the link to `.claude-plugin/marketplace.json`. This check did not run the command with the link.
 
 To use your local copy of this repository, add the marketplace from its path:
 
 ```bash
-claude plugin marketplace add /path/to/claude-mods
+claude plugin marketplace add /path/to/agent-garage
 ```
 
-The install scripts do the same steps. They add this repository as the marketplace `claude-mods`, and then install the mod.
+The install scripts do the same steps. They add this repository as the marketplace `agent-garage`, and then install the mod.
 
 1. Go to the repository root (see 5.1).
 2. Run the script for your system, and name the mod:

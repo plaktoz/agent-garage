@@ -213,7 +213,7 @@ No install has been run on Windows.
 | B. Marketplace, project scope | You want the mod in one project, for everyone who opens it. | Until you remove it |
 | C. Flag `--plugin-dir` | You want to try the mod. | One session |
 
-To install from your clone, run `claude plugin marketplace add /path/to/claude-mods` in place of step 2 of 5.3. The scripts `claude/scripts/install-mods.sh` and `claude/scripts/install-mods.ps1` install every mod. See the root `README.md`.
+To install from your clone, run `claude plugin marketplace add /path/to/agent-garage` in place of step 2 of 5.3. The scripts `claude/scripts/install-mods.sh` and `claude/scripts/install-mods.ps1` install every mod. See the root `README.md`.
 
 ### 5.3 Method A: install for every folder
 
@@ -221,18 +221,18 @@ To install from your clone, run `claude plugin marketplace add /path/to/claude-m
 2. Run the following command once:
 
    ```bash
-   claude plugin marketplace add https://github.com/plaktoz/claude-mods
+   claude plugin marketplace add https://github.com/plaktoz/agent-garage
    ```
 
 3. Run the following command. The default scope is `user`:
 
    ```bash
-   claude plugin install switchboard@claude-mods
+   claude plugin install switchboard@agent-garage
    ```
 
 4. Start a new session. The `/mods` command is added at session start.
 
-Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/claude-mods` and `/plugin install switchboard@claude-mods`. Then run `/reload-plugins`, or start a new session.
+Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/agent-garage` and `/plugin install switchboard@agent-garage`. Then run `/reload-plugins`, or start a new session.
 
 Add the marketplace with the repository URL. Do not use the GitHub link to `.claude-plugin/marketplace.json`: the command treats a link as a git repository and fails with `repository ... not found`.
 
@@ -247,13 +247,13 @@ Add the marketplace with the repository URL. Do not use the GitHub link to `.cla
 2. If you did not run the marketplace command in 5.3, run it now:
 
    ```bash
-   claude plugin marketplace add https://github.com/plaktoz/claude-mods
+   claude plugin marketplace add https://github.com/plaktoz/agent-garage
    ```
 
 3. Run the following command. The `project` scope applies the mod to this project for everyone who opens it:
 
    ```bash
-   claude plugin install switchboard@claude-mods --scope project
+   claude plugin install switchboard@agent-garage --scope project
    ```
 
 4. Start a new session.
@@ -457,5 +457,5 @@ The expected result is no output and no errors. This expectation was not checked
 | Note | The one-line message under the rows. |
 | Stored value | A value that the engine keeps for the session. This mod has `rows` and `note`. |
 | Hooks module | The file `hooks/register.tsx`. The engine loads it through `hooks/hooks.json`. |
-| Marketplace | A list of plugins that `claude plugin marketplace add` reads. The `claude-mods` marketplace is `.claude-plugin/marketplace.json` at the repository root. |
+| Marketplace | A list of plugins that `claude plugin marketplace add` reads. The `agent-garage` marketplace is `.claude-plugin/marketplace.json` at the repository root. |
 | Session | One run of Claude Code, from start to exit. |

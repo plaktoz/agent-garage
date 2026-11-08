@@ -131,7 +131,7 @@ Each recorded prompt gets its own check, and each rule that is found gets its ow
 | Project `CLAUDE.md` | `<project root>/CLAUDE.md` | On |
 | Global `CLAUDE.md` | `<config folder>/CLAUDE.md` | Off |
 
-The config folder is the value of `CLAUDE_CONFIG_DIR`. If that is not set, it is `.claude` in the home folder. The project root comes from `$.session.root()`. The project folder is the project root with each character that is not a letter or a digit replaced by `-` (`hooks/save.ts` line 114). On macOS, `/Users/your-name/Developer/claude-mods` gives `-Users-your-name-Developer-claude-mods`.
+The config folder is the value of `CLAUDE_CONFIG_DIR`. If that is not set, it is `.claude` in the home folder. The project root comes from `$.session.root()`. The project folder is the project root with each character that is not a letter or a digit replaced by `-` (`hooks/save.ts` line 114). On macOS, `/Users/your-name/Developer/agent-garage` gives `-Users-your-name-Developer-agent-garage`.
 
 The writers follow these rules:
 
@@ -188,16 +188,16 @@ You need:
 - A copy of this repository on your computer.
 - A terminal. A terminal is a window where you type commands. On macOS, open the app named Terminal. On Windows, open PowerShell or Windows Terminal.
 
-In this document, the **repository root** is the top folder of the repository, named `claude-mods`. All commands in this document start from that folder. To go there, run `cd` and the path to the folder:
+In this document, the **repository root** is the top folder of the repository, named `agent-garage`. All commands in this document start from that folder. To go there, run `cd` and the path to the folder:
 
 ```bash
-cd ~/Developer/claude-mods
+cd ~/Developer/agent-garage
 ```
 
 On Windows PowerShell, run this command:
 
 ```powershell
-cd $HOME\Developer\claude-mods
+cd $HOME\Developer\agent-garage
 ```
 
 The Windows steps in this document are not tested.
@@ -229,35 +229,35 @@ The Windows steps in this document are not tested.
    ```json
    {
      "env": {
-       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/reflect"
+       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/agent-garage/claude/mods/reflect"
      }
    }
    ```
 
-3. Replace `/Users/your-name/Developer/claude-mods` with the real path to your repository. To print the path, run `pwd` in the repository root.
+3. Replace `/Users/your-name/Developer/agent-garage` with the real path to your repository. To print the path, run `pwd` in the repository root.
 4. Save the file. Start a new Claude Code session.
 5. Do the check in 5.6.
 
-On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Use forward slashes in the path, for example `C:/Users/your-name/Developer/claude-mods/claude/mods/reflect`. Or double each backslash in the JSON.
+On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Use forward slashes in the path, for example `C:/Users/your-name/Developer/agent-garage/claude/mods/reflect`. Or double each backslash in the JSON.
 
 To remove the mod from every session, delete the line and start a new session.
 
 ### 5.5 Method C: marketplace
 
-The file `.claude-plugin/marketplace.json` at the repository root lists `reflect`. The marketplace is named `claude-mods`. This review did not run the `marketplace add` and `install` commands below. No person has done this check yet.
+The file `.claude-plugin/marketplace.json` at the repository root lists `reflect`. The marketplace is named `agent-garage`. This review did not run the `marketplace add` and `install` commands below. No person has done this check yet.
 
 This review did not check which branch the marketplace reads. The `reflect` entry is on this branch only, so check that it is on the branch the marketplace reads.
 
 1. Add the marketplace once. Run:
 
    ```bash
-   claude plugin marketplace add https://github.com/plaktoz/claude-mods
+   claude plugin marketplace add https://github.com/plaktoz/agent-garage
    ```
 
 2. Install the mod. Run:
 
    ```bash
-   claude plugin install reflect@claude-mods
+   claude plugin install reflect@agent-garage
    ```
 
    The default scope is `user`, which applies the mod to every project. To change the scope, add `--scope project` or `--scope local`. See the root `README.md`.

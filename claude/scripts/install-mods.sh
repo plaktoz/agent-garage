@@ -5,7 +5,7 @@
 set -euo pipefail
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-market=claude-mods
+market=agent-garage
 manifest="$repo/.claude-plugin/marketplace.json"
 mode=install
 scope=user
