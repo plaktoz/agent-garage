@@ -61,7 +61,7 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
 
 ### Phase 2: the harness and CI checks
 
-- [ ] **S6. Run the mod checks and the install round trip, and record the result.** Branch: `docs/kit-self-check`. Result (2026-11-08, run on macOS): round trip run and passing, but the acceptance is not met as written. The real `~/.claude` checksum was compared for `plugins/` and `settings.json` only, not the whole tree. The whole tree changes while any session runs, so the acceptance cannot pass as written. Reopened for the user to choose: (a) accept the narrower check (plugins and settings.json), or (b) keep the whole-tree check and run it with no session open. Approval given ("S6. fix it with my approval") covers the fix, not a change to the acceptance.
+- [x] **S6. Run the mod checks and the install round trip, and record the result.** Branch: `docs/kit-self-check`. Result (2026-11-08, run on macOS): done. Decision (user, 2026-11-08, "narrower check"): the real-home acceptance is `~/.claude/plugins` and `~/.claude/settings.json`, not the whole `~/.claude` tree. The whole tree changes while any session runs (transcripts, backups), so the original wording could not pass. The round trip ran with `HOME` set to a temp folder, and the narrower comparison was unchanged. The whole-tree comparison was not run and is out of scope. Open, outside S6: four mods have no LICENSE file (see below).
   Scope: the 7 mods in `.claude-plugin/marketplace.json`: brain-dump, cache-warm, handoff, reflect, screen-share, switchboard, theme-cli. `theme-desk` is not in the marketplace and is left out.
   Do, step 1 (validate and test each mod; read only, no install):
   ```bash
@@ -91,7 +91,7 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   - each of the 7 mods passes `validate` and `test`, or the failure and its cause are recorded;
   - the `--list` after the install names the 7 mods;
   - the `--list` after `--uninstall` names none of them;
-  - the real `~/.claude` checksum is the same before and after step 2.
+  - the real `~/.claude/plugins` and `~/.claude/settings.json` checksums are the same before and after step 2 (narrowed on 2026-11-08 by the user; the whole-tree wording could not pass while a session runs).
   Verify on this Mac, and record it as "run on macOS".
   Result (2026-11-08, run on macOS). Status `[x]`. Step 2 was first refused in an agent shell that sets `HOME`. It then ran in the main session with `HOME` set per command, as below.
   - Step 2, round trip, temp home: `install-mods.sh --scope project` exit 0, 7 mods installed. `--list` after install: `installed` for brain-dump, cache-warm, handoff, reflect, screen-share, switchboard, theme-cli. `--uninstall` exit 0, 7 removed. `--list` after uninstall: `missing` for all 7.
