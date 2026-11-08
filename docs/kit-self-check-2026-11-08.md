@@ -61,7 +61,7 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
 
 ### Phase 2: the harness and CI checks
 
-- [x] **S6. Run the mod checks and the install round trip, and record the result.** Branch: `docs/kit-self-check`. Result (2026-11-08, run on macOS): done, with the four LICENSE gaps recorded below. Approved by the user ("S6. fix it with my approval").
+- [ ] **S6. Run the mod checks and the install round trip, and record the result.** Branch: `docs/kit-self-check`. Result (2026-11-08, run on macOS): round trip run and passing, but the acceptance is not met as written. The real `~/.claude` checksum was compared for `plugins/` and `settings.json` only, not the whole tree. The whole tree changes while any session runs, so the acceptance cannot pass as written. Reopened for the user to choose: (a) accept the narrower check (plugins and settings.json), or (b) keep the whole-tree check and run it with no session open. Approval given ("S6. fix it with my approval") covers the fix, not a change to the acceptance.
   Scope: the 7 mods in `.claude-plugin/marketplace.json`: brain-dump, cache-warm, handoff, reflect, screen-share, switchboard, theme-cli. `theme-desk` is not in the marketplace and is left out.
   Do, step 1 (validate and test each mod; read only, no install):
   ```bash
@@ -105,9 +105,8 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   - `validate` directory problem `LICENSE_MISSING` on cache-warm, handoff, screen-share and switchboard. These four have no LICENSE file and no `license` field. The result stays "passed". brain-dump, reflect and theme-cli have a MIT LICENSE file.
   - `test` results, pass and fail, with file count: brain-dump 10/0/1, cache-warm 12/0/1, handoff 10/0/1, reflect 45/0/2, screen-share 13/0/1, switchboard 5/0/1, theme-cli 42/0/3.
   - Real `install-mods.sh --list`, read only, no install: all 7 show `installed` (user scope). This is the real home, not a round trip.
-  - Step 2, not run: no temp-home install, list or uninstall ran, so the acceptance items for the install list and the uninstall list are open.
   - Real `~/.claude` check, before and after this run: the per-file checksums differ. The changed files are live session transcripts and one rotated `.claude.json` backup. No plugin file changed. The `claude plugin list --json` ids and scopes are the same 12 before and after. The hash of `~/.claude.json` changed (mtime 07:53:51). Its cause is not known.
-  - Not verified: the round trip. Whether `install` needs a login or the network is open. `validate` and `test` showed no login prompt. The network was not checked.
+  - Not verified: whether `install` needs the network. The round trip ran with no login prompt. The network was not checked.
   - Not verified: Linux, and Windows (`install-mods.ps1`).
   - Licence gaps, still open (a decision, not a fault in the check): cache-warm, handoff, screen-share and switchboard have no LICENSE file. brain-dump, reflect and theme-cli have the MIT one. The root `LICENSE` is the same MIT text. Fixing it means copying that file into the four folders, which the user has not asked for.
 
