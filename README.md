@@ -40,7 +40,7 @@ bash scripts/doctor.sh
 
 Expected result:
 
-- `install-skills.sh` prints `installed` for 15 skills.
+- `install-skills.sh` prints `installed` for 16 skills.
 - `doctor.sh` ends with a line that starts `Result:`. A new machine can show warnings. A failure makes `doctor.sh` exit 1.
 
 Then start a new Claude Code session. Type `/` and check that a skill name, for example `ste-docs`, is in the list.
@@ -105,9 +105,9 @@ CI run 42394334472 (commit `4aa64c6`) passed its syntax, fetch, install and doct
 Skills come from two sources.
 
 - `skills/` holds the own skills: `ste-docs` and `unslop`. They have no upstream source.
-- `.cache/` holds the locked third-party skills. `scripts/fetch-skills.sh` fetches them at the commit that `skills.lock.json` records. At this commit the lock names 13 skills: 11 from mattpocock/skills, 1 from ambition and 1 from good-readme.
+- `.cache/` holds the locked third-party skills. `scripts/fetch-skills.sh` fetches them at the commit that `skills.lock.json` records. At this commit the lock names 14 skills: 11 from mattpocock/skills, 1 from ambition, 1 from good-readme and 1 from ponytail.
 
-The install script links all 15 skills into `~/.claude/skills/`. A link means that a change in this repository shows in Claude Code at once. The script does not copy files.
+The install script links all 16 skills into `~/.claude/skills/`. A link means that a change in this repository shows in Claude Code at once. The script does not copy files.
 
 Without the fetch, the install links only the 2 own skills. It prints a note to run `scripts/fetch-skills.sh`. It does not fail.
 
@@ -373,13 +373,14 @@ It exits 0 on success and 1 on an error.
 
 ### `skills.lock.json`
 
-The lock records what the fetch scripts use. It holds four sources:
+The lock records what the fetch scripts use. It holds five sources:
 
 | Source | Repository | Locked | Licence |
 |--------|------------|--------|---------|
 | `mattpocock-skills` | https://github.com/mattpocock/skills | 11 skills, commit `4ae2317` | MIT |
 | `ambition` | https://github.com/jakedahn/ambition | 1 skill, commit `02dd70c` | None declared upstream |
 | `good-readme` | https://github.com/adewale/good-readme | 1 skill, commit `17c42e2` | MIT |
+| `ponytail` | https://github.com/DietrichGebert/ponytail | 1 skill, commit `96608e0` | MIT |
 | `pstack-claude` | https://github.com/michael-denyer/pstack-claude | Plugin version 0.9.133, commit `91ab921`. Minimum 0.9.57 | Not recorded in the lock |
 
 The lock also records `requires`: the tools and the plugin that the skills need. Sources, licence notices and the reasons for each skill are in `docs/skills-sources.md`.
@@ -437,6 +438,8 @@ The install needs the `claude` command. A pilot install ran in a copy of `sample
 - The playbooks need pstack. Whether they work outside Claude Code is not verified.
 - Node has no recorded minimum version.
 - `ambition` declares no licence upstream. Whether its author permits redistribution is not confirmed.
+- `ponytail` and `ambition` give opposite advice. Call one of them for a task, not both.
+- `ponytail` is locked as its skill only. Its hooks, status band and slash commands are not installed.
 
 ## Concepts
 

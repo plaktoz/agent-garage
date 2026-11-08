@@ -18,6 +18,7 @@ Where each skill and plugin of this kit comes from, what it does outside the con
 | pstack-claude | https://github.com/michael-denyer/pstack-claude | `91ab921ab92d9ccfe503c93c3524410277f012e1` (plugin version 0.9.133) | 2026-11-07 | see the repository | the `pstack` plugin, fetched into `.cache/pstack-claude/` |
 | ambition | https://github.com/jakedahn/ambition | `02dd70c28aeb436dc30f72cbd777d1982943ad88` | 2026-10-15 | none declared (no LICENSE file; GitHub reports none) | 1 skill, fetched into `.cache/ambition/` |
 | good-readme | https://github.com/adewale/good-readme | `17c42e29537ab9316339b73d57cbc74316cf01bd` | 2026-11-05 | MIT, Copyright (c) 2026 Ade | 1 skill, fetched into `.cache/good-readme/` |
+| ponytail | https://github.com/DietrichGebert/ponytail | `96608e078b2d5ea607c5c3b8b5a54d1c1fba6846` | 2026-10-29 | MIT, Copyright (c) 2026 DietrichGebert | 1 skill, fetched into `.cache/ponytail/` |
 
 The licence of mattpocock/skills is MIT. Its text is at https://github.com/mattpocock/skills (the LICENSE file), and after a fetch it is also at `.cache/mattpocock-skills/LICENSE`.
 
@@ -55,6 +56,12 @@ The calls and mentions are typed by hand from the SKILL.md files. `fetch-skills.
 |-------|---------------|---------------------|--------------------|----------------------|
 | `good-readme` | `skills/good-readme` | Creates, improves and audits a project's README.md. Its reference files hold example READMEs and a quality checklist. | | |
 
+### Locked skills (DietrichGebert/ponytail)
+
+| Skill | Upstream path | Why the kit uses it | Calls (Skill tool) | Mentions (name only) |
+|-------|---------------|---------------------|--------------------|----------------------|
+| `ponytail` | `skills/ponytail` | Makes the agent write the smallest change that fully solves the task. The agent ends its reply with what it skipped or did not check. | | |
+
 ## 4. What each skill does outside the conversation
 
 The text of each SKILL.md was read on 2026-11-07. The table shows only what the text says.
@@ -74,10 +81,13 @@ The text of each SKILL.md was read on 2026-11-07. The table shows only what the 
 | `writing-for-agents` | No. The text gives advice only. | No. |
 | `ambition` | No. It reads a project reference, `references/<project>.md` beside the `SKILL.md`, when one exists. With `/ambition <area>` it reads the README, contributor guide, plan and recent commits of that directory. | No. |
 | `good-readme` | No. It reads the project's source and manifests, and the README it is asked to change. The text names no command to run. | No. |
+| `ponytail` | No. It changes how the agent writes code. The text names no command to run and no file to write. | No. |
 
 The `ambition` row was read on 2026-11-08 from `SKILL.md` and its README at commit `02dd70c`. The skill names no model and calls no other skill. Its README and example mention Claude Code as the product. The repository also holds a README, an example and `.claude-plugin/` files outside `skills/ambition`. The kit links only the `skills/ambition` folder, so those files are not installed. The folder itself holds `SKILL.md`, `references/` and `evals/`.
 
 The `good-readme` row was read on 2026-11-08 from `SKILL.md` and its five files in `references/` at commit `17c42e2`. The skill names no model and calls no other skill. Its front matter says it works with Codex, OpenCode, Pi, Gemini CLI and Claude Code. It says to use it only when the user asks for a README. It overlaps with the kit's `ste-docs` skill, which the repo rules require for module READMEs: for a README in this repo, use `ste-docs`. The kit links only the `skills/good-readme` folder.
+
+The `ponytail` row was read on 2026-11-09 from the whole `SKILL.md` (52 lines) at commit `96608e0`. The folder holds `SKILL.md` only. The skill names no model and calls no other skill. The kit links only the `skills/ponytail` folder. The upstream repository also holds hooks that run `node` at session start. It holds a status band and slash commands such as `/ponytail-review`. The kit does not install them. The `SKILL.md` text says the skill is active for the whole session, and that `/ponytail lite|full|ultra` sets the level. Without the hooks, the skill runs when the agent loads it. Whether the level switch works without the hooks is not checked. The upstream repository has a second folder named `ponytail`, in `.openclaw/skills/`, for another agent. The lock names `skills/ponytail`, and `fetch-skills.sh --update` keeps that path (section 7). `ponytail` and `ambition` give opposite advice: `ambition` makes a task bigger, and `ponytail` makes the change smaller. Call one of them for a task, not both.
 
 ### Approval before publishing
 
@@ -114,7 +124,7 @@ Installed copies in `~/.claude/skills` that link into `~/.agents/skills` are sha
 
 ## 7. Update
 
-1. Run `scripts/fetch-skills.sh --update`. It moves each source to the newest commit of its default branch, recomputes each path and tree hash, and rewrites `skills.lock.json`. It lists what changed. If a locked skill is missing upstream, or is found twice, nothing is written.
+1. Run `scripts/fetch-skills.sh --update`. It moves each source to the newest commit of its default branch, recomputes each path and tree hash, and rewrites `skills.lock.json`. It lists what changed. Nothing is written if a locked skill is missing upstream. Nothing is written if a locked skill is found twice and its locked `path` is neither copy. If a skill is found twice and the locked `path` is one copy, the script keeps that `path`. `ponytail` is an example: upstream also has an adapter copy in `.openclaw/skills/`.
 2. Review the change with `git diff skills.lock.json`.
 3. For each changed skill, re-read its SKILL.md. Look for new commands, new network calls and new publishing steps (section 4), and for new Skill-tool calls or skill names. Edit `calls` and `mentions` in `skills.lock.json` by hand, and update section 3 and section 4 here.
 4. Run `scripts/fetch-skills.sh` (it checks the tree hashes), then `scripts/install-skills.sh`, then `scripts/doctor.sh`.
@@ -150,6 +160,8 @@ The tier is written in the description of the update pull request or issue.
 
 mattpocock/skills is MIT licensed. Copyright (c) 2026 Matt Pocock. The full text is at https://github.com/mattpocock/skills, and after a fetch at `.cache/mattpocock-skills/LICENSE`.
 
+ponytail is MIT licensed. Copyright (c) 2026 DietrichGebert. The full text is at https://github.com/DietrichGebert/ponytail, and after a fetch at `.cache/ponytail/LICENSE`.
+
 ### Decision on `ambition` (2026-11-08)
 
 The owner decided that `ambition` stays in `skills.lock.json`. The kit fetches and links it, as section 3 describes. It does not copy its files into `skills/`. Its upstream declares no licence, so the kit makes no licence claim for it. The decision was made on 2026-11-08, in task S9 of the self-check task list (deleted when finished; it is in git history).
@@ -162,7 +174,7 @@ The install script links the skills. It does not copy them. A link points into `
 
 ### Step 1. Fetch the locked skills (once per clone)
 
-Own skills (`ste-docs`, `unslop`) need no fetch. The 13 locked skills do.
+Own skills (`ste-docs`, `unslop`) need no fetch. The 14 locked skills do.
 
 ```bash
 cd ~/agent-garage
@@ -184,7 +196,7 @@ The `--project` folder must exist. It does not have to be a git repository. Run 
 ### Step 3. Install all skills, or only some
 
 ```bash
-# All 15 skills
+# All 16 skills
 bash scripts/install-skills.sh --project ~/my-app
 
 # Only the skills that you name
