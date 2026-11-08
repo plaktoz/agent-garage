@@ -385,7 +385,7 @@ Under `mattpocock-skills`, the lock also records `copies`: the two skills copied
 ### `.github/workflows/`
 
 - `ci.yml` runs on each pull request, on each push to any branch and by hand. It runs the kit scripts and `scripts/check-claims.sh` on Ubuntu, macOS and Windows (Git Bash). Each job uses a temporary home folder. It has no secrets and it reads only the repository.
-- `upstream-check.yml` runs on Mondays at 03:17 UTC and by hand. It runs `scripts/check-upstream.sh`. When upstream moved (exit 1), it opens one issue titled "Upstream check: a locked source moved", or adds a comment to the open one. When the check cannot run (exit 2 or 3), the job fails. It changes no lock, branch or pull request.
+- `upstream-check.yml` runs on Mondays at 03:17 UTC and by hand. It runs `scripts/check-upstream.sh` and sorts the result into a tier (`docs/skills-sources.md`, section 7). Tier 1 (upstream moved, no locked skill or plugin folder changed, licence unchanged): it pushes a branch `upstream/lock-<date>` with the new lock, opens a pull request with the check results in its description, and starts `ci.yml` on that branch by hand. Tier 2 or 3: it opens one issue titled "Upstream check: a locked source moved", or adds a comment to the open one. It never merges. It needs the repository setting "Allow GitHub Actions to create and approve pull requests". When the check cannot run (exit 2 or 3), the job fails.
 
 ## Playbooks
 
