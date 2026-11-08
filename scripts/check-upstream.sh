@@ -67,6 +67,8 @@ cant=0
 gone_list=""      # lines: source|name|detail
 changed_list=""   # lines: source|name|oldshort|newshort|path
 plugin_up=""      # lines: source|oldversion|newversion
+plugin_odd=""     # lines: source|detail (plugin folder changed, version not newer or not readable)
+plugin_low=""     # lines: source|newversion|minimum (new version below the minimum)
 moved_only=""     # sources that moved with nothing locked changed
 licence_list=""   # lines: source|detail
 
@@ -184,6 +186,9 @@ EOF
       echo "  plugin     $ppath unchanged"
     elif [ -z "$nver" ]; then
       echo "  plugin     $ppath changed; the new version could not be read"
+      plugin_odd="$plugin_odd$name|$ppath changed and its version could not be read
+"
+      locked_changed=1
     else
       cmp="$(vercmp "$nver" "$pver")"
       cmpmin=""
@@ -195,9 +200,16 @@ EOF
         locked_changed=1
       else
         echo "  plugin     $ppath changed: version $pver -> $nver, which is not newer than the lock"
+        plugin_odd="$plugin_odd$name|$ppath changed, version $pver -> $nver is not newer than the lock
+"
         locked_changed=1
       fi
-      [ "$cmpmin" = "-1" ] && echo "  warn       new version $nver is below the minimum $minv"
+      if [ "$cmpmin" = "-1" ]; then
+        echo "  warn       new version $nver is below the minimum $minv"
+        plugin_low="$plugin_low$name|$nver|$minv
+"
+        locked_changed=1
+      fi
     fi
   done <<EOF
 $(grep "^plugin|$name|" "$tmp/rows")
@@ -236,6 +248,12 @@ if [ -n "$licence_list" ]; then
     [ -n "$s" ] && echo "    $s: $d"
   done
   echo "  Read the new licence, then record the decision in docs/skills-sources.md section 9."
+elif [ -n "$plugin_low" ]; then
+  echo "  The plugin version at the new head is below the minimum. Do not update (tier 3 in"
+  echo "  docs/skills-sources.md section 7). The owner decides:"
+  printf '%s' "$plugin_low" | while IFS='|' read -r s nw m; do
+    [ -n "$s" ] && echo "    $s: new version $nw, minimum $m"
+  done
 elif [ -n "$gone_list" ]; then
   echo "  A locked skill moved, was removed or was renamed. Update the playbooks that name it first:"
   printf '%s' "$gone_list" | while IFS='|' read -r s n d; do
@@ -254,6 +272,12 @@ elif [ -n "$changed_list" ]; then
   done
   echo "  (Run bash scripts/fetch-skills.sh first if .cache/ is missing.) Then run:"
   echo "    bash scripts/fetch-skills.sh --update"
+elif [ -n "$plugin_odd" ]; then
+  echo "  The plugin folder changed, but its version did not go up or could not be read. Read the"
+  echo "  change before you update (tier 2 in docs/skills-sources.md section 7):"
+  printf '%s' "$plugin_odd" | while IFS='|' read -r s d; do
+    [ -n "$s" ] && echo "    $s: $d"
+  done
 elif [ -n "$plugin_up" ]; then
   echo "  The plugin version is above the lock. Run its playbook check against the new version in a"
   echo "  temporary copy of the project, then update the lock:"
