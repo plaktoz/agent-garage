@@ -35,6 +35,7 @@ How a piece of work goes from request to done. Follow the steps in order.
 
 - If a task or subtask is independent, send it to a subagent to complete the work. Give each independent task or subtask its own subagent, and start them in one message so they run in parallel.
 - Do not send a task or subtask to a subagent when it is small or when it depends on another task's output.
+- When a task does not run in parallel, write the reason next to the task in the task list, so the user can see the dependency. Name what it waits for: the task, and the output or decision it needs (for example, "waits for T2: it reads the file that T2 writes"). For a small task, say that it is small. The order of the tasks in the list is not a reason.
 - The agent doing a task tests and verifies it against its acceptance criteria.
 - Hand verification to the user only when the agent cannot do it, such as a Windows-only check on a macOS machine. Say why in the task list.
 
