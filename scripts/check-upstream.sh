@@ -12,6 +12,7 @@
 #   - each locked skill whose folder changed, moved, or is gone (tree hash at the new head)
 #   - skills added upstream since the lock (information only)
 #   - for a plugin: the version at the new head against the lock and the minimum
+#   - each top-level LICENSE, LICENCE or COPYING file added, removed or changed since the lock
 # It does not check the copies in skills.lock.json (diagnosing-bugs, triage) or any skill of this
 # repo. Only `scripts/fetch-skills.sh --update` changes the lock.
 #
@@ -26,7 +27,7 @@ helper="$here/skills-lock.cjs"
 only=""
 
 usage() {
-  sed -n '2,20p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,/^set -u$/p' "${BASH_SOURCE[0]}" | sed -e '$d' -e 's/^# \{0,1\}//'
 }
 
 while [ "$#" -gt 0 ]; do
@@ -67,6 +68,30 @@ gone_list=""      # lines: source|name|detail
 changed_list=""   # lines: source|name|oldshort|newshort|path
 plugin_up=""      # lines: source|oldversion|newversion
 moved_only=""     # sources that moved with nothing locked changed
+licence_list=""   # lines: source|detail
+
+# licence_files BARE COMMIT: one line "name blob" for each top-level licence file, sorted.
+licence_files() {
+  git -C "$1" ls-tree "$2" 2>/dev/null \
+    | awk -F'\t' '{ split($1, m, " "); n = $2; u = toupper(n);
+        if (m[2] == "blob" && (u ~ /^LICEN[CS]E/ || u ~ /^COPYING/)) print n " " m[3] }' \
+    | sort
+}
+
+# licence_diff OLD NEW: a short text naming each licence file added, removed or changed.
+licence_diff() {
+  printf '%s\n' "$1" | awk 'NF { print $1 }' | sort >"$tmp/lic.old"
+  printf '%s\n' "$2" | awk 'NF { print $1 }' | sort >"$tmp/lic.new"
+  out=""
+  for f in $(comm -13 "$tmp/lic.old" "$tmp/lic.new"); do out="$out added $f;"; done
+  for f in $(comm -23 "$tmp/lic.old" "$tmp/lic.new"); do out="$out removed $f;"; done
+  for f in $(comm -12 "$tmp/lic.old" "$tmp/lic.new"); do
+    a="$(printf '%s\n' "$1" | awk -v f="$f" '$1 == f { print $2 }')"
+    b="$(printf '%s\n' "$2" | awk -v f="$f" '$1 == f { print $2 }')"
+    [ "$a" != "$b" ] && out="$out changed $f;"
+  done
+  printf '%s' "${out# }"
+}
 
 while IFS='|' read -r _k name url commit minv link cdate; do
   echo "source $name  $link"
@@ -177,13 +202,41 @@ EOF
   done <<EOF
 $(grep "^plugin|$name|" "$tmp/rows")
 EOF
+  # licence: the top-level LICENSE, LICENCE and COPYING files at the locked commit and the new head.
+  # No tree hash of a locked skill covers them, so a licence change is checked here.
+  if [ "$have_old" -eq 1 ]; then
+    lic_old="$(licence_files "$bare" "$commit")"
+    lic_new="$(licence_files "$bare" "$newhead")"
+    if [ "$lic_old" != "$lic_new" ]; then
+      lic_detail="$(licence_diff "$lic_old" "$lic_new")"
+      echo "  licence    changed: $lic_detail"
+      licence_list="$licence_list$name|$lic_detail
+"
+      locked_changed=1
+    else
+      echo "  licence    unchanged"
+    fi
+  else
+    echo "  licence    not checked: the locked commit is not in the upstream history"
+    licence_list="$licence_list$name|not checked, the locked commit is gone
+"
+    locked_changed=1
+  fi
+
   [ "$locked_changed" -eq 0 ] && moved_only="$moved_only$name "
   echo
 done <"$tmp/sources"
 
 # Recommended next step: one step, chosen by rule, most urgent first.
 echo "Recommended next step"
-if [ -n "$gone_list" ]; then
+if [ -n "$licence_list" ]; then
+  echo "  A licence file changed upstream, or could not be compared. Do not update. The owner decides"
+  echo "  (tier 3 in docs/skills-sources.md section 7):"
+  printf '%s' "$licence_list" | while IFS='|' read -r s d; do
+    [ -n "$s" ] && echo "    $s: $d"
+  done
+  echo "  Read the new licence, then record the decision in docs/skills-sources.md section 9."
+elif [ -n "$gone_list" ]; then
   echo "  A locked skill moved, was removed or was renamed. Update the playbooks that name it first:"
   printf '%s' "$gone_list" | while IFS='|' read -r s n d; do
     [ -n "$n" ] || continue
