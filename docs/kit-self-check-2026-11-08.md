@@ -135,16 +135,19 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
 
 ### Phase 3: the next rung
 
-- [ ] **S10. Turn the weekly upstream check into a pull request.** Branch: `docs/kit-self-check`. Depends on S8 and on a rule from the user about which upstream changes can merge without a read.
+- [x] **S10. Turn the weekly upstream check into a pull request.** Branch: `ci/s10-pr-path-2026-11-08`. Waited for S8 (the `drift` job that runs `check-claims.sh`) and for the merge rule from the user. Both exist.
   Do: change `.github/workflows/upstream-check.yml` so that, when upstream moved, it opens a pull request. The pull request updates the lock with `fetch-skills.sh --update`, and runs the drift checks. A person merges it.
   Acceptance: the workflow opens a pull request on a test branch, and the check results are in its description. The rule from the user is written in `docs/skills-sources.md`.
   Owner (requested 2026-11-08, "put this as the responsibility of Alfred"): Alfred, `agents/alfred.md`. Alfred is read only today: it edits no file, and it does not commit, push, merge or edit a pull request. So Alfred cannot open the update pull request as the agent is written. Two readings, and the user must pick one before S10 starts:
   - A. Alfred reviews. The workflow opens the pull request. Alfred reports on it (the lock diff, the `check-claims.sh` result, the playbook skill names) and does not merge. This fits the agent as it is, and its check 5 already covers merged branches. Default.
   - B. Alfred authors. The agent definition changes to allow it to run `fetch-skills.sh --update` and open the pull request. That removes the "Changes no file" rule, which needs the user's approval, and `skills.lock.json` still cannot change without it.
   In both readings a person merges, and the merge rule from the user is still needed.
-  Merge rule (decided 2026-11-08, "go with Tier 1"): recorded in `docs/skills-sources.md` section 7. Tier 1 merges without a read, as approved. Known gap, recorded there: a licence change in an upstream `LICENSE` is not checked by any script, so Tier 1 cannot see it.
+  Merge rule (decided 2026-11-08, "go with Tier 1"): recorded in `docs/skills-sources.md` section 7. Tier 1 merges without a read, as approved. `check-upstream.sh` reads licence files since PR #21, and a licence change is tier 3 (PR #27 fixed the rule text).
   Authority (decided 2026-11-08, "allow alfred to make changes"): Alfred may change files on request, on a new branch, with a pull request. Recorded in `agents/alfred.md` and in PR #20.
-  Still open: the workflow in `upstream-check.yml` that opens the pull request, and its acceptance test on a test branch. Keep this `[ ]` until that test passes.
+  Repository setting (decided 2026-11-08, "option 1"): "Allow GitHub Actions to create and approve pull requests" is on. Read back with `gh api`: `can_approve_pull_request_reviews` is `true`.
+  Result (2026-11-08): `upstream-check.yml` sorts the report into tier 0 to 3 from the lines above "Recommended next step". Tier 1 pushes `upstream/lock-<date>`, opens a pull request with the report, `check-claims.sh` and `doctor.sh` output in its body, and starts `ci.yml` on that branch. Tier 2 and 3 open or update one issue.
+  Verified: on a test branch with a stub `check-upstream.sh` that reports tier 1, run 42447189097 opened PR #28 with the results in its body, and `ci.yml` ran on the update branch (success). A second run with PR #29 open printed "Update pull request #29 is still open. No new branch." and opened nothing. The test PRs and branches were deleted.
+  Not verified: the tier was faked by the stub. A real tier 1 report has not occurred, because the real lock is tier 2 (pstack 0.9.92 to 0.9.133). `gh pr checks` shows no checks on the update pull request, because a run started by `workflow_dispatch` is not attached to the pull request. CI passed on the branch; the pull request page does not show it.
 
 ## Not verified and out of scope
 
