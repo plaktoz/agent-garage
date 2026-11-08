@@ -335,9 +335,10 @@ It compares the locked commit of each source with the upstream head (`git ls-rem
 - how many commits the head is ahead;
 - each locked skill that changed, moved or is gone;
 - each skill added upstream;
-- for pstack, the new version against the lock and the minimum.
+- for pstack, the new version against the lock and the minimum, and a changed plugin folder whose version did not go up or cannot be read;
+- for each source, whether a top-level licence file (`LICENSE`, `LICENCE` or `COPYING`) was added, removed or changed.
 
-It ends with one recommended next step. It never acts. Only `fetch-skills.sh --update` changes the lock.
+It ends with one recommended next step, which follows the merge rule in `docs/skills-sources.md`, section 7. It never acts. Only `fetch-skills.sh --update` changes the lock.
 
 It exits 0 when nothing moved. It exits 1 when upstream moved. It exits 2 on a usage error. It exits 3 when it cannot run, for example with no network or a bad lock.
 
