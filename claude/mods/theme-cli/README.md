@@ -30,7 +30,7 @@ The strip uses half-block characters, so each terminal row shows 2 pixels. This 
 ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
 ```
 
-The strip works in the terminal only. The checks in this document ran on macOS. The Windows sound path is verified by reading only. Task T5 in `docs/win-audio-merge-2026-10-25.md`, the Windows check by the user, is pending. Section 7 lists what is unverified.
+The strip works in the terminal only. The checks in this document ran on macOS. The Windows sound path is verified by reading only. Task T5 in `docs/tasks/win-audio-merge-2026-10-25.md`, the Windows check by the user, is pending. Section 7 lists what is unverified.
 
 ## 2. Where to find the code
 
@@ -853,7 +853,7 @@ In this check, that command printed nothing and exited with 0, run from the repo
 - **No survey.** The strip does not show while the engine shows a survey.
 - **Sound mode scope.** The mode holds for the session and a hot reload. Whether a new session starts in `all` mode after `/theme-sound off` was not tested.
 - **Sound on Linux and WSL.** The engine has no player on Linux, and the mod adds none. The mod treats WSL as not Windows, because the `OS` variable check does not match there. Playback on Linux and WSL was not tested.
-- **Sound on Windows.** The mod plays WAV clips itself, with PowerShell, in `hooks/winaudio.ts`. Other formats go to the engine, which plays nothing on Windows. The fake-engine tests ran on macOS. Real playback on Windows is unverified. Task T5 in `docs/win-audio-merge-2026-10-25.md` is the Windows check, and it is pending. When the engine ships a Windows player, remove `hooks/winaudio.ts`, the `winAudio(on)` call and the `/theme-sound-test` command in `register.tsx`, and `hooks/wav.ts` if nothing else imports it.
+- **Sound on Windows.** The mod plays WAV clips itself, with PowerShell, in `hooks/winaudio.ts`. Other formats go to the engine, which plays nothing on Windows. The fake-engine tests ran on macOS. Real playback on Windows is unverified. Task T5 in `docs/tasks/win-audio-merge-2026-10-25.md` is the Windows check, and it is pending. When the engine ships a Windows player, remove `hooks/winaudio.ts`, the `winAudio(on)` call and the `/theme-sound-test` command in `register.tsx`, and `hooks/wav.ts` if nothing else imports it.
 - **Windows loop stop.** Unverified on Windows. `stopLoop()` ends the child through `stopWindowsLoops()`. The mod then calls `return()` on the child's stream. The engine's documentation says `return()` kills the child. The child's stream is read in a separate task at the same time, so whether `return()` ends a child that writes no output is unverified. A hot reload resets the `loops` set, so `stopWindowsLoops()` cannot stop a child that started before the reload.
 - **Hot reload and the working loop.** A hot reload drops the handle `loop`. The working clip can keep playing, and the mod cannot stop it. This is open question Q4 in `library/theme-mod-spec.md`.
 - **Windows.** No Windows run has happened. The code has Windows paths for the home folder, the Python launcher, drive-letter paths and UTF-8 files. Half-block characters and truecolor can render wrongly on a legacy Windows console. This is unverified. The Windows sound path is in the two items above.

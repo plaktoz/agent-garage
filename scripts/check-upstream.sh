@@ -13,7 +13,7 @@
 #   - skills added upstream since the lock (information only)
 #   - for a plugin: the version at the new head against the lock and the minimum
 #   - each top-level LICENSE, LICENCE or COPYING file added, removed or changed since the lock
-# It does not check the copies in skills.lock.json (diagnosing-bugs, triage) or any skill of this
+# It does not check any skill of this
 # repo. Only `scripts/fetch-skills.sh --update` changes the lock.
 #
 # Exit status: 0 nothing moved, 1 upstream moved, 2 usage error, 3 the check could not run

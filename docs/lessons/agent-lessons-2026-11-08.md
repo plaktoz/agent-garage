@@ -1,6 +1,6 @@
 # Lessons for agents that work in this repo
 
-Date: 2026-11-08. Source: the self-check session. Its task list is `docs/kit-self-check-2026-11-08.md`, tasks S1 to S10.
+Date: 2026-11-08. Source: the self-check session. Its task list was `docs/kit-self-check-2026-11-08.md`, tasks S1 to S10. It was deleted when finished and is in git history.
 
 This file guides future agents. The rules are in `AGENTS.md`. Each lesson gives the cause of its rule. An agent can use the cause to judge a case the rules miss.
 

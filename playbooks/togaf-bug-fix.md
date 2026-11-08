@@ -21,12 +21,8 @@ Skills used
   only), `unslop`, Opening a PR, Babysit, `swarm` (see Parallelism).
 - Pocock (optional): `git-guardrails-claude-code` for unattended runs that must not push. It
   blocks every `git push` and needs jq. Do not use it when Step 6 will open a PR.
-- Overlap rule: where pstack is installed, use pstack's Bug fix playbook. Where it is not, use
-  `diagnosing-bugs` for Steps 2 and 3 and `triage` for issue intake in Step 1.
-  `diagnosing-bugs` builds a pass/fail feedback loop, reproduces and minimises the bug, ranks
-  hypotheses, and removes its debug logging at the end. `triage` sets a category and a state on an
-  issue, checks the claim, and writes an agent brief. It posts comments and changes labels on the
-  issue tracker, and it waits for the maintainer's direction before it applies an outcome.
+- Overlap rule: where pstack is installed, use pstack's Bug fix playbook. Where it is not, follow
+  Steps 1 to 3 below by hand.
 
 ---
 

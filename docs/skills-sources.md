@@ -8,6 +8,7 @@ Where each skill and plugin of this kit comes from, what it does outside the con
 - `scripts/install-skills.sh` links each skill from `skills/` (own skills) or from `.cache/` (locked skills) into `~/.claude/skills` or `~/.agents/skills`. With `--project <folder>` it links into `<folder>/.claude/skills`, or into `<folder>/.agents/skills` when `--agents` is also given.
 - `scripts/doctor.sh` checks the lock against the fetched copies and the installed links. It changes nothing.
 - The lock is recorded, not pinned. Only `scripts/fetch-skills.sh --update` changes it, and only after review.
+- To use the skills in another repository, see section 10.
 
 ## 2. Sources
 
@@ -22,7 +23,7 @@ The licence of mattpocock/skills is MIT. Its text is at https://github.com/mattp
 
 `jakedahn/ambition` declares no licence. The kit therefore fetches it and links it. It never copies the files into this repository. Do not copy them into `skills/` unless the author gives permission. The repository is public, although its README says it is private.
 
-Two own skills are copies of upstream skills, made by hand and recorded under `copies` in `skills.lock.json`: `diagnosing-bugs` and `triage`. They live in `skills/` and are not fetched. `skills/ste-docs` and `skills/unslop` are own skills with no upstream source.
+The kit keeps no copy of an upstream skill. `skills/ste-docs` and `skills/unslop` are the only own skills, and they have no upstream source. `diagnosing-bugs` and `triage` were copies of mattpocock/skills. They were removed on 2026-11-08 (they are in git history).
 
 ## 3. Locked skills (mattpocock/skills)
 
@@ -119,7 +120,7 @@ Installed copies in `~/.claude/skills` that link into `~/.agents/skills` are sha
 4. Run `scripts/fetch-skills.sh` (it checks the tree hashes), then `scripts/install-skills.sh`, then `scripts/doctor.sh`.
 5. Commit the lock and this file together, when the user has asked for commits.
 
-To change a locked skill, do not edit `.cache/` by hand: the next fetch restores the recorded commit. To change a skill for the kit, copy it into `skills/` under a new name, and record the origin in `skills.lock.json` under `copies`.
+To change a locked skill, do not edit `.cache/` by hand: the next fetch restores the recorded commit. The kit keeps no copy of an upstream skill. To change a locked skill, ask the upstream author, or write an own skill in `skills/` under a new name.
 
 ### Merge rule for an upstream update (decided 2026-11-08, S10)
 
@@ -151,4 +152,89 @@ mattpocock/skills is MIT licensed. Copyright (c) 2026 Matt Pocock. The full text
 
 ### Decision on `ambition` (2026-11-08)
 
-The owner decided that `ambition` stays in `skills.lock.json`. The kit fetches and links it, as section 3 describes. It does not copy its files into `skills/`. Its upstream declares no licence, so the kit makes no licence claim for it. The decision was made under S9 of `docs/kit-self-check-2026-11-08.md`.
+The owner decided that `ambition` stays in `skills.lock.json`. The kit fetches and links it, as section 3 describes. It does not copy its files into `skills/`. Its upstream declares no licence, so the kit makes no licence claim for it. The decision was made on 2026-11-08, in task S9 of the self-check task list (deleted when finished; it is in git history).
+
+## 10. Install the skills in another repository
+
+This section shows how to use the skills of this kit in a different project. In the examples, `~/agent-garage` is your clone of this repository. `~/my-app` is the other project.
+
+The install script links the skills. It does not copy them. A link points into `~/agent-garage`. So the clone must stay on the computer, and a `git pull` in the clone updates the skills in every project.
+
+### Step 1. Fetch the locked skills (once per clone)
+
+Own skills (`ste-docs`, `unslop`) need no fetch. The 13 locked skills do.
+
+```bash
+cd ~/agent-garage
+bash scripts/fetch-skills.sh
+```
+
+Without this step, the install links the own skills only. It prints a note that names the missing sources. It does not fail.
+
+### Step 2. Choose the target
+
+| You use | Command | Links go to |
+|---------|---------|-------------|
+| Claude Code | `bash scripts/install-skills.sh --project ~/my-app` | `~/my-app/.claude/skills/` |
+| Codex, OpenCode or Gemini CLI | `bash scripts/install-skills.sh --project ~/my-app --agents` | `~/my-app/.agents/skills/` |
+| Claude Code, for every project | `bash scripts/install-skills.sh` | `~/.claude/skills/` |
+
+The `--project` folder must exist. It does not have to be a git repository. Run the script from `~/agent-garage`, or give the full path to it.
+
+### Step 3. Install all skills, or only some
+
+```bash
+# All 15 skills
+bash scripts/install-skills.sh --project ~/my-app
+
+# Only the skills that you name
+bash scripts/install-skills.sh --project ~/my-app ste-docs unslop
+```
+
+Some locked skills call other skills. For example, `grill-me` calls `grilling`. Install the called skill too. Section 3 lists the calls for each skill.
+
+### Step 4. Check and remove
+
+```bash
+# Show what is installed. This changes nothing.
+bash scripts/install-skills.sh --project ~/my-app --list
+
+# Remove the links that this script made.
+bash scripts/install-skills.sh --project ~/my-app --uninstall
+```
+
+Add `--agents` to both commands if you installed with `--agents`. The script reports `installed`, `up to date`, `missing` or `removed` for each skill. It exits 0 on success.
+
+### Step 5. Keep the links out of git
+
+A link holds the path of your clone. That path is not valid on another computer. Add these lines to the `.gitignore` of `~/my-app`:
+
+```gitignore
+/.claude/skills/
+/.agents/skills/
+```
+
+Each person who clones `~/my-app` then runs the install on their own computer. Those two lines also hide a skill that the project keeps in those folders by hand. To keep such a skill in git, list only the link names in `.gitignore`.
+
+### Step 6. Add the playbooks (optional)
+
+The playbooks are not skills. `bootstrap-project.sh` copies them into `~/my-app/.agents/playbooks/`. The path must be the top folder of a git repository.
+
+```bash
+bash scripts/bootstrap-project.sh ~/my-app
+```
+
+A second run reports `up to date`. A playbook that you changed in the project is skipped. Use `--force` to replace it.
+
+### Common problems
+
+| Message | Cause | Fix |
+|---------|-------|-----|
+| `no fetched copy for: ...` | Step 1 was not run. | Run `bash scripts/fetch-skills.sh`. |
+| `skipped` for a skill | A real folder, or a link from another source, has the same name. | Move it away, or use `--force` to replace it. The script never removes a folder it did not make. |
+| Exit 2 | Unknown option, missing `--project` folder, or `--project` with `CLAUDE_SKILLS_DIR`. | Fix the command. |
+| A skill does not appear in the harness | The harness was open during the install. | Start a new session. |
+
+### What was checked
+
+On 2026-11-08 on macOS, in a temporary project, `--project` installed `ste-docs` and `unslop` into `.claude/skills/`. `--agents` installed `ste-docs` into `.agents/skills/`. `--list` and `--uninstall` ran with exit 0. The `.cache/` folder was empty in that checkout, so no locked skill was installed in that run. Linux and Windows are not run: Windows needs Git Bash and Developer Mode. No person has checked that Codex, OpenCode or Gemini CLI load the project folders. That claim comes from their documentation.

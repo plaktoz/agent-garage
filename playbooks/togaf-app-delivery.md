@@ -28,7 +28,7 @@ Skills used
   (Phase 3, step 3).
 - Overlap rule: use ONE tdd skill (pstack's by default). Use `/how` to orient on unfamiliar code.
   For a defect: where pstack is installed, use pstack's Bug fix playbook. Where it is not, use
-  `diagnosing-bugs` for the root-cause step and `triage` for issue intake.
+  the bug-fix playbook in this kit (`togaf-bug-fix.md`).
 - Call Pocock skills by name inside the steps below; `poteto-mode` does not route to them.
 
 Artifacts (create if missing)
