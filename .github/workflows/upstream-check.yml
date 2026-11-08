@@ -101,7 +101,7 @@ jobs:
           git commit -q -m "lock: update upstream sources (tier 1, automatic)"
           git push -q -u origin "$branch"
           {
-            echo "Tier 1 update from the weekly check. Upstream moved; no locked skill changed; the licence is unchanged; the plugin folder is unchanged."
+            echo "Tier 1 update from the weekly check. The report below is the check result: no locked skill changed, the licence is unchanged, and no plugin folder is above or below its lock."
             echo "Merge rule: docs/skills-sources.md section 7. A person merges it. The check only opens it."
             echo "CI does not start by itself on a pull request that the workflow token opens, so the workflow started ci.yml on this branch by hand."
             echo
