@@ -7,7 +7,7 @@ name: ci
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: ['**']   # every branch, not only main; tags do not start a run
   workflow_dispatch: {}
 
 permissions:
@@ -170,6 +170,44 @@ jobs:
           cd "$copy"
           # Node 24 needs a file or glob here, not a directory (a directory gives "Cannot find module").
           node --test 'test/*.test.js'
+
+  # The README drift check (scripts/check-claims.sh): options, exit codes, source names and the
+  # licence statement in README.md, checked against the scripts, the lock and LICENSE. It reads only.
+  # It runs on the same three systems as the kit job, with the same temp home.
+  drift:
+    name: claim drift on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash   # Git Bash on Windows
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Temp home, not the runner's home
+        run: |
+          set -euo pipefail
+          base="$RUNNER_TEMP"
+          if [ "$RUNNER_OS" = Windows ]; then base="$(cygpath -u "$RUNNER_TEMP")"; fi
+          work="$base/drift-ci"
+          mkdir -p "$work/home"
+          echo "HOME=$work/home" >> "$GITHUB_ENV"
+          if [ "$RUNNER_OS" = Windows ]; then
+            echo "USERPROFILE=$(cygpath -w "$work/home")" >> "$GITHUB_ENV"
+          fi
+
+      - name: Claims in README.md match the scripts, the lock and LICENSE
+        run: |
+          set -euo pipefail
+          bash scripts/check-claims.sh
 
   shellcheck:
     name: shellcheck (ubuntu-latest)
