@@ -102,13 +102,13 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   - Step 1, exit codes read with `$?` right after each command: all 7 mods exit 0 for `validate` and for `test`.
   - `validate` warning on cache-warm, handoff, screen-share and switchboard: `author: No author information provided. Consider adding author details for plugin attribution`.
   - `validate` directory warning `ICON_MISSING` on brain-dump, cache-warm, handoff, reflect, screen-share and switchboard. theme-cli shows no directory warning.
-  - `validate` directory problem `LICENSE_MISSING` on cache-warm, handoff, screen-share and switchboard. These four have no LICENSE file and no `license` field. The result stays "passed". brain-dump, reflect and theme-cli have a MIT LICENSE file.
+  - `validate` directory problem `LICENSE_MISSING` on cache-warm, handoff, screen-share and switchboard. Fixed on 2026-11-08 (user: "add MIT license to the 4 mods"): each now has the root MIT `LICENSE` text, and `--profile directory` reports no licence problem on them.
   - `test` results, pass and fail, with file count: brain-dump 10/0/1, cache-warm 12/0/1, handoff 10/0/1, reflect 45/0/2, screen-share 13/0/1, switchboard 5/0/1, theme-cli 42/0/3.
   - Real `install-mods.sh --list`, read only, no install: all 7 show `installed` (user scope). This is the real home, not a round trip.
   - Real `~/.claude` check, before and after this run: the per-file checksums differ. The changed files are live session transcripts and one rotated `.claude.json` backup. No plugin file changed. The `claude plugin list --json` ids and scopes are the same 12 before and after. The hash of `~/.claude.json` changed (mtime 07:53:51). Its cause is not known.
   - Not verified: whether `install` needs the network. The round trip ran with no login prompt. The network was not checked.
   - Not verified: Linux, and Windows (`install-mods.ps1`).
-  - Licence gaps, still open (a decision, not a fault in the check): cache-warm, handoff, screen-share and switchboard have no LICENSE file. brain-dump, reflect and theme-cli have the MIT one. The root `LICENSE` is the same MIT text. Fixing it means copying that file into the four folders, which the user has not asked for.
+  - Licence gaps: closed on 2026-11-08 by copying the root MIT `LICENSE` into the four folders. `theme-desk` (KIV, not in the marketplace) still has none.
 
 - [x] **S7. Run the skill installs under each harness that can run here.** Branch: `docs/s7-codex-install` (from `docs/kit-self-check` at `61fbb71`). Depends on decision 2. Result (2026-11-08, macOS): done with no live Codex request. Codex install checked in a temp project; OpenCode and Gemini CLI not run, not installed. Details below.
   - Install, temp project `git init`ed, with `--agents`: exit 0, 17 `installed` lines. All 17 links resolve to a `SKILL.md`, and their targets are in this worktree (`skills/` or `.cache/`). `--list` after install: 17 `installed`. `--uninstall`: exit 0, 17 `removed`; `--list` after: 17 `missing`.

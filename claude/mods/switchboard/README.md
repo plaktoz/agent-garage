@@ -328,7 +328,7 @@ The output also lists what the mod uses. Compare it with this list:
 
 If the output lists an unknown hook or call, the code and this document differ. Tell the owner of the mod.
 
-The directory profile checks what a plugin directory accepts. Run it with `claude plugin validate claude/mods/switchboard --profile directory`. The run on 2026-10-25 printed `✘ Validation failed (--profile directory: the plugin directory would refuse a submission of this plugin)`. The problem is `LICENSE: License missing`. The warning is `ICON_MISSING`. This profile is not part of the install check.
+The directory profile checks what a plugin directory accepts. Run it with `claude plugin validate claude/mods/switchboard --profile directory`. The run on 2026-10-25 printed `✘ Validation failed (--profile directory: the plugin directory would refuse a submission of this plugin)`, because the mod had no `LICENSE` file. The mod now has an MIT `LICENSE` file, and the run on 2026-11-08 reports no licence problem. The warning is `ICON_MISSING`. This profile is not part of the install check.
 
 ### 6.2 Level 2: run the tests
 
