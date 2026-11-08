@@ -341,7 +341,7 @@ The output can contain lines that look like problems. The last line decides the 
 | Message | Why you can ignore it |
 |---------|----------------------|
 | `author: No author information provided` | Only a note. The mod works without an author. |
-| `✘ Found 1 problem the plugin directory refuses a submission for`, with `LICENSE: License missing (LICENSE_MISSING)` | This check is for submitting the mod to the plugin directory. The last line still reads `✔ Validation passed with warnings`. |
+| `LICENSE: License missing (LICENSE_MISSING)` | The mod has an MIT `LICENSE` file, so this message does not appear. If it appears, the file is gone. |
 | `ICON_MISSING` | Same reason. |
 | `types ./types/index.d.ts declares on $: nothing` | Correct. The mod adds nothing to `$`. |
 

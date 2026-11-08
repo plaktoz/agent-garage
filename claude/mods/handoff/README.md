@@ -374,7 +374,7 @@ The expected output contains messages that look like problems. These messages do
 | Message | Why you can ignore it |
 |---------|----------------------|
 | `author: No author information provided` | This message is a note. The mod works without an author. |
-| `LICENSE: License missing (LICENSE_MISSING)` | This check applies to the plugin directory. It does not change the verdict. |
+| `LICENSE: License missing (LICENSE_MISSING)` | The mod has an MIT `LICENSE` file, so this message does not appear. If it appears, the file is gone. |
 | `icon: No icon (ICON_MISSING)` | Same reason. |
 | `types ./types/index.d.ts declares on $: nothing (no EngineInterface member)` | This result is correct. The mod adds nothing to `$`. |
 
@@ -488,7 +488,7 @@ To run the check, install TypeScript. Load the mod in a session one time. The en
 - **Cost of the summary.** The model request uses the conversation as the main thread last sent it. If the cache is cold, this request costs full price one time.
 - **Summary quality.** The model writes the summary from the conversation and the facts. The summary can miss a detail. Read the handoff before you use it.
 - **Dismiss counts as a choice.** If you close the question without an answer, the mod uses `Continue here`. The token offer does not ask again. A sent prompt starts a turn, and that turn sets `lastTurnEnd` again. So a dismissed cold-cache question does not repeat in normal use.
-- **Plugin directory.** The plugin directory refuses a submission because the mod has no LICENSE file and no `license` field. `claude plugin validate` lists this under a separate `✘` heading, and the verdict still reads `passed with warnings`. The validator also warns that the mod has no icon. The repository's own validation does not change this.
+- **Plugin directory.** The mod has an MIT `LICENSE` file, and `claude plugin validate --profile directory` reports no licence problem (2026-11-08). The validator still warns that the mod has no icon. The repository's own validation does not change this.
 
 ## 8. Glossary
 

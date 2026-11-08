@@ -298,10 +298,11 @@ The last lines of the real output in this review:
 
 The command exited with code 0. The output has 1 warning: `author: No author information provided`.
 
-The plugin directory checks add 1 problem and 1 warning. They do not change the result:
+The plugin directory checks add 1 warning. It does not change the result:
 
-- `LICENSE_MISSING`: the plugin folder has no LICENSE file and `plugin.json` has no `license`.
 - `ICON_MISSING`: the plugin has no icon.
+
+The plugin folder has an MIT `LICENSE` file, so the directory checks report no licence problem.
 
 The output also lists the hooks, calls and state keys that the module uses.
 
@@ -381,7 +382,7 @@ The tests do not cover:
 
 | Problem | Cause | Solution |
 |---------|-------|----------|
-| Validate shows `LICENSE_MISSING`. | The plugin folder has no LICENSE file, and `plugin.json` has no `license`. | Add a LICENSE file, or set `license` in `plugin.json`. |
+| Validate shows `LICENSE_MISSING`. | The `LICENSE` file in the plugin folder is gone, and `plugin.json` has no `license`. | Restore the `LICENSE` file, or set `license` in `plugin.json`. |
 | Validate shows `ICON_MISSING`. | The plugin has no icon. | Add a square PNG icon, or set `icon` in `plugin.json`. |
 | `/screen-share` is not a command. | The mod is not loaded. | Check the install with 5.6. Start a new session after a change. |
 | A name shows in a reply. | The mod learns names after the reply finishes. | Ask Claude to call `hide_names` first. Learning takes place after the reply. |
