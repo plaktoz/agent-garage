@@ -121,6 +121,18 @@ Installed copies in `~/.claude/skills` that link into `~/.agents/skills` are sha
 
 To change a locked skill, do not edit `.cache/` by hand: the next fetch restores the recorded commit. To change a skill for the kit, copy it into `skills/` under a new name, and record the origin in `skills.lock.json` under `copies`.
 
+### Merge rule for an upstream update (decided 2026-11-08, S10)
+
+A person merges every update pull request. The rule says how much a person reads first. `check-claims.sh` and `doctor.sh` must pass before any merge.
+
+- **Tier 1, merge without a read.** The upstream commit moved, no locked skill's tree hash changed, and the pstack version is at or above its minimum. Merge when CI passes. The merge records the new commit only, because no installed file changes.
+- **Tier 2, read, then merge.** A locked skill's tree hash changed, or the pstack version changed and stays at or above its minimum. Read the diff of each changed skill folder. Update `calls` and `mentions` by hand, as step 3 above says. Then merge.
+- **Tier 3, do not merge.** A locked skill moved or is gone, pstack is below its minimum, or a changed skill adds a script, a hook or a settings edit. The update pull request stays open, and the owner decides.
+
+Known gap: Tier 1 does not see a licence change in an upstream `LICENSE` file, because no tree hash of a locked skill covers it. `scripts/check-upstream.sh` does not read licence files today. Until that check exists, a licence change can pass Tier 1 unseen.
+
+Whether an update is tier 1, 2 or 3 is decided by the update pull request's description. The workflow that opens the pull request (S10, `upstream-check.yml`) is not built yet.
+
 ## 8. Plugin: pstack (installed separately, not vendored)
 
 | Name | Source | Locked version | Minimum version | Notes |

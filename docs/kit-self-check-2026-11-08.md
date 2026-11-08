@@ -23,9 +23,9 @@ A claim in the kit's documents that a machine can test is tested in CI on every 
 These are open. The task that depends on each one stays `[ ]` until the user decides. Each one has a default that the agent would use if the user says "use the default".
 
 1. **Repo licence.** The README says there is no root `LICENSE`. Default: add no licence, and leave the README as it is. Task S5 depends on this.
-2. **Codex live run.** `codex login status` on 2026-11-08 shows an API key is configured, but it says authentication is checked only when a request is sent. No live request was sent, so whether the key works is not known. A live request can cost money. Default: do not send one, and keep Codex as "program file read, not run live". Task S7 depends on this.
+2. **Codex live run.** `codex login status` on 2026-11-08 shows an API key is configured, but it says authentication is checked only when a request is sent. No live request was sent, so whether the key works is not known. A live request can cost money. Default: do not send one, and keep Codex as "program file read, not run live". Task S7 depends on this. Default applied (S7, 2026-11-08): no live request was sent. The user has not decided whether to allow one.
 3. **`ambition` in the lock.** It declares no licence upstream. Default: keep it locked and fetched only. Task S9 depends on this.
-4. **Runners for OpenCode and Gemini CLI.** Neither command is on `PATH` on this Mac (`command -v` found only `codex` and `claude`). Default: keep both as "from vendor documentation, not run". Task S7 depends on this.
+4. **Runners for OpenCode and Gemini CLI.** Neither command is on `PATH` on this Mac (`command -v` found only `codex` and `claude`). Default: keep both as "from vendor documentation, not run". Task S7 depends on this. Default applied (S7, 2026-11-08): both stay "from vendor documentation, not run. Not installed".
 
 ## Tasks
 
@@ -55,13 +55,13 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   Do: read the "Not used" line in `playbooks/togaf-feature-delivery.md` (line 24). It lists only `git-guardrails-claude-code`, which is consistent with `skills/`, so change nothing unless S3 finds a contradiction. Check that the guardrail line in each playbook says the hook is optional and opt-in, as `docs/skills-sources.md` says.
   Acceptance: `check-skill-claims.sh` finds no stale skill claim. If the check finds no contradiction, no playbook file changes, and the entry records that result. No file under `claude/mods/` changes.
 
-- [ ] **S5. Decide and record the repo licence.** Branch: `docs/kit-self-check`. Depends on decision 1.
+- [x] **S5. Decide and record the repo licence.** Branch: `docs/kit-self-check`. Depends on decision 1. Result (2026-11-08): done in PR #21 (merged, `f23880a`). The user chose MIT; root `LICENSE` added (`Copyright (c) 2026 plaktoz`); README License section names it. `check-claims.sh` checks the statement against the file.
   Do: if the user chooses a licence, add a root `LICENSE` and state it in `README.md`. If the user chooses none, leave the README as it is.
   Acceptance: the README's License section matches the file on disk. `check-claims.sh` checks this statement.
 
 ### Phase 2: the harness and CI checks
 
-- [ ] **S6. Run the mod checks and the install round trip, and record the result.** Branch: `docs/kit-self-check`.
+- [ ] **S6. Run the mod checks and the install round trip, and record the result.** Branch: `docs/kit-self-check`. Result (2026-11-08, run on macOS): round trip run and passing, but the acceptance is not met as written. The real `~/.claude` checksum was compared for `plugins/` and `settings.json` only, not the whole tree. The whole tree changes while any session runs, so the acceptance cannot pass as written. Reopened for the user to choose: (a) accept the narrower check (plugins and settings.json), or (b) keep the whole-tree check and run it with no session open. Approval given ("S6. fix it with my approval") covers the fix, not a change to the acceptance.
   Scope: the 7 mods in `.claude-plugin/marketplace.json`: brain-dump, cache-warm, handoff, reflect, screen-share, switchboard, theme-cli. `theme-desk` is not in the marketplace and is left out.
   Do, step 1 (validate and test each mod; read only, no install):
   ```bash
@@ -93,11 +93,32 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   - the `--list` after `--uninstall` names none of them;
   - the real `~/.claude` checksum is the same before and after step 2.
   Verify on this Mac, and record it as "run on macOS".
-  Not verified yet: whether `claude plugin test` or `install` needs a login or the network, and whether the `claude` CLI keeps its registry under `$HOME`. The first run answers both. If the registry is not under `$HOME`, record it and stop step 2 before any install.
+  Result (2026-11-08, run on macOS). Status `[x]`. Step 2 was first refused in an agent shell that sets `HOME`. It then ran in the main session with `HOME` set per command, as below.
+  - Step 2, round trip, temp home: `install-mods.sh --scope project` exit 0, 7 mods installed. `--list` after install: `installed` for brain-dump, cache-warm, handoff, reflect, screen-share, switchboard, theme-cli. `--uninstall` exit 0, 7 removed. `--list` after uninstall: `missing` for all 7.
+  - Real home: `~/.claude/plugins` and `~/.claude/settings.json` checksums unchanged before and after. The 12 real plugin ids and scopes are unchanged.
+  - The CLI registry follows `$HOME`: with `HOME` set to a temp folder, `claude plugin list --json` returned only the session plugin, and the installs went to the temp folder.
+  - The round trip needs no login and no network prompt for this scope.
+  - Setup note: the install prints "2 userConfig options not yet set" for cache-warm and "5 ... not set" for reflect. These are configuration prompts, not failures; `claude plugin configure` sets them.
+  - Step 1, exit codes read with `$?` right after each command: all 7 mods exit 0 for `validate` and for `test`.
+  - `validate` warning on cache-warm, handoff, screen-share and switchboard: `author: No author information provided. Consider adding author details for plugin attribution`.
+  - `validate` directory warning `ICON_MISSING` on brain-dump, cache-warm, handoff, reflect, screen-share and switchboard. theme-cli shows no directory warning.
+  - `validate` directory problem `LICENSE_MISSING` on cache-warm, handoff, screen-share and switchboard. These four have no LICENSE file and no `license` field. The result stays "passed". brain-dump, reflect and theme-cli have a MIT LICENSE file.
+  - `test` results, pass and fail, with file count: brain-dump 10/0/1, cache-warm 12/0/1, handoff 10/0/1, reflect 45/0/2, screen-share 13/0/1, switchboard 5/0/1, theme-cli 42/0/3.
+  - Real `install-mods.sh --list`, read only, no install: all 7 show `installed` (user scope). This is the real home, not a round trip.
+  - Real `~/.claude` check, before and after this run: the per-file checksums differ. The changed files are live session transcripts and one rotated `.claude.json` backup. No plugin file changed. The `claude plugin list --json` ids and scopes are the same 12 before and after. The hash of `~/.claude.json` changed (mtime 07:53:51). Its cause is not known.
+  - Not verified: whether `install` needs the network. The round trip ran with no login prompt. The network was not checked.
+  - Not verified: Linux, and Windows (`install-mods.ps1`).
+  - Licence gaps, still open (a decision, not a fault in the check): cache-warm, handoff, screen-share and switchboard have no LICENSE file. brain-dump, reflect and theme-cli have the MIT one. The root `LICENSE` is the same MIT text. Fixing it means copying that file into the four folders, which the user has not asked for.
 
-- [ ] **S7. Run the skill installs under each harness that can run here.** Branch: `docs/kit-self-check`. Depends on decision 2.
-  Do: for Codex, install with `--agents` into a temp project and check that the skill file is where Codex reads it. Send a live Codex request only if the user approves it under decision 2. For OpenCode and Gemini CLI, record "not run: not installed" unless decision 4 gives a runner.
-  Acceptance: the support table cell for each harness states the result of this run, or the reason it was not run.
+- [x] **S7. Run the skill installs under each harness that can run here.** Branch: `docs/s7-codex-install` (from `docs/kit-self-check` at `61fbb71`). Depends on decision 2. Result (2026-11-08, macOS): done with no live Codex request. Codex install checked in a temp project; OpenCode and Gemini CLI not run, not installed. Details below.
+  - Install, temp project `git init`ed, with `--agents`: exit 0, 17 `installed` lines. All 17 links resolve to a `SKILL.md`, and their targets are in this worktree (`skills/` or `.cache/`). `--list` after install: 17 `installed`. `--uninstall`: exit 0, 17 `removed`; `--list` after: 17 `missing`.
+  - `--codex` (alias): output identical to `--agents`; 17 `installed`, then 17 `removed` by `--uninstall`.
+  - Real `~/.agents/skills` (47 entries): the `ls -la` listing and the `stat` checksum (470723321) are identical before and after. The temp HOME was not used: the tool blocked `HOME=` in a worktree-isolated run. The `--project` install writes only under the project folder, so the real HOME was not written.
+  - Codex 0.164.0 (`/opt/homebrew/bin/codex`): `codex login status` says an API key is configured and "Authentication is checked when you send a request". No model request was sent. `codex --help`, `codex features list` and `codex features --help` were read. The binary names `.agents/skills` and a `user-agent-skills` root. It does not show a project `.agents/skills` string. Codex ships no docs.
+  - Not run: `codex debug prompt-input` renders the model prompt. Its help does not say it sends no request, so it was not run.
+  - OpenCode and Gemini CLI: `command -v` found neither. From vendor documentation, not run. Not installed.
+  - Checks: `bash scripts/check-claims.sh` exit 0, "34 claims checked, 0 stale." `bash scripts/doctor.sh` exit 1, "34 failure(s)", every one a `shadowed` line: the real `~/.agents/skills` and `~/.claude/skills` links point into the main checkout's `.cache` and `skills/`, not into this worktree. A run with `CLAUDE_SKILLS_DIR` set to an empty temp folder: exit 1, 17 `shadowed` lines under `~/.agents/skills`, and one warning that the temp folder holds no kit skill. A run with `HOME` set to a temp folder was blocked by the tool guard. Doctor reads only, so the real HOME was not changed.
+  - Not verified: a live Codex read of the skills; Codex loading a project `.agents/skills`; Windows and Linux (by reading only). The README support table and the Codex section are updated.
 
 - [ ] **S8. Add the drift checks to CI on all three systems.** Branch: `docs/kit-self-check`. Depends on S1, S3, S4.
   Do: add a job to `.github/workflows/ci.yml` that runs `scripts/check-claims.sh` and `scripts/check-skill-claims.sh` on `ubuntu-latest`, `macos-latest` and `windows-latest` (Git Bash). Add `pull_request` to the trigger if it is not already there, and add `push` for every branch, not only `main`.
@@ -119,7 +140,9 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   - A. Alfred reviews. The workflow opens the pull request. Alfred reports on it (the lock diff, the `check-claims.sh` result, the playbook skill names) and does not merge. This fits the agent as it is, and its check 5 already covers merged branches. Default.
   - B. Alfred authors. The agent definition changes to allow it to run `fetch-skills.sh --update` and open the pull request. That removes the "Changes no file" rule, which needs the user's approval, and `skills.lock.json` still cannot change without it.
   In both readings a person merges, and the merge rule from the user is still needed.
-  Not started until the user gives the rule and picks A or B. Keep this `[ ]`.
+  Merge rule (decided 2026-11-08, "go with Tier 1"): recorded in `docs/skills-sources.md` section 7. Tier 1 merges without a read, as approved. Known gap, recorded there: a licence change in an upstream `LICENSE` is not checked by any script, so Tier 1 cannot see it.
+  Authority (decided 2026-11-08, "allow alfred to make changes"): Alfred may change files on request, on a new branch, with a pull request. Recorded in `agents/alfred.md` and in PR #20.
+  Still open: the workflow in `upstream-check.yml` that opens the pull request, and its acceptance test on a test branch. Keep this `[ ]` until that test passes.
 
 ## Not verified and out of scope
 
