@@ -55,7 +55,7 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   Do: read the "Not used" line in `playbooks/togaf-feature-delivery.md` (line 24). It lists only `git-guardrails-claude-code`, which is consistent with `skills/`, so change nothing unless S3 finds a contradiction. Check that the guardrail line in each playbook says the hook is optional and opt-in, as `docs/skills-sources.md` says.
   Acceptance: `check-skill-claims.sh` finds no stale skill claim. If the check finds no contradiction, no playbook file changes, and the entry records that result. No file under `claude/mods/` changes.
 
-- [ ] **S5. Decide and record the repo licence.** Branch: `docs/kit-self-check`. Depends on decision 1.
+- [x] **S5. Decide and record the repo licence.** Branch: `docs/kit-self-check`. Depends on decision 1. Result (2026-11-08): done in PR #21 (merged, `f23880a`). The user chose MIT; root `LICENSE` added (`Copyright (c) 2026 plaktoz`); README License section names it. `check-claims.sh` checks the statement against the file.
   Do: if the user chooses a licence, add a root `LICENSE` and state it in `README.md`. If the user chooses none, leave the README as it is.
   Acceptance: the README's License section matches the file on disk. `check-claims.sh` checks this statement.
 
