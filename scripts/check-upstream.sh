@@ -3,7 +3,7 @@
 # step and never acts. It writes no file in the repo (it works in a temporary folder).
 #
 # Usage: scripts/check-upstream.sh [--source <name>]
-#   --source <name>  Only this source (mattpocock-skills, ambition, good-readme or pstack-claude).
+#   --source <name>  Only this source (mattpocock-skills, ambition, good-readme, ponytail or pstack-claude).
 #   -h, --help       Show this help.
 #
 # For each source it compares the locked commit with the upstream head (git ls-remote). When the

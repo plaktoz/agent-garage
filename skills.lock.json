@@ -107,6 +107,19 @@
         }
       }
     },
+    "ponytail": {
+      "url": "https://github.com/DietrichGebert/ponytail.git",
+      "commit": "96608e078b2d5ea607c5c3b8b5a54d1c1fba6846",
+      "commitDate": "2026-10-29",
+      "licence": "MIT (LICENSE file, Copyright (c) 2026 DietrichGebert). Referenced and fetched, never copied into this repo.",
+      "skills": {
+        "ponytail": {
+          "path": "skills/ponytail",
+          "tree": "e8d3fa76e7ff9223a784dbd4bcfc9ff46b3fa55d",
+          "calls": []
+        }
+      }
+    },
     "pstack-claude": {
       "url": "https://github.com/michael-denyer/pstack-claude.git",
       "commit": "91ab921ab92d9ccfe503c93c3524410277f012e1",
