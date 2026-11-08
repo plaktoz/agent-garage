@@ -1,6 +1,6 @@
 # Task list: merge the Windows player into `theme-cli`, 2026-10-25
 
-Status: T1, T1a, T2, T3, T4 done. T5 is the user's step and is open.
+Status: T1 to T5 done. T5 (Windows check) was completed and tested on Windows, as reported by the user on 2026-11-08.
 
 Goal: theme-cli plays its sounds on Windows. The engine's `$.audio.play` has no Windows player and resolves as if the clip played. The fix from `scratch/win-audio/` goes into `mods/theme-cli/` as a second module. It answers `audio.play` calls for WAV clips on Windows with PowerShell's `System.Media.SoundPlayer`. Everything else goes on to the engine.
 
@@ -116,7 +116,7 @@ Acceptance:
 
 Depends on: T1, T2, T3.
 
-### T5. Verify on Windows `[ ]` (user)
+### T5. Verify on Windows `[x]` (user)
 
 Why the agent cannot do this: the sound is heard only on a Windows machine with speakers.
 
@@ -127,5 +127,7 @@ The user checks, on Windows 11 with the mod installed from this branch:
 4. `/theme-dump` shows no `sound ...` error lines.
 
 Acceptance: the user reports each step. Record the result here.
+
+Result (2026-11-08, user): done. The user reports that the Windows check was completed and tested on Windows. The user did not send per-step results, so steps 1 to 4 are recorded as "completed" and not as separately checked.
 
 Depends on: T1 to T4.

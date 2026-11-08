@@ -40,7 +40,7 @@ bash scripts/doctor.sh
 
 Expected result:
 
-- `install-skills.sh` prints `installed` for 17 skills.
+- `install-skills.sh` prints `installed` for 15 skills.
 - `doctor.sh` ends with a line that starts `Result:`. A new machine can show warnings. A failure makes `doctor.sh` exit 1.
 
 Then start a new Claude Code session. Type `/` and check that a skill name, for example `ste-docs`, is in the list.
@@ -75,7 +75,7 @@ The top level holds what any agent can use. Everything that needs Claude Code is
 | `library/` | Any agent | Context documents, snippets, and reference material that evolve over time |
 | `scripts/` | Any agent. Bash scripts, and a `node` helper. On Windows, run them in Git Bash | Install, fetch, check and doctor tooling for skills and agents |
 | `sample/` | Any agent | Pilot projects. `sample/notes-cli` tests the bootstrap script, the playbooks and the upstream checks |
-| `docs/` | Any agent | Review reports, task lists, handoffs and lessons for agents (`agent-lessons-2026-11-08.md`) |
+| `docs/` | Any agent | Source notes (`skills-sources.md`), task lists (`tasks/`) and lessons for agents (`lessons/`) |
 | `.github/workflows/` | GitHub | `ci.yml` checks the kit and the README claims on Linux, macOS and Windows. `upstream-check.yml` checks the locked sources every week |
 | `claude/mods/` | Claude Code only | Plugins of function hooks (`<mod>/.claude-plugin/plugin.json` and `hooks/register.ts`). Test with `claude plugin test claude/mods/<mod>` |
 | `claude/hooks/` | Claude Code only | Hook scripts and settings fragments. The folder is empty now |
@@ -104,12 +104,12 @@ CI run 42394334472 (commit `4aa64c6`) passed its syntax, fetch, install and doct
 
 Skills come from two sources.
 
-- `skills/` holds the own skills: `diagnosing-bugs`, `ste-docs`, `triage` and `unslop`. `diagnosing-bugs` and `triage` are copies of skills from mattpocock/skills. `skills.lock.json` lists them under `copies`.
+- `skills/` holds the own skills: `ste-docs` and `unslop`. They have no upstream source.
 - `.cache/` holds the locked third-party skills. `scripts/fetch-skills.sh` fetches them at the commit that `skills.lock.json` records. At this commit the lock names 13 skills: 11 from mattpocock/skills, 1 from ambition and 1 from good-readme.
 
-The install script links all 17 skills into `~/.claude/skills/`. A link means that a change in this repository shows in Claude Code at once. The script does not copy files.
+The install script links all 15 skills into `~/.claude/skills/`. A link means that a change in this repository shows in Claude Code at once. The script does not copy files.
 
-Without the fetch, the install links only the 4 own skills. It prints a note to run `scripts/fetch-skills.sh`. It does not fail.
+Without the fetch, the install links only the 2 own skills. It prints a note to run `scripts/fetch-skills.sh`. It does not fail.
 
 | Command | Effect |
 |---------|--------|
@@ -380,7 +380,7 @@ The lock records what the fetch scripts use. It holds four sources:
 | `good-readme` | https://github.com/adewale/good-readme | 1 skill, commit `17c42e2` | MIT |
 | `pstack-claude` | https://github.com/michael-denyer/pstack-claude | Plugin version 0.9.92, commit `7bad1eb`. Minimum 0.9.57 | Not recorded in the lock |
 
-Under `mattpocock-skills`, the lock also records `copies`: the two skills copied into `skills/`. It records `requires`, the tools and the plugin that the skills need. Sources, licence notices and the reasons for each skill are in `docs/skills-sources.md`.
+The lock also records `requires`: the tools and the plugin that the skills need. Sources, licence notices and the reasons for each skill are in `docs/skills-sources.md`.
 
 ### `.github/workflows/`
 

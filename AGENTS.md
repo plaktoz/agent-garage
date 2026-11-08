@@ -4,7 +4,7 @@ Shared instructions for every coding agent that works in this repo (Claude Code,
 
 This repo is a framework for defining and deploying agent behaviors and evolving context libraries. See `README.md` for the layout and concepts.
 
-`docs/agent-lessons-2026-11-08.md` gives the cause behind the rules below, from real cases. Read it before you plan work with subagents, worktrees or CI.
+`docs/lessons/agent-lessons-2026-11-08.md` gives the cause behind the rules below, from real cases. Read it before you plan work with subagents, worktrees or CI.
 
 ## Conventions
 

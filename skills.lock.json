@@ -79,28 +79,6 @@
           "tree": "ad2925850efb8973a72d2e666f7a975f9a2d4a9b",
           "calls": []
         }
-      },
-      "copies": {
-        "note": "Copied unmodified into skills/ (own skills), not fetched. Fetch does not touch them. Re-copy by hand only, and say so in docs/skills-sources.md.",
-        "diagnosing-bugs": {
-          "from": "skills/engineering/diagnosing-bugs",
-          "tree": "5fdd6cc53385395441910b026c72d71768e993d4",
-          "destination": "skills/diagnosing-bugs",
-          "calls": [],
-          "mentions": []
-        },
-        "triage": {
-          "from": "skills/engineering/triage",
-          "tree": "4cb951d62ecccaed601cdc5f9a1b7b3d8a799635",
-          "destination": "skills/triage",
-          "calls": [
-            "grilling",
-            "domain-modeling"
-          ],
-          "mentions": [
-            "setup-matt-pocock-skills"
-          ]
-        }
       }
     },
     "ambition": {
