@@ -40,7 +40,7 @@ This file guides future agents. The rules are in `AGENTS.md`. Each lesson gives 
 
 ### 3.2 One pull request for each task
 
-- **What happened.** Pull requests #22, #23 and #24 all edited the task list or `AGENTS.md`. The S5 line is edited in both #22 and #23. Whichever merges second can conflict.
+- **What happened.** Pull requests #22, #23 and #24 all edited the task list or `AGENTS.md`. The session expected a conflict on the S5 line in #22 and #23. `git merge-tree` showed that the two merge cleanly. Check with `git merge-tree` before you plan a merge order around a conflict.
 - **Rule.** Open one pull request for each task. Merge them in order. After a merge, rebase the next branch on `main`. If two tasks must edit the same file, say so in the task list, with the reason.
 
 ### 3.3 A temp folder is not a safe place for a worktree
@@ -88,6 +88,7 @@ This file guides future agents. The rules are in `AGENTS.md`. Each lesson gives 
 - **What happened.** The repository setting `can_approve_pull_request_reviews` is `false`. A workflow that uses `GITHUB_TOKEN` cannot open a pull request while it is off. The tier 1 step of `upstream-check.yml` fails until the owner turns the setting on.
 - **Rule.** Before you build a workflow that writes to the repository, read the repository setting with `gh api`. If the setting must change, ask the user. Do not change it.
 - **Not tested.** The session read the setting. It did not test whether the setting blocks the pull request. Test that on a test branch.
+- **Likely, not tested.** A pull request opened with the workflow's `GITHUB_TOKEN` does not start `pull_request` or `push` runs. So CI would not run on it unless the workflow starts `ci.yml` by hand. Test that too.
 - **Not verified.** The pull request path of `upstream-check.yml` has not run. S10 stays `[ ]` until a test on a test branch passes.
 
 ## 6. Working with the session
