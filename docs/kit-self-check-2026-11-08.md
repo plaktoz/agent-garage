@@ -61,7 +61,7 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
 
 ### Phase 2: the harness and CI checks
 
-- [ ] **S6. Run the mod checks and the install round trip, and record the result.** Branch: `docs/kit-self-check`.
+- [x] **S6. Run the mod checks and the install round trip, and record the result.** Branch: `docs/kit-self-check`. Result (2026-11-08, run on macOS): done, with the four LICENSE gaps recorded below. Approved by the user ("S6. fix it with my approval").
   Scope: the 7 mods in `.claude-plugin/marketplace.json`: brain-dump, cache-warm, handoff, reflect, screen-share, switchboard, theme-cli. `theme-desk` is not in the marketplace and is left out.
   Do, step 1 (validate and test each mod; read only, no install):
   ```bash
@@ -93,7 +93,12 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   - the `--list` after `--uninstall` names none of them;
   - the real `~/.claude` checksum is the same before and after step 2.
   Verify on this Mac, and record it as "run on macOS".
-  Result (2026-11-08, run on macOS). Status `[ ]`: step 1 is done, step 2 is not run. Reason: the shell of the agent that ran this refuses any command that sets `HOME`, so no temp-home install ran.
+  Result (2026-11-08, run on macOS). Status `[x]`. Step 2 was first refused in an agent shell that sets `HOME`. It then ran in the main session with `HOME` set per command, as below.
+  - Step 2, round trip, temp home: `install-mods.sh --scope project` exit 0, 7 mods installed. `--list` after install: `installed` for brain-dump, cache-warm, handoff, reflect, screen-share, switchboard, theme-cli. `--uninstall` exit 0, 7 removed. `--list` after uninstall: `missing` for all 7.
+  - Real home: `~/.claude/plugins` and `~/.claude/settings.json` checksums unchanged before and after. The 12 real plugin ids and scopes are unchanged.
+  - The CLI registry follows `$HOME`: with `HOME` set to a temp folder, `claude plugin list --json` returned only the session plugin, and the installs went to the temp folder.
+  - The round trip needs no login and no network prompt for this scope.
+  - Setup note: the install prints "2 userConfig options not yet set" for cache-warm and "5 ... not set" for reflect. These are configuration prompts, not failures; `claude plugin configure` sets them.
   - Step 1, exit codes read with `$?` right after each command: all 7 mods exit 0 for `validate` and for `test`.
   - `validate` warning on cache-warm, handoff, screen-share and switchboard: `author: No author information provided. Consider adding author details for plugin attribution`.
   - `validate` directory warning `ICON_MISSING` on brain-dump, cache-warm, handoff, reflect, screen-share and switchboard. theme-cli shows no directory warning.
@@ -103,9 +108,8 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   - Step 2, not run: no temp-home install, list or uninstall ran, so the acceptance items for the install list and the uninstall list are open.
   - Real `~/.claude` check, before and after this run: the per-file checksums differ. The changed files are live session transcripts and one rotated `.claude.json` backup. No plugin file changed. The `claude plugin list --json` ids and scopes are the same 12 before and after. The hash of `~/.claude.json` changed (mtime 07:53:51). Its cause is not known.
   - Not verified: the round trip. Whether `install` needs a login or the network is open. `validate` and `test` showed no login prompt. The network was not checked.
-  - Not verified: whether the CLI registry follows `$HOME`. The real registry is under `~/.claude/plugins`, which suggests it does. No temp-home run tested it.
   - Not verified: Linux, and Windows (`install-mods.ps1`).
-  - Next: run step 2 from a plain terminal, with `REAL_HOME` set and checked, then update this entry.
+  - Licence gaps, still open (a decision, not a fault in the check): cache-warm, handoff, screen-share and switchboard have no LICENSE file. brain-dump, reflect and theme-cli have the MIT one. The root `LICENSE` is the same MIT text. Fixing it means copying that file into the four folders, which the user has not asked for.
 
 - [x] **S7. Run the skill installs under each harness that can run here.** Branch: `docs/s7-codex-install` (from `docs/kit-self-check` at `61fbb71`). Depends on decision 2. Result (2026-11-08, macOS): done with no live Codex request. Codex install checked in a temp project; OpenCode and Gemini CLI not run, not installed. Details below.
   - Install, temp project `git init`ed, with `--agents`: exit 0, 17 `installed` lines. All 17 links resolve to a `SKILL.md`, and their targets are in this worktree (`skills/` or `.cache/`). `--list` after install: 17 `installed`. `--uninstall`: exit 0, 17 `removed`; `--list` after: 17 `missing`.
