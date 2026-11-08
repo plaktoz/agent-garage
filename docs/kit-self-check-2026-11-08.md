@@ -65,7 +65,7 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   Scope: the 7 mods in `.claude-plugin/marketplace.json`: brain-dump, cache-warm, handoff, reflect, screen-share, switchboard, theme-cli. `theme-desk` is not in the marketplace and is left out.
   Do, step 1 (validate and test each mod; read only, no install):
   ```bash
-  REPO=/Users/tianhonglee/Developer/claude-mods
+  REPO="$(git rev-parse --show-toplevel)"   # run from inside the repo
   for m in brain-dump cache-warm handoff reflect screen-share switchboard theme-cli; do
     claude plugin validate "$REPO/claude/mods/$m" || echo "VALIDATE FAILED $m"
     claude plugin test "$REPO/claude/mods/$m"     || echo "TEST FAILED $m"
@@ -73,7 +73,7 @@ These are open. The task that depends on each one stays `[ ]` until the user dec
   ```
   Do, step 2 (install round trip in a temp home, so the real `~/.claude` is not used):
   ```bash
-  REPO=/Users/tianhonglee/Developer/claude-mods
+  REPO="$(git rev-parse --show-toplevel)"   # run from inside the repo, before HOME changes
   REAL_HOME=$HOME
   before=$(find "$REAL_HOME/.claude" -type f -exec cksum {} + 2>/dev/null | sort | cksum)
   export HOME=$(mktemp -d)
