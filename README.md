@@ -75,7 +75,7 @@ The top level holds what any agent can use. Everything that needs Claude Code is
 | `library/` | Any agent | Context documents, snippets, and reference material that evolve over time |
 | `scripts/` | Any agent. Bash scripts, and a `node` helper. On Windows, run them in Git Bash | Install, fetch, check and doctor tooling for skills and agents |
 | `sample/` | Any agent | Pilot projects. `sample/notes-cli` tests the bootstrap script, the playbooks and the upstream checks |
-| `docs/` | Any agent | Review reports, task lists and handoffs for the repo |
+| `docs/` | Any agent | Review reports, task lists, handoffs and lessons for agents (`agent-lessons-2026-11-08.md`) |
 | `.github/workflows/` | GitHub | `ci.yml` checks the kit on Linux, macOS and Windows. `upstream-check.yml` checks the locked sources every week |
 | `claude/mods/` | Claude Code only | Plugins of function hooks (`<mod>/.claude-plugin/plugin.json` and `hooks/register.ts`). Test with `claude plugin test claude/mods/<mod>` |
 | `claude/hooks/` | Claude Code only | Hook scripts and settings fragments. The folder is empty now |
