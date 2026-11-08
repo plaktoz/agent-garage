@@ -206,16 +206,16 @@ You need:
 - A copy of this repository on your computer.
 - A terminal. A terminal is a window where you type commands. On macOS, open the app named Terminal. On Windows, open PowerShell or Windows Terminal.
 
-In this document, the **repository root** is the top folder of the repository, named `claude-mods`. All commands in this document start from that folder. To go there, run `cd` and the path to the folder:
+In this document, the **repository root** is the top folder of the repository, named `agent-garage`. All commands in this document start from that folder. To go there, run `cd` and the path to the folder:
 
 ```bash
-cd ~/Developer/claude-mods
+cd ~/Developer/agent-garage
 ```
 
 On Windows PowerShell, run this command:
 
 ```powershell
-cd $HOME\Developer\claude-mods
+cd $HOME\Developer\agent-garage
 ```
 
 On Windows, `claude\scripts\install-mods.ps1` does the marketplace steps in 5.5 for you. See the root `README.md`. The Windows steps in this document are not tested.
@@ -247,40 +247,40 @@ On Windows, `claude\scripts\install-mods.ps1` does the marketplace steps in 5.5 
    ```json
    {
      "env": {
-       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/cache-warm"
+       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/agent-garage/claude/mods/cache-warm"
      }
    }
    ```
 
-3. Replace `/Users/your-name/Developer/claude-mods` with the real path to your repository. To print the path, run `pwd` in the repository root.
+3. Replace `/Users/your-name/Developer/agent-garage` with the real path to your repository. To print the path, run `pwd` in the repository root.
 4. Save the file. Start a new Claude Code session.
 5. Do the check in 5.6.
 
-On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Use forward slashes in the path, for example `C:/Users/your-name/Developer/claude-mods/claude/mods/cache-warm`. Or double each backslash in the JSON. In PowerShell, run `(Get-Location).Path` in the repository root to print the path. This Windows step is not tested.
+On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Use forward slashes in the path, for example `C:/Users/your-name/Developer/agent-garage/claude/mods/cache-warm`. Or double each backslash in the JSON. In PowerShell, run `(Get-Location).Path` in the repository root to print the path. This Windows step is not tested.
 
 To remove the mod from every session, delete the line and start a new session.
 
 ### 5.5 Method C: marketplace
 
-The file `.claude-plugin/marketplace.json` at the repository root lists `cache-warm`. The marketplace is named `claude-mods`. This review did not run the `marketplace add` and `install` commands below. No person has done this check yet.
+The file `.claude-plugin/marketplace.json` at the repository root lists `cache-warm`. The marketplace is named `agent-garage`. This review did not run the `marketplace add` and `install` commands below. No person has done this check yet.
 
 1. Add the marketplace once. Run:
 
    ```bash
-   claude plugin marketplace add https://github.com/plaktoz/claude-mods
+   claude plugin marketplace add https://github.com/plaktoz/agent-garage
    ```
 
 2. Install the mod. Run:
 
    ```bash
-   claude plugin install cache-warm@claude-mods
+   claude plugin install cache-warm@agent-garage
    ```
 
    The default scope is `user`, which applies the mod to every project. To change the scope, add `--scope project` or `--scope local`. See the root `README.md`.
 
 3. Restart Claude Code. Do the check in 5.6.
 
-Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/claude-mods` and `/plugin install cache-warm@claude-mods`. Then run `/reload-plugins`, or start a new session.
+Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/agent-garage` and `/plugin install cache-warm@agent-garage`. Then run `/reload-plugins`, or start a new session.
 
 Add the marketplace with the repository URL. Do not use the GitHub link to `.claude-plugin/marketplace.json`: the command treats a link as a git repository and fails with `repository ... not found`.
 

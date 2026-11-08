@@ -1,4 +1,4 @@
-# claude-mods
+# agent-garage
 
 A kit of skills, playbooks, agents and Claude Code mods for coding agents. One clone gives every project the same tested skills, the same delivery playbooks and the same checks.
 
@@ -31,8 +31,8 @@ A kit of skills, playbooks, agents and Claude Code mods for coding agents. One c
 Clone the repository. From its root, fetch the locked skills, install them, and check the result.
 
 ```bash
-git clone https://github.com/plaktoz/claude-mods.git
-cd claude-mods
+git clone https://github.com/plaktoz/agent-garage.git
+cd agent-garage
 bash scripts/fetch-skills.sh
 bash scripts/install-skills.sh
 bash scripts/doctor.sh
@@ -184,7 +184,7 @@ Codex CLI reads the same shared instructions and the same skills. It does not ru
 To install one skill into a project for Codex, run the script with the project's folder:
 
 ```bash
-bash /path/to/claude-mods/scripts/install-skills.sh --project /path/to/your-project --agents unslop
+bash /path/to/agent-garage/scripts/install-skills.sh --project /path/to/your-project --agents unslop
 ```
 
 ## Install mods
@@ -192,7 +192,7 @@ bash /path/to/claude-mods/scripts/install-skills.sh --project /path/to/your-proj
 A mod is a Claude Code plugin in `claude/mods/<name>/`. `.claude-plugin/marketplace.json` lists them, so you install a mod from this repository as from a marketplace. Add the marketplace once, with the URL of the repository:
 
 ```bash
-claude plugin marketplace add https://github.com/plaktoz/claude-mods
+claude plugin marketplace add https://github.com/plaktoz/agent-garage
 ```
 
 Do not use the GitHub link to `.claude-plugin/marketplace.json`. The command treats a link as a git repository. It fails with `repository ... not found`.
@@ -209,20 +209,20 @@ To install `switchboard` into a project, run this in the project's folder:
 
 ```bash
 cd /path/to/your-project
-claude plugin install switchboard@claude-mods --scope project
+claude plugin install switchboard@agent-garage --scope project
 ```
 
-Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/claude-mods` and `/plugin install switchboard@claude-mods`. Then run `/reload-plugins`, or start a new session.
+Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/agent-garage` and `/plugin install switchboard@agent-garage`. Then run `/reload-plugins`, or start a new session.
 
 To use your local copy (a branch that is not merged yet), add the marketplace from its path:
 
 ```bash
-claude plugin marketplace add /path/to/claude-mods
+claude plugin marketplace add /path/to/agent-garage
 ```
 
 ### Install every mod with a script
 
-The scripts `claude/scripts/install-mods.sh` and `claude/scripts/install-mods.ps1` do the marketplace steps for you. They point the `claude-mods` marketplace at your clone. Then they install every mod that `.claude-plugin/marketplace.json` lists. They make no symlinks, so they work on Windows without admin rights or Developer Mode. They need the `claude` command on your `PATH`.
+The scripts `claude/scripts/install-mods.sh` and `claude/scripts/install-mods.ps1` do the marketplace steps for you. They point the `agent-garage` marketplace at your clone. Then they install every mod that `.claude-plugin/marketplace.json` lists. They make no symlinks, so they work on Windows without admin rights or Developer Mode. They need the `claude` command on your `PATH`.
 
 Linux, macOS, or Git Bash on Windows:
 
@@ -246,12 +246,12 @@ Then restart Claude Code.
 | `--list` | `-List` | Show which mods are installed. Change nothing. |
 | `--uninstall` | `-Uninstall` | Remove the mods. |
 
-The installed mods load from your clone, so `git pull` brings in changes. Restart Claude Code to load them. If you added `claude-mods` from `plaktoz/claude-mods` before, the script points it at your clone. The script keeps the mods that you installed. To add a mod, put it in `claude/mods/` and add it to `.claude-plugin/marketplace.json`.
+The installed mods load from your clone, so `git pull` brings in changes. Restart Claude Code to load them. Installs made before the rename used the marketplace name `claude-mods`. Those installs keep that name. The script adds the marketplace as `agent-garage` and points it at your clone. The script keeps the mods that you installed. To add a mod, put it in `claude/mods/` and add it to `.claude-plugin/marketplace.json`.
 
 To try one mod for one session without installing it:
 
 ```bash
-claude --plugin-dir /path/to/claude-mods/claude/mods/switchboard
+claude --plugin-dir /path/to/agent-garage/claude/mods/switchboard
 ```
 
 | Mod | What it does |
@@ -451,7 +451,7 @@ The install needs the `claude` command. A pilot install ran in a copy of `sample
 
 ## Contributing
 
-Report a problem or propose a change as an issue at https://github.com/plaktoz/claude-mods/issues. Agents and people follow `AGENTS.md`. It sets how requirements, task lists, commits and documentation work. Write documents with the `ste-docs` skill.
+Report a problem or propose a change as an issue at https://github.com/plaktoz/agent-garage/issues. Agents and people follow `AGENTS.md`. It sets how requirements, task lists, commits and documentation work. Write documents with the `ste-docs` skill.
 
 Before you change a script, the lock or a playbook, try the change on `sample/notes-cli`. That project is the pilot for the kit.
 

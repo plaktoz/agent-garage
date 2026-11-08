@@ -237,16 +237,16 @@ You need:
 - A copy of this repository on your computer.
 - A terminal. A terminal is a window where you type commands. On macOS, open the app named Terminal. On Windows, open PowerShell or Windows Terminal.
 
-In this document, the **repository root** is the top folder of the repository. The folder is named `claude-mods`. All commands in this document start from this folder. To go to this folder, type `cd` and the path. Example:
+In this document, the **repository root** is the top folder of the repository. The folder is named `agent-garage`. All commands in this document start from this folder. To go to this folder, type `cd` and the path. Example:
 
 ```bash
-cd ~/Developer/claude-mods
+cd ~/Developer/agent-garage
 ```
 
 On Windows PowerShell, the same step is:
 
 ```powershell
-cd $HOME\Developer\claude-mods
+cd $HOME\Developer\agent-garage
 ```
 
 On Windows, `claude\scripts\install-mods.ps1` installs the mods through the marketplace. It needs none of the steps in 5.3 or 5.4. See the root `README.md`. This review did not run any Windows step in this document.
@@ -280,18 +280,18 @@ This review did not check whether a file change reloads the mod in an open sessi
    ```json
    {
      "env": {
-       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/handoff"
+       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/agent-garage/claude/mods/handoff"
      }
    }
    ```
 
-3. Replace `/Users/your-name/Developer/claude-mods` with the real path to your repository. To print the path, run `pwd` in the repository root.
+3. Replace `/Users/your-name/Developer/agent-garage` with the real path to your repository. To print the path, run `pwd` in the repository root.
 4. Save the file. Start a new Claude Code session.
 5. Do the check in 5.6.
 
 To remove the mod, delete the line. Start a new session.
 
-On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Write the path with forward slashes, for example `C:/Users/your-name/Developer/claude-mods/claude/mods/handoff`. Or double each backslash in the JSON. In PowerShell, `(Get-Location).Path` prints the current folder. Run it in the repository root. This review did not test these Windows values.
+On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Write the path with forward slashes, for example `C:/Users/your-name/Developer/agent-garage/claude/mods/handoff`. Or double each backslash in the JSON. In PowerShell, `(Get-Location).Path` prints the current folder. Run it in the repository root. This review did not test these Windows values.
 
 ### 5.5 Method C: marketplace
 
@@ -300,27 +300,27 @@ The repository has a marketplace file, `.claude-plugin/marketplace.json`. The fi
 1. Add the marketplace once. Run this command:
 
    ```bash
-   claude plugin marketplace add https://github.com/plaktoz/claude-mods
+   claude plugin marketplace add https://github.com/plaktoz/agent-garage
    ```
 
 2. Install the mod. Run this command:
 
    ```bash
-   claude plugin install handoff@claude-mods
+   claude plugin install handoff@agent-garage
    ```
 
 3. Restart Claude Code to load the mod.
 
 Add `--scope project` or `--scope local` to the install command to change where the mod applies. The default is `user`, which applies the mod to every project for you. `project` saves the setting in `.claude/settings.json` for everyone who opens the project. Run the command in the project folder.
 
-Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/claude-mods` and `/plugin install handoff@claude-mods`. Then run `/reload-plugins`, or start a new session.
+Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/agent-garage` and `/plugin install handoff@agent-garage`. Then run `/reload-plugins`, or start a new session.
 
 Add the marketplace with the repository URL. Do not use the GitHub link to `.claude-plugin/marketplace.json`: the command treats a link as a git repository and fails with `repository ... not found`.
 
 To use your clone, add the marketplace from its path. Use this when your branch is not merged yet:
 
 ```bash
-claude plugin marketplace add /path/to/claude-mods
+claude plugin marketplace add /path/to/agent-garage
 ```
 
 The scripts in `scripts/` run these steps for you. Run `claude/scripts/install-mods.sh handoff` on Linux, macOS or Git Bash. Run `powershell -ExecutionPolicy Bypass -File claude\scripts\install-mods.ps1 handoff` in PowerShell. See the root `README.md`.

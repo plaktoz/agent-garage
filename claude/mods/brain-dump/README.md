@@ -194,7 +194,7 @@ To change a value, see section 5.7. The model names are in `draftFrom()`: `haiku
 
 ## 5. Install
 
-You install this mod with one of the methods in 5.2. Methods A and B load the mod folder. Method C installs the mod from the `claude-mods` marketplace in this repository.
+You install this mod with one of the methods in 5.2. Methods A and B load the mod folder. Method C installs the mod from the `agent-garage` marketplace in this repository.
 
 ### 5.1 Before you start
 
@@ -204,16 +204,16 @@ You need:
 - A copy of this repository on your computer.
 - A terminal. A terminal is a window where you type commands. On macOS, open the app named Terminal. On Windows, open PowerShell or Windows Terminal.
 
-In this document, the **repository root** is the top folder of the repository (the folder named `claude-mods`). All commands in this document start from that folder. To go there, type `cd` and the path to the folder. Example:
+In this document, the **repository root** is the top folder of the repository (the folder named `agent-garage`). All commands in this document start from that folder. To go there, type `cd` and the path to the folder. Example:
 
 ```bash
-cd ~/Developer/claude-mods
+cd ~/Developer/agent-garage
 ```
 
 On Windows PowerShell, the same step is:
 
 ```powershell
-cd $HOME\Developer\claude-mods
+cd $HOME\Developer\agent-garage
 ```
 
 On Windows, `claude\scripts\install-mods.ps1` installs every mod through the marketplace. It does not use the steps in 5.3 and 5.4. See 5.5 and the root `README.md`.
@@ -247,14 +247,14 @@ To load a change to the mod, start a new session.
    ```json
    {
      "env": {
-       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/claude-mods/claude/mods/brain-dump"
+       "CLAUDE_CODE_PLUGIN_DIRS": "/Users/your-name/Developer/agent-garage/claude/mods/brain-dump"
      }
    }
    ```
 
-3. Replace `/Users/your-name/Developer/claude-mods` with the real path to your repository. To print the path, run `pwd` in the repository root.
+3. Replace `/Users/your-name/Developer/agent-garage` with the real path to your repository. To print the path, run `pwd` in the repository root.
 
-   On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Write the path with forward slashes, for example `C:/Users/your-name/Developer/claude-mods/claude/mods/brain-dump`, or double each backslash in the JSON. In PowerShell, `(Get-Location).Path` prints the path of the current folder. Run it in the repository root.
+   On Windows, the settings file is `%USERPROFILE%\.claude\settings.json`. Write the path with forward slashes, for example `C:/Users/your-name/Developer/agent-garage/claude/mods/brain-dump`, or double each backslash in the JSON. In PowerShell, `(Get-Location).Path` prints the path of the current folder. Run it in the repository root.
 4. Save the file. Start a new Claude Code session.
 5. Do the check in 5.6.
 
@@ -264,24 +264,24 @@ If the `CLAUDE_CODE_PLUGIN_DIRS` line already names the `cache-warm` folder, do 
 
 ### 5.5 Method C: marketplace
 
-The repository has a marketplace named `claude-mods`. Its file `.claude-plugin/marketplace.json` lists the mods. The marketplace reads the copy of the repository on GitHub, `plaktoz/claude-mods`.
+The repository has a marketplace named `agent-garage`. Its file `.claude-plugin/marketplace.json` lists the mods. The marketplace reads the copy of the repository on GitHub, `plaktoz/agent-garage`.
 
 1. Run these two commands in a terminal:
 
    ```bash
-   claude plugin marketplace add https://github.com/plaktoz/claude-mods
-   claude plugin install brain-dump@claude-mods
+   claude plugin marketplace add https://github.com/plaktoz/agent-garage
+   claude plugin install brain-dump@agent-garage
    ```
 
 2. Start a new Claude Code session.
 
 The install uses the `user` scope by default. The mod then runs in every project for you. Add `--scope project` to the install command to share the mod with the current project instead.
 
-Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/claude-mods` and `/plugin install brain-dump@claude-mods`. Then run `/reload-plugins`, or start a new session.
+Inside a Claude Code session, the same steps are `/plugin marketplace add https://github.com/plaktoz/agent-garage` and `/plugin install brain-dump@agent-garage`. Then run `/reload-plugins`, or start a new session.
 
 Add the marketplace with the repository URL. Do not use the GitHub link to `.claude-plugin/marketplace.json`: the command treats a link as a git repository and fails with `repository ... not found`.
 
-To install from your own clone of this repository, run one script from the repository root. The script points the `claude-mods` marketplace at your clone. It installs the mod that you name, and it makes no symlinks:
+To install from your own clone of this repository, run one script from the repository root. The script points the `agent-garage` marketplace at your clone. It installs the mod that you name, and it makes no symlinks:
 
 ```bash
 bash claude/scripts/install-mods.sh brain-dump
@@ -298,7 +298,7 @@ Then restart Claude Code.
 To uninstall, run:
 
 ```bash
-claude plugin uninstall brain-dump@claude-mods --scope user
+claude plugin uninstall brain-dump@agent-garage --scope user
 ```
 
 Or run `bash claude/scripts/install-mods.sh --uninstall brain-dump`.

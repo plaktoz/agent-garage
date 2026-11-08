@@ -25,11 +25,11 @@ Each change to the kit that touches projects should be tried here first. Keep th
 
 ## Use it as a test fixture
 
-This folder is the only copy to keep. It has no git repository and no remote of its own. It sits inside the `claude-mods` repository.
+This folder is the only copy to keep. It has no git repository and no remote of its own. It sits inside the `agent-garage` repository.
 
 `scripts/bootstrap-project.sh` accepts only the top folder of a git repository. Therefore, test in a temporary copy. Never commit or push from the copy.
 
-1. Make the copy. Run this from the root of `claude-mods`:
+1. Make the copy. Run this from the root of `agent-garage`:
 
    ```bash
    KIT="$(pwd)"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Read-only check of this machine for the claude-mods kit. It changes nothing: it writes no
+# Read-only check of this machine for the agent-garage kit. It changes nothing: it writes no
 # file, and it runs no install, update, enable, disable or marketplace add/update/remove.
 # Usage: scripts/doctor.sh      (from any folder; prints the report, then exits)
 #
@@ -90,7 +90,7 @@ case "$(uname -s 2>/dev/null)" in
   *) os_kind=other ;;
 esac
 
-printf 'claude-mods doctor (read only: changes nothing)\n'
+printf 'agent-garage doctor (read only: changes nothing)\n'
 printf 'Repo:     %s\n' "$repo"
 printf 'Platform: %s (%s)\n' "$os_kind" "$(uname -sr 2>/dev/null)"
 
@@ -175,7 +175,7 @@ if [ "$is_wsl" -eq 1 ]; then
     /mnt/*)
       origin="$(git -C "$repo" config --get remote.origin.url 2>/dev/null)"
       warn_line "WSL: the repo is under /mnt/ (the Windows drive). WSL keeps its own ~/.claude, separate from Windows."
-      fix "git clone ${origin:-<repo-url>} ~/claude-mods   (then run scripts/doctor.sh from there)"
+      fix "git clone ${origin:-<repo-url>} ~/agent-garage   (then run scripts/doctor.sh from there)"
       ;;
     *) say ok "WSL: the repo is in the Linux file system" ;;
   esac

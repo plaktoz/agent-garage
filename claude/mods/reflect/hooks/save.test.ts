@@ -78,7 +78,7 @@ test('a memory file is a feedback memory with a stable name', () => {
 })
 
 test('the project folder name follows the path; a Windows path and a path with spaces work', () => {
-  expect(projectFolder('/Users/me/Developer/claude-mods')).toBe('-Users-me-Developer-claude-mods')
+  expect(projectFolder('/Users/me/Developer/agent-garage')).toBe('-Users-me-Developer-agent-garage')
   expect(projectFolder('C:\\Users\\me\\My Project')).toBe('C--Users-me-My-Project')
 })
 
