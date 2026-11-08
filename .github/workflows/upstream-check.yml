@@ -1,8 +1,21 @@
 name: upstream-check
 
-# Weekly check of the sources in skills.lock.json (mattpocock/skills, pstack).
-# It only reports. It changes no lock, branch or pull request.
-# When upstream moved, it opens one issue, or adds a comment to the open one.
+# Weekly check of the sources in skills.lock.json (mattpocock/skills, ambition, good-readme, pstack).
+# It never merges, and it never changes a branch that a person did not open.
+#
+# Tier rule: docs/skills-sources.md section 7, "Merge rule for an upstream update".
+#   Tier 1 (upstream moved, no locked skill changed, pstack not changed, licence unchanged):
+#     pushes a branch upstream/lock-<date> with the new lock, opens a pull request, and starts ci.yml
+#     on that branch. A person merges the pull request.
+#   Tier 2 or tier 3 (anything else that moved, or a licence file changed, or the check could not run):
+#     opens or comments on one issue. No branch and no pull request. A person reads the change first.
+#
+# Repository setting needed for the pull request: "Allow GitHub Actions to create and approve pull
+# requests" (can_approve_pull_request_reviews=true). It was turned on by the owner on 2026-11-08.
+# Without it, the pull request step fails. The issue step does not need it.
+#
+# A branch pushed with GITHUB_TOKEN does not start ci.yml, and neither does a pull request opened with
+# it. So the tier 1 step starts ci.yml by hand with workflow_dispatch. That needs "actions: write".
 
 on:
   schedule:
@@ -10,40 +23,122 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: read
+  contents: write        # push the upstream/lock-* branch (tier 1 only)
   issues: write
+  pull-requests: write   # open the tier 1 pull request (needs the repo setting above)
+  actions: write         # start ci.yml on the update branch
 
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
 
       - name: Run the check
         id: check
         run: |
           set +e
           bash scripts/check-upstream.sh > report.txt 2>&1
-          echo "code=$?" >> "$GITHUB_OUTPUT"
+          code=$?
+          echo "code=$code" >> "$GITHUB_OUTPUT"
           cat report.txt
+          # The tier comes from the lines above "Recommended next step". The recommendation text
+          # repeats some of the same words, so it must not be matched.
+          sed '/^Recommended next step/,$d' report.txt > facts.txt
+          tier=0   # 0: nothing moved, no action
+          if [ "$code" = "1" ]; then
+            tier=1
+            # Tier 3: a licence change or a licence that could not be compared, a skill moved or gone,
+            # a plugin folder gone, pstack below its minimum (a "warn" line), a history rewrite.
+            grep -q '^  licence    changed\|^  licence    not checked' facts.txt && tier=3
+            grep -q '^  moved \|^  gone \|^  warn \|^  plugin     .* is not at the new head\|history changed\|no longer in the upstream history\|could not be compared\|could not reach\|could not clone' facts.txt && tier=3
+            # Tier 2: a locked skill's tree changed, or the plugin folder changed (the version went up,
+            # did not go up, or could not be read).
+            if [ "$tier" = 1 ]; then
+              grep -q '^  changed \|^  plugin     .* changed' facts.txt && tier=2
+            fi
+          elif [ "$code" = "2" ] || [ "$code" = "3" ]; then
+            tier=3
+          fi
+          echo "tier=$tier" >> "$GITHUB_OUTPUT"
+          echo "tier $tier"
 
-      - name: Open or update the issue
-        if: steps.check.outputs.code == '1'
+      - name: Tier 1 - update the lock on a new branch, open a pull request, start CI
+        if: steps.check.outputs.tier == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          branch="upstream/lock-$(date -u +%Y-%m-%d)"
+          # One open update pull request at a time. A person closes or merges it first.
+          open="$(gh pr list --state open --json number,headRefName \
+            --jq '[.[] | select(.headRefName | startswith("upstream/lock-")) | .number][0] // empty')"
+          if [ -n "$open" ]; then
+            echo "Update pull request #$open is still open. No new branch."
+            exit 0
+          fi
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            echo "Branch $branch already exists and has no open pull request. A person must delete it first."
+            exit 1
+          fi
+          bash scripts/fetch-skills.sh --update
+          if git diff --quiet -- skills.lock.json; then
+            echo "The lock did not change. No pull request."
+            exit 0
+          fi
+          bash scripts/fetch-skills.sh
+          bash scripts/check-claims.sh > claims.txt 2>&1 || true
+          bash scripts/doctor.sh > doctor.txt 2>&1 || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add skills.lock.json
+          git commit -q -m "lock: update upstream sources (tier 1, automatic)"
+          git push -q -u origin "$branch"
+          {
+            echo "Tier 1 update from the weekly check. Upstream moved; no locked skill changed; the licence is unchanged; the plugin folder is unchanged."
+            echo "Merge rule: docs/skills-sources.md section 7. A person merges it. The check only opens it."
+            echo "CI does not start by itself on a pull request that the workflow token opens, so the workflow started ci.yml on this branch by hand."
+            echo
+            echo "## Upstream check"
+            echo '```text'
+            cat report.txt
+            echo '```'
+            echo
+            echo "## check-claims.sh"
+            echo '```text'
+            cat claims.txt
+            echo '```'
+            echo
+            echo "## doctor.sh"
+            echo '```text'
+            cat doctor.txt
+            echo '```'
+          } > body.md
+          gh pr create --base main --head "$branch" \
+            --title "lock: update upstream sources (tier 1, automatic)" --body-file body.md
+          gh workflow run ci.yml --ref "$branch"
+
+      - name: Tier 2 or 3 - open or update the issue (no pull request)
+        if: (steps.check.outputs.tier == '2' || steps.check.outputs.tier == '3') && steps.check.outputs.code == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           title="Upstream check: a locked source moved"
           {
-            echo "The weekly check found that a source in \`skills.lock.json\` moved upstream."
-            echo "Nothing was changed. The lock is the same as before."
+            echo "The weekly check found that a source in \`skills.lock.json\` moved upstream, and the update is tier ${{ steps.check.outputs.tier }}, not tier 1."
+            echo "No pull request was opened. Read the change, then decide (docs/skills-sources.md section 7)."
             echo
             echo '```text'
             cat report.txt
             echo '```'
             echo
-            echo "Run \`bash scripts/check-upstream.sh\` to repeat the check. Follow the recommended step."
-            echo "Only \`bash scripts/fetch-skills.sh --update\` changes the lock."
+            echo "Run \`bash scripts/check-upstream.sh\` to repeat the check. Only \`bash scripts/fetch-skills.sh --update\` changes the lock."
           } > body.md
           n="$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')"
           if [ -n "$n" ]; then
