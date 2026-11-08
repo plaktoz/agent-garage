@@ -5,12 +5,12 @@
 # Usage: scripts/fetch-skills.sh [--source <name>] [--update]
 #   (no option)      Check the cache against the lock. Network is used only when a clone, a commit
 #                    or a checkout is missing. With everything present it makes no network call.
-#   --source <name>  Only this source (mattpocock-skills, ambition, good-readme or pstack-claude).
+#   --source <name>  Only this source (mattpocock-skills, ambition, good-readme, ponytail or pstack-claude).
 #   --update         Move each source to the newest commit of its default branch (network),
 #                    recompute each path and tree hash, and rewrite skills.lock.json. Review the
 #                    change with `git diff skills.lock.json`. calls and mentions are NOT changed:
 #                    re-read the SKILL.md of each changed skill and edit them by hand.
-#                    Nothing is written when a locked skill is missing or found twice upstream.
+#                    Nothing is written when a locked skill is missing upstream, or is found twice and its locked path is not one of the two.
 #   -h, --help       Show this help.
 #
 # Status per skill: ok (already there), fetched (this run cloned, fetched or checked out),
@@ -47,12 +47,12 @@ Usage: scripts/fetch-skills.sh [--source <name>] [--update]
 Fetches the skills and plugins that skills.lock.json names into .cache/<source>/ (git-ignored),
 at the recorded commit, and checks each tree hash against the lock.
 
-  --source <name>  Only this source (mattpocock-skills, ambition, good-readme or pstack-claude).
+  --source <name>  Only this source (mattpocock-skills, ambition, good-readme, ponytail or pstack-claude).
   --update         Move each source to the newest commit of its default branch (network),
                    recompute paths and tree hashes, rewrite skills.lock.json, and list what changed.
                    Review it with: git diff skills.lock.json
                    calls and mentions are not changed: re-check them by hand.
-                   Nothing is written if a locked skill is missing or found twice upstream.
+                   Nothing is written if a locked skill is missing upstream, or is found twice and its locked path is not one of the two.
   -h, --help       Show this help.
 
 Exit status: 0 ok, 1 a problem (network, missing skill, hash mismatch, bad lock), 2 usage error.
@@ -272,9 +272,12 @@ check_skill() {
   printf '  %-28s %s/%s\n' "$status" "$cur_src" "$name"
 }
 
-# find_skill NAME: --update. Looks up the folder with this name in the new commit, and records it.
+# find_skill NAME LOCKED_PATH: --update. Looks up the folder with this name in the new commit, and
+# records it. A name found once is followed even if it moved. A name found more than once is
+# accepted only when LOCKED_PATH is one of the hits (a repository can hold a second copy of a
+# skill, for example an adapter folder for another agent).
 find_skill() {
-  local name="$1" hits count p got
+  local name="$1" locked="$2" hits count p got
   hits="$(skill_dirs "$new_commit" "$cur_src" | awk -F'\t' -v n="$name" '$1 == n { print $2 }')"
   count="$(printf '%s' "$hits" | grep -c .)"
   if [ "$count" -eq 0 ]; then
@@ -282,8 +285,11 @@ find_skill() {
     return 0
   fi
   if [ "$count" -gt 1 ]; then
-    problem "$cur_src/$name: found $count times in commit ${new_commit:0:7} ($(printf '%s' "$hits" | tr '\n' ' ')). Not changed."
-    return 0
+    if [ -z "$locked" ] || ! printf '%s\n' "$hits" | grep -Fxq -- "$locked"; then
+      problem "$cur_src/$name: found $count times in commit ${new_commit:0:7} ($(printf '%s' "$hits" | tr '\n' ' ')), and the locked path ${locked:-(none)} is not one of them. Not changed."
+      return 0
+    fi
+    hits="$locked"
   fi
   p="$hits"
   got="$(git -C "$cache/$cur_src" rev-parse -q --verify "$new_commit:$p" 2>/dev/null)"
@@ -342,7 +348,7 @@ while IFS='|' read -r kind f2 f3 f4 f5 _ <&3; do
       if [ "$cur_bad" -eq 1 ]; then
         printf '  %-28s %s/%s\n' "not checked" "$cur_src" "$f3"
       elif [ "$update" -eq 1 ]; then
-        find_skill "$f3"
+        find_skill "$f3" "$f4"
       else
         check_skill "$f3" "$f4" "$f5"
       fi
