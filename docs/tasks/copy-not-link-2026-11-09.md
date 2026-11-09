@@ -20,11 +20,11 @@ Not parallel unless stated. T1 and T2 are independent scripts and run in paralle
 
 Limits for every subagent: do not commit, push, merge, delete a branch, or change `skills.lock.json`. Do not touch `~/.claude` or `~/.agents`: test with a temp `HOME` or `CLAUDE_SKILLS_DIR`. Do not edit a file outside the task's list.
 
-- [ ] **T1. `scripts/install-skills.sh` copies.**
+- [x] **T1. `scripts/install-skills.sh` copies.** Merged as `23725d3` (commit `201f588`). Verified on macOS with `CLAUDE_SKILLS_DIR` in a temp folder: install, up to date, stale, updated, removed, missing, unmanaged, legacy link replaced, `--force`, and `--project`. Not verified: Bash 3.2 (`/bin/bash` was blocked in the agent's sandbox), the real `HOME` path, Windows and Linux (verified by reading only). Legacy-link uninstall path not run.
   Files: `scripts/install-skills.sh`.
   Acceptance: install makes a real folder (`cp -R`) and writes the marker; `--list` prints `installed`, `stale`, `broken` (legacy dangling link) or `missing`; a second install prints `up to date`; an edit to the source makes `--list` print `stale` and the next install update it; `--uninstall` removes only marked copies from this repo; `--force` replaces; no `ln -s`, `readlink` or `MSYS` code remains; header comment and `--help` text say "copy". Tested in a temp `HOME` with a round trip (install, list, edit source, list, install, uninstall, list).
 
-- [ ] **T2. `scripts/install-agents.sh` copies.**
+- [x] **T2. `scripts/install-agents.sh` copies.** Merged as `5429f3e` (commit `242878f`). Verified on macOS with `CLAUDE_AGENTS_DIR` in a temp folder: install, up to date, stale, updated, removed, missing, unmanaged refused, `--force`, legacy link (live and dangling) replaced, foreign link refused, `broken` in `--list`, `--help`. Not verified: Bash 3.2 (`/bin/bash` blocked in the agent's sandbox; run `/bin/bash scripts/install-agents.sh --list` on the Mac), Windows and Linux (verified by reading only).
   Files: `scripts/install-agents.sh`.
   Acceptance: the same behavior as T1 for single agent files, with a sidecar marker; no `ln -s`, `readlink` or `MSYS` code remains. Round trip in a temp `CLAUDE_AGENTS_DIR`.
 
