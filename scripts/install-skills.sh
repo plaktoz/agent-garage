@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install the skills of this repo as symlinks.
+# Install the skills of this repo as copies (cp -R), not links.
 # Usage: scripts/install-skills.sh [--project DIR] [--agents | --codex] [--force] [--uninstall] [--list] [skill-name ...]
 # Two sources: skills/ (own skills) and .cache/<source>/<path> for each skill in skills.lock.json
 # (fetched by scripts/fetch-skills.sh, git-ignored). Without .cache, the own skills are still
@@ -14,12 +14,21 @@
 #   (Codex, OpenCode and Gemini CLI read it at project level, per their docs; not run here).
 #   DIR must exist. It does not have to be a git repository.
 # CLAUDE_SKILLS_DIR overrides the target folder. Do not use it with --project.
-# Before it links a skill that mentions a plugin named in skills.lock.json (requires.plugins), it
+# Before it copies a skill that mentions a plugin named in skills.lock.json (requires.plugins), it
 # checks, read only, whether the computer already has that plugin (scripts/lib-deps.sh). It never
 # installs a plugin.
-# Windows: run it in Git Bash. A link needs Developer Mode. The script sets MSYS=winsymlinks:nativestrict,
-#   so ln -s makes a real link or fails. If a copy was made instead, the script removes it, reports an
-#   error and exits non-zero. Not tested on Windows: this is from reading the script.
+# Each copy holds a file named .agent-garage-source with the path of its source folder. The marker
+#   tells a copy made by this script from a folder that someone else put there.
+# A copy does not follow the source. After the source changes, --list shows "stale"; run the
+#   install again to update the copy. An install replaces a stale copy that has the marker.
+# --list prints installed (same files as the source), stale (the source differs; also an old link
+#   into this repo), broken (a dangling link), unmanaged (no marker, or not from this repo) or missing.
+# An old link that points into this repo (from an earlier version of this script) is replaced by a
+#   copy. A link to another place, or a folder without the marker, is skipped unless --force.
+# --uninstall removes only the copies whose marker names a source in this repo, and old links that
+#   point into this repo.
+# No link is made, so Windows needs no Developer Mode. Run it in Git Bash. Not tested on Windows:
+#   this is from reading the script.
 set -euo pipefail
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -32,20 +41,60 @@ mode=install
 project=""
 names=()
 
-# Windows (Git Bash, MSYS, Cygwin): without this setting, ln -s makes a copy and not a link.
-is_win=0
-case "$(uname -s)" in
-  MINGW* | MSYS* | CYGWIN*) is_win=1; export MSYS=winsymlinks:nativestrict ;;
-esac
+# The marker file in each copy: it holds the absolute path of the source folder.
+marker=".agent-garage-source"
 
-# check_link TO NAME: on Windows, ln -s can make a copy instead of a link. Such a copy is removed
-# and reported. On other systems this does nothing.
-check_link() {
-  [ "$is_win" -eq 1 ] || return 0
-  [ -L "$1" ] && return 0
-  rm -rf "$1"
-  echo "error      $2 (ln -s made a copy, not a link, so the copy was removed. Turn on Windows Developer Mode, then run in Git Bash with MSYS=winsymlinks:nativestrict)" >&2
+# in_repo PATH: true when PATH is this repo or inside it.
+in_repo() {
+  case "$1" in
+    "$repo" | "$repo"/*) return 0 ;;
+  esac
   return 1
+}
+
+# copy_skill FROM TO: copy the folder and write the marker. TO must not exist.
+copy_skill() {
+  mkdir -p "$2" && cp -R "$1/." "$2/" && printf '%s\n' "$1" > "$2/$marker"
+}
+
+# classify FROM TO sets state, link_to and marker_src:
+#   missing    nothing at TO
+#   installed  a folder with the marker (source in this repo) and the same files as FROM
+#   stale      a folder with the marker (source in this repo) whose files differ from FROM
+#   legacy     a link that points into this repo (made by an earlier version of this script)
+#   broken     a dangling link, whatever it points to
+#   foreign    a link that points elsewhere and is not dangling
+#   unmanaged  a folder without the marker (or with one from outside this repo), or a plain file
+classify() {
+  state=missing
+  link_to=""
+  marker_src=""
+  if [ -L "$2" ]; then
+    link_to="$(readlink "$2")"
+    if [ ! -e "$2" ]; then
+      state=broken
+    elif in_repo "$link_to"; then
+      state=legacy
+    else
+      state=foreign
+    fi
+  elif [ -d "$2" ]; then
+    if [ -f "$2/$marker" ]; then
+      IFS= read -r marker_src < "$2/$marker" || true
+    fi
+    if [ -n "$marker_src" ] && in_repo "$marker_src"; then
+      if [ "$marker_src" = "$1" ] && diff -r -x "$marker" "$1" "$2" >/dev/null 2>&1; then
+        state=installed
+      else
+        state=stale
+      fi
+    else
+      state=unmanaged
+    fi
+  elif [ -e "$2" ]; then
+    state=unmanaged
+  fi
+  return 0
 }
 
 while [ "$#" -gt 0 ]; do
@@ -168,7 +217,7 @@ if [ "${#names[@]}" -eq 0 ]; then
   exit 1
 fi
 
-# Dependencies: before a skill that mentions a plugin of the lock is linked, say whether the
+# Dependencies: before a skill that mentions a plugin of the lock is copied, say whether the
 # computer already has that plugin. Read only. Never an install.
 dep_report() {
   local plugin_rows pname n k hits lvl txt
@@ -219,6 +268,19 @@ fi
 [ "$mode" = install ] && mkdir -p "$dest"
 status=0
 
+# replace_with_copy WORD: remove what is at $to, copy $from there and print WORD with the name.
+# A failed copy is removed again, reported, and sets status to 1. Uses the loop's $from, $to, $name.
+replace_with_copy() {
+  rm -rf "$to"
+  if copy_skill "$from" "$to"; then
+    echo "$1 $name"
+  else
+    rm -rf "$to"
+    echo "error      $name (could not copy $from to $to)" >&2
+    status=1
+  fi
+}
+
 for name in "${names[@]}"; do
   # An unknown name falls back to the own folder, so install reports it as an error.
   from="$own/$name"
@@ -232,26 +294,34 @@ for name in "${names[@]}"; do
     i=$((i + 1))
   done
   to="$dest/$name"
+  classify "$from" "$to"
 
   if [ "$mode" = list ]; then
-    if [ -L "$to" ] && [ "$(readlink "$to")" = "$from" ]; then
-      echo "installed  $name"
-    elif [ -L "$to" ] && [ ! -e "$to" ]; then
-      # A symlink whose target is gone is dangling: -L is true, -e is false.
-      echo "broken     $name"
-    else
-      echo "missing    $name"
-    fi
+    case "$state" in
+      installed) echo "installed  $name" ;;
+      stale) echo "stale      $name" ;;
+      broken) echo "broken     $name" ;;
+      missing) echo "missing    $name" ;;
+      legacy) echo "stale      $name (an old link into this repo; an install replaces it with a copy)" ;;
+      foreign) echo "unmanaged  $name (a link to $link_to, not made by this script)" ;;
+      unmanaged) echo "unmanaged  $name (a folder not made by this script)" ;;
+    esac
     continue
   fi
 
   if [ "$mode" = uninstall ]; then
-    if [ -L "$to" ] && [ "$(readlink "$to")" = "$from" ]; then
-      rm "$to"
-      echo "removed    $name"
-    else
-      echo "skipped    $name (not installed from this repo)"
-    fi
+    case "$state" in
+      legacy) rm "$to"; echo "removed    $name" ;;
+      broken)
+        if in_repo "$link_to"; then
+          rm "$to"
+          echo "removed    $name"
+        else
+          echo "skipped    $name (not installed from this repo)"
+        fi ;;
+      installed | stale) rm -rf "$to"; echo "removed    $name" ;;
+      *) echo "skipped    $name (not installed from this repo)" ;;
+    esac
     continue
   fi
 
@@ -265,24 +335,27 @@ for name in "${names[@]}"; do
     continue
   fi
 
-  if [ -L "$to" ] && [ "$(readlink "$to")" = "$from" ]; then
-    echo "up to date $name"
-  elif [ -e "$to" ] || [ -L "$to" ]; then
-    if [ "$force" -eq 1 ]; then
-      rm -rf "$to"
-      ln -s "$from" "$to"
-      if check_link "$to" "$name"; then echo "replaced   $name"; else status=1; fi
-    elif [ -L "$to" ] && [ ! -e "$to" ]; then
-      echo "broken     $name (link target $(readlink "$to") is missing; use --force to replace)" >&2
-      status=1
-    else
-      echo "skipped    $name (already exists at $to; use --force to replace)" >&2
-      status=1
-    fi
-  else
-    ln -s "$from" "$to"
-    if check_link "$to" "$name"; then echo "installed  $name"; else status=1; fi
-  fi
+  case "$state" in
+    missing) replace_with_copy "installed " ;;
+    installed) echo "up to date $name" ;;
+    stale) replace_with_copy "updated   " ;;
+    legacy) replace_with_copy "replaced  " ;;
+    broken)
+      # A dangling link into this repo is an old link too. Any other dangling link needs --force.
+      if [ "$force" -eq 1 ] || in_repo "$link_to"; then
+        replace_with_copy "replaced  "
+      else
+        echo "broken     $name (link target $link_to is missing; use --force to replace)" >&2
+        status=1
+      fi ;;
+    *)
+      if [ "$force" -eq 1 ]; then
+        replace_with_copy "replaced  "
+      else
+        echo "skipped    $name (already exists at $to and was not made by this script; use --force to replace)" >&2
+        status=1
+      fi ;;
+  esac
 done
 
 exit "$status"
