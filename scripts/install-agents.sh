@@ -107,6 +107,8 @@ for name in "${names[@]}"; do
     if legacy_link "$to" || marker_in_repo "$marker"; then
       rm -f "$to" "$marker"
       echo "removed    $name"
+    elif [ ! -e "$to" ] && [ ! -L "$to" ]; then
+      echo "missing    $name (nothing to remove)"
     else
       echo "skipped    $name (not installed from this repo)"
     fi

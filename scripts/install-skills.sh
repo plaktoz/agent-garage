@@ -321,6 +321,7 @@ for name in "${names[@]}"; do
           echo "skipped    $name (not installed from this repo)"
         fi ;;
       installed | stale) rm -rf "$to"; echo "removed    $name" ;;
+      missing) echo "missing    $name (nothing to remove)" ;;
       *) echo "skipped    $name (not installed from this repo)" ;;
     esac
     continue

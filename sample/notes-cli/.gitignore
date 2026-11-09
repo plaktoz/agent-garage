@@ -1,6 +1,6 @@
 notes.json
 node_modules/
 
-# Skill links made by install-skills.sh --project. They point at this machine's copy of the kit.
+# Skill copies made by install-skills.sh --project. Ignored here so they stay out of this pilot's git history.
 /.claude/skills/
 /.agents/skills/

@@ -28,7 +28,7 @@ Limits for every subagent: do not commit, push, merge, delete a branch, or chang
   Files: `scripts/install-agents.sh`.
   Acceptance: the same behavior as T1 for single agent files, with a sidecar marker; no `ln -s`, `readlink` or `MSYS` code remains. Round trip in a temp `CLAUDE_AGENTS_DIR`.
 
-- [ ] **T3. `scripts/doctor.sh` checks copies.** Merged as `f9733b3`. The criterion "run on a temp HOME after T1's install: no error" is not met yet (see "Not met" below), so T3 stays `[ ]`.
+- [x] **T3. `scripts/doctor.sh` checks copies.** Merged as `f9733b3`. The full-install criterion is met in T5: a temp HOME after T1's install gives "no failures, 0 warning(s)", exit 0 (bash 3.2.57). The "Not met" paragraph below is kept as the history of how it was closed.
   Waits for T1: it reads the marker that T1 writes.
   Files: `scripts/doctor.sh`.
   Acceptance: `classify` reports `ok` for a marked copy that matches its source, `stale` (a warning) for a marked copy that differs, `shadowed` for a folder without the marker or a link to another place, `broken` for a dangling link, `missing` for none. The Git Bash and Cygwin link notes are removed. Run on a temp `HOME` after T1's install: no error.
@@ -43,9 +43,19 @@ Limits for every subagent: do not commit, push, merge, delete a branch, or chang
   Acceptance: no README, CI, alfred or `.gitignore` text says "link" for an install this script makes; the Windows section no longer asks for Developer Mode; `bash scripts/check-claims.sh` passes; the README says that a project can commit its copies and that a copy needs a re-run to update.
   Result: `bash -n` passes for all `scripts/*.sh` and `claude/scripts/*.sh`; `node --check scripts/skills-lock.cjs` passes; `ci.yml` parses (ruby YAML); `bash scripts/check-claims.sh` gives "38 claims checked, 0 stale", exit 0. The one NOTE is `claude/scripts/install-mods.sh` has no `Exit status:` line, which is outside T4. The grep for "link", "symlink", "Developer Mode" and "MSYS" in the T4 files leaves only: the detection text in the scripts (legacy and foreign links), the dated history in `docs/skills-sources.md` section 9 and the 2026-11-08 record, and the README's "Git Bash" and mods lines. The `doctor.sh` header (line 32) still says "linked" for the pstack skills; that is T3's file, so it is not changed here and is left for T5 or a follow-up. Not verified: the README's Codex row (the copy into a temp project for this version) is still untested; it is T5's job.
 
-- [ ] **T5. Verify.**
-  Waits for T4: it runs the finished scripts.
+- [x] **T5. Verify.** Done on 2026-11-09 on macOS, bash 3.2.57 (`/bin/bash`) for the final runs. Waited for T4: it runs the finished scripts.
   Acceptance: on macOS, in a temp `HOME` and a copy of `sample/notes-cli`: install, list, doctor, edit-and-reinstall, uninstall all print what T1 to T3 say; `node --test` passes in the pilot copy with `unslop` installed; `bash scripts/check-claims.sh` passes. Windows and Linux are marked "verified by reading", because they cannot run here.
+  Result:
+  - `bash scripts/fetch-skills.sh`: 15 fetched, 0 changed, every locked skill matches the lock.
+  - Temp HOME, bash 3.2.57: install exit 0, 19 of 19 `installed`; `--list` 19 `installed`; `doctor.sh` exit 0, "Result: no failures, 0 warning(s)". This closes T3's "full install" criterion.
+  - Edit-and-reinstall: an edited copy of `unslop` lists as `stale`; reinstall prints `updated`; the copy then matches its source (`diff -r`, marker ignored) and the probe line is gone. The repo source is unchanged.
+  - Uninstall in the temp HOME: `removed` for each marked copy, exit 0; a folder without the marker (`someone-elses`) was left; a second uninstall prints `missing (nothing to remove)`, exit 0.
+  - Pilot: `cp -R sample/notes-cli` to a temp folder, `install-skills.sh --project <copy> unslop`, then `node --test 'test/*.test.js'`: 4 of 4 pass, exit 0.
+  - Codex row: `install-skills.sh --project <temp> --agents ste-docs unslop` copied both into `.agents/skills/`; `--uninstall` removed them. Bash 3.2.57.
+  - Agents: `CLAUDE_AGENTS_DIR` in a temp folder, install `alfred` (`installed`), `--list`, `--uninstall` (`removed`), exit 0. A foreign `alfred.md` is `skipped` on uninstall, not removed.
+  - `bash scripts/check-claims.sh`: 38 claims, 0 stale, exit 0. The one NOTE (`install-mods.sh` has no `Exit status:` line) is outside this task.
+  - Fixes found during T5: an uninstall of a name that is not installed printed "skipped ... not installed from this repo"; it now prints "missing ... (nothing to remove)" in `install-skills.sh` and `install-agents.sh`. Nothing is removed either way. The pilot `sample/notes-cli/.gitignore` comment said "Skill links" and now says copies. The README Codex row now gives the 2026-11-09 copy run.
+  - Not verified: Windows and Linux (verified by reading only). The real `~/.claude` was not changed by T5; its 22 links into `~/Developer/claude-mods` are still there (out of scope).
 
 ## Out of scope (open for the user)
 

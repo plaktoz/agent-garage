@@ -175,7 +175,7 @@ Codex CLI reads the same shared instructions and the same skills. It does not ru
 | Part | Codex CLI |
 |------|-----------|
 | `AGENTS.md` | Works. Codex reads it. |
-| `skills/` and the locked skills | Works. Run `scripts/fetch-skills.sh`, then `bash scripts/install-skills.sh --agents`. The program file contains the name `.agents/skills`. It does not show that Codex reads a project's `.agents/skills/`: that claim is not confirmed. Not run live. The copy into a temp project has not been run for this version of the script yet. |
+| `skills/` and the locked skills | Works. Run `scripts/fetch-skills.sh`, then `bash scripts/install-skills.sh --agents`. The program file contains the name `.agents/skills`. It does not show that Codex reads a project's `.agents/skills/`: that claim is not confirmed. Not run live. On 2026-11-09 under bash 3.2.57 (macOS), `install-skills.sh --project <temp> --agents ste-docs unslop` copied 2 skills into `.agents/skills/`, and `--uninstall` removed them. The copy path was not run with a real Codex. |
 | `skills/unslop` | Works. `skills/unslop/agents/openai.yaml` turns off implicit use, so Codex runs it only when you name it. |
 | `agents/alfred.md` | Partly. `.codex/agents/alfred.toml` tells Codex to follow it. Not confirmed: that Codex loads agents from a project folder. If it does not, ask Codex to follow `agents/alfred.md`. |
 | `claude/mods/` | Does not work. Mods use Claude Code calls that Codex does not have. Do not add the marketplace in Codex. |
