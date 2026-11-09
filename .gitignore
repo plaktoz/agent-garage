@@ -5,6 +5,7 @@ claude/mods/*/.claude-plugin/types/
 # Source images and audio you supply yourself are personal use only; never commit them.
 # Mod themes live in ~/.claude/theme-cli/, outside the repo.
 scratch/
+.claude/worktrees/
 
 # Per-project skill and agent copies made by scripts/install-skills.sh and install-agents.sh.
 # This repo's own project folder ignores them: the copies are not kept in this repository.
@@ -14,3 +15,6 @@ scratch/
 
 # Third-party skills and plugins fetched by scripts/fetch-skills.sh, at the commit in skills.lock.json.
 .cache/
+
+# Python bytecode caches made by test runs.
+__pycache__/
