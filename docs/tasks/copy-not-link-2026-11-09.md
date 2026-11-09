@@ -28,7 +28,7 @@ Limits for every subagent: do not commit, push, merge, delete a branch, or chang
   Files: `scripts/install-agents.sh`.
   Acceptance: the same behavior as T1 for single agent files, with a sidecar marker; no `ln -s`, `readlink` or `MSYS` code remains. Round trip in a temp `CLAUDE_AGENTS_DIR`.
 
-- [ ] **T3. `scripts/doctor.sh` checks copies.**
+- [ ] **T3. `scripts/doctor.sh` checks copies.** Merged as `f9733b3`. The criterion "run on a temp HOME after T1's install: no error" is not met yet (see "Not met" below), so T3 stays `[ ]`.
   Waits for T1: it reads the marker that T1 writes.
   Files: `scripts/doctor.sh`.
   Acceptance: `classify` reports `ok` for a marked copy that matches its source, `stale` (a warning) for a marked copy that differs, `shadowed` for a folder without the marker or a link to another place, `broken` for a dangling link, `missing` for none. The Git Bash and Cygwin link notes are removed. Run on a temp `HOME` after T1's install: no error.
