@@ -4,7 +4,7 @@ Source: the user asked that skills be copied to the project and not linked with 
 
 State key: `[ ]` open, `[x]` done, `[-]` not done (reason given).
 
-Approval: the user approved T1 to T5 on 2026-11-09, and asked for the two skills to be moved into agent-garage and for commits. Work is on the branch `feat/copy-not-link-2026-11-09`. Commits go after each task.
+Approval: the user approved T1 to T5 on 2026-11-09, and asked for the two skills to be moved into agent-garage and for commits. Work is on the branch `feat/copy-not-link-2026-11-09`. Commits go after each task. Pushed to `origin` at `fedc8c7` on 2026-11-09, as the user approved pushing. No pull request is open yet, and nothing is merged into `main`.
 
 Done before T1 (not in the list below): `triage` and `diagnosing-bugs` copied from `~/Developer/claude-mods/skills/` into `skills/`. Both copies are byte-identical to the source (`diff -r`). The source folder is not changed. `library/theme-cli-handoff.md` points to this repo.
 
