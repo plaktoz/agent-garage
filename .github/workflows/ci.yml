@@ -54,28 +54,6 @@ jobs:
           if [ "$RUNNER_OS" = Windows ]; then
             # Windows tools read USERPROFILE. Give the Windows form of the same folder.
             echo "USERPROFILE=$(cygpath -w "$work/home")" >> "$GITHUB_ENV"
-            echo "MSYS=winsymlinks:nativestrict" >> "$GITHUB_ENV"
-          fi
-
-      # Windows: a real symbolic link needs Developer Mode. This sets the registry flag; the runner is
-      # an administrator, so it may work. Unverified here: if the flag does not take effect, the probe
-      # reports no link and the install step fails, so a copy is never installed silently.
-      - name: Windows - turn on Developer Mode
-        if: runner.os == 'Windows'
-        continue-on-error: true
-        shell: pwsh
-        run: reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /v AllowDevelopmentWithoutDevLicense /t REG_DWORD /d 1 /f
-
-      - name: Windows - probe a symbolic link
-        if: runner.os == 'Windows'
-        run: |
-          set -euo pipefail
-          printf 'probe\n' > "$CI_WORK/probe-target"
-          ln -s "$CI_WORK/probe-target" "$CI_WORK/probe-link" || true
-          if [ -L "$CI_WORK/probe-link" ]; then
-            echo "symlink: a real link can be made"
-          else
-            echo "symlink: no real link on this runner. The install step will fail, as it should."
           fi
 
       - name: 1. Syntax of the shell scripts

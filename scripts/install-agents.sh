@@ -4,6 +4,7 @@
 # A file without the marker is not touched unless --force is given.
 # Codex CLI reads .codex/agents/*.toml from the project; this script does not install those.
 # Usage: scripts/install-agents.sh [--force] [--uninstall] [--list] [agent-name ...]
+# Exit status: 0 ok, 1 an agent missing or skipped, 2 usage error.
 # CLAUDE_AGENTS_DIR overrides the target folder.
 set -euo pipefail
 

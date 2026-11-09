@@ -5,8 +5,8 @@ Where each skill and plugin of this kit comes from, what it does outside the con
 ## 1. How the sources are kept
 
 - Third-party skills are not copied into this repository. `scripts/fetch-skills.sh` fetches them into `.cache/<source>/` (git-ignored) at the commit that `skills.lock.json` records, and checks each skill's git tree hash against the lock.
-- `scripts/install-skills.sh` links each skill from `skills/` (own skills) or from `.cache/` (locked skills) into `~/.claude/skills` or `~/.agents/skills`. With `--project <folder>` it links into `<folder>/.claude/skills`, or into `<folder>/.agents/skills` when `--agents` is also given.
-- `scripts/doctor.sh` checks the lock against the fetched copies and the installed links. It changes nothing.
+- `scripts/install-skills.sh` copies each skill from `skills/` (own skills) or from `.cache/` (locked skills) into `~/.claude/skills` or `~/.agents/skills`. With `--project <folder>` it copies into `<folder>/.claude/skills`, or into `<folder>/.agents/skills` when `--agents` is also given. It makes no symbolic link.
+- `scripts/doctor.sh` checks the lock against the fetched copies and the installed copies. It changes nothing.
 - The lock is recorded, not pinned. Only `scripts/fetch-skills.sh --update` changes it, and only after review.
 - To use the skills in another repository, see section 10.
 
@@ -22,7 +22,7 @@ Where each skill and plugin of this kit comes from, what it does outside the con
 
 The licence of mattpocock/skills is MIT. Its text is at https://github.com/mattpocock/skills (the LICENSE file), and after a fetch it is also at `.cache/mattpocock-skills/LICENSE`.
 
-`jakedahn/ambition` declares no licence. The kit therefore fetches it and links it. It never copies the files into this repository. Do not copy them into `skills/` unless the author gives permission. The repository is public, although its README says it is private.
+`jakedahn/ambition` declares no licence. The kit therefore fetches it and copies it. It never copies the files into this repository. Do not copy them into `skills/` unless the author gives permission. The repository is public, although its README says it is private.
 
 The kit keeps no copy of an upstream skill. `skills/ste-docs`, `skills/unslop` and `skills/minimalism-ladder` are the only own skills, and they have no upstream source. `skills/minimalism-ladder` was copied on 2026-11-09 from a pack of the same name in another repository (version 0.1.0): the skill text, the record schema, the evidence script and its tests. The pack's spec, fixtures and assessment were not copied. `diagnosing-bugs` and `triage` were copies of mattpocock/skills. They were removed on 2026-11-08 (they are in git history).
 
@@ -83,11 +83,11 @@ The text of each SKILL.md was read on 2026-11-07. The table shows only what the 
 | `good-readme` | No. It reads the project's source and manifests, and the README it is asked to change. The text names no command to run. | No. |
 | `ponytail` | No. It changes how the agent writes code. The text names no command to run and no file to write. | No. |
 
-The `ambition` row was read on 2026-11-08 from `SKILL.md` and its README at commit `02dd70c`. The skill names no model and calls no other skill. Its README and example mention Claude Code as the product. The repository also holds a README, an example and `.claude-plugin/` files outside `skills/ambition`. The kit links only the `skills/ambition` folder, so those files are not installed. The folder itself holds `SKILL.md`, `references/` and `evals/`.
+The `ambition` row was read on 2026-11-08 from `SKILL.md` and its README at commit `02dd70c`. The skill names no model and calls no other skill. Its README and example mention Claude Code as the product. The repository also holds a README, an example and `.claude-plugin/` files outside `skills/ambition`. The kit copies only the `skills/ambition` folder, so those files are not installed. The folder itself holds `SKILL.md`, `references/` and `evals/`.
 
-The `good-readme` row was read on 2026-11-08 from `SKILL.md` and its five files in `references/` at commit `17c42e2`. The skill names no model and calls no other skill. Its front matter says it works with Codex, OpenCode, Pi, Gemini CLI and Claude Code. It says to use it only when the user asks for a README. It overlaps with the kit's `ste-docs` skill, which the repo rules require for module READMEs: for a README in this repo, use `ste-docs`. The kit links only the `skills/good-readme` folder.
+The `good-readme` row was read on 2026-11-08 from `SKILL.md` and its five files in `references/` at commit `17c42e2`. The skill names no model and calls no other skill. Its front matter says it works with Codex, OpenCode, Pi, Gemini CLI and Claude Code. It says to use it only when the user asks for a README. It overlaps with the kit's `ste-docs` skill, which the repo rules require for module READMEs: for a README in this repo, use `ste-docs`. The kit copies only the `skills/good-readme` folder.
 
-The `ponytail` row was read on 2026-11-09 from the whole `SKILL.md` (52 lines) at commit `96608e0`. The folder holds `SKILL.md` only. The skill names no model and calls no other skill. The kit links only the `skills/ponytail` folder. The upstream repository also holds hooks that run `node` at session start. It holds a status band and slash commands such as `/ponytail-review`. The kit does not install them. The `SKILL.md` text says the skill is active for the whole session, and that `/ponytail lite|full|ultra` sets the level. Without the hooks, the skill runs when the agent loads it. Whether the level switch works without the hooks is not checked. The upstream repository has a second folder named `ponytail`, in `.openclaw/skills/`, for another agent. The lock names `skills/ponytail`, and `fetch-skills.sh --update` keeps that path (section 7). `ponytail` and `ambition` give opposite advice: `ambition` makes a task bigger, and `ponytail` makes the change smaller. Call one of them for a task, not both.
+The `ponytail` row was read on 2026-11-09 from the whole `SKILL.md` (52 lines) at commit `96608e0`. The folder holds `SKILL.md` only. The skill names no model and calls no other skill. The kit copies only the `skills/ponytail` folder. The upstream repository also holds hooks that run `node` at session start. It holds a status band and slash commands such as `/ponytail-review`. The kit does not install them. The `SKILL.md` text says the skill is active for the whole session, and that `/ponytail lite|full|ultra` sets the level. Without the hooks, the skill runs when the agent loads it. Whether the level switch works without the hooks is not checked. The upstream repository has a second folder named `ponytail`, in `.openclaw/skills/`, for another agent. The lock names `skills/ponytail`, and `fetch-skills.sh --update` keeps that path (section 7). `ponytail` and `ambition` give opposite advice: `ambition` makes a task bigger, and `ponytail` makes the change smaller. Call one of them for a task, not both.
 
 ### Approval before publishing
 
@@ -112,7 +112,7 @@ Installed copies in `~/.agents/skills` on one machine date from 2026-07-17. They
 - The installed `setup-matt-pocock-skills` writes `CONTEXT.md`. The locked version writes `GLOSSARY.md`, and offers to rename an existing `CONTEXT.md`. The TOGAF playbooks in this repository do not name `CONTEXT.md`; the term file they use is `GLOSSARY.md`.
 - The installed `grill-me` says "Run a `/grilling` session." The locked `grill-me` says to call the Skill tool with `grilling`.
 
-Installed copies in `~/.claude/skills` that link into `~/.agents/skills` are shadowed for the kit: `doctor.sh` reports them. Remove the link or the folder by hand, then run `scripts/install-skills.sh`.
+Installed copies in `~/.claude/skills` that link into `~/.agents/skills` are shadowed for the kit: `doctor.sh` reports them. Remove the link or the folder by hand, then run `scripts/install-skills.sh`. (Written before the switch from links to copies. The rule still applies to any link that is left.)
 
 ## 6. Not taken
 
@@ -152,7 +152,7 @@ The tier is written in the description of the update pull request or issue.
 
 - The kit fetches the locked copy into `.cache/pstack-claude/`. `scripts/bootstrap-project.sh <project> --pstack <local|user>` adds that copy as a local marketplace and installs the plugin from it. It never installs again when pstack is already there, and it never removes or replaces a marketplace. `project` scope is refused, because it writes the plugin into the project's shared `.claude/settings.json`.
 - Install it per project, with a scope that fits the project: `local` for one project, `user` for every project.
-- `scripts/doctor.sh` reports the locked version and commit, what is installed, and the pstack skills that are linked in a skill folder. A pstack install older than 0.9.57 is a warning.
+- `scripts/doctor.sh` reports the locked version and commit, what is installed, and the pstack skills that are copied into a skill folder. A pstack install older than 0.9.57 is a warning.
 - Source of pstack: https://github.com/michael-denyer/pstack-claude
 - A marketplace named `pstack-claude` may already exist on a machine, from GitHub (`claude plugin marketplace add michael-denyer/pstack-claude`). A marketplace name is registered once, so the locked copy cannot be added under that name while the GitHub one is there. `bootstrap-project.sh` then stops and prints the manual commands. The kit does not remove or replace the GitHub marketplace. Use `claude plugin marketplace list` to see which is there.
 
@@ -164,13 +164,13 @@ ponytail is MIT licensed. Copyright (c) 2026 DietrichGebert. The full text is at
 
 ### Decision on `ambition` (2026-11-08)
 
-The owner decided that `ambition` stays in `skills.lock.json`. The kit fetches and links it, as section 3 describes. It does not copy its files into `skills/`. Its upstream declares no licence, so the kit makes no licence claim for it. The decision was made on 2026-11-08, in task S9 of the self-check task list (deleted when finished; it is in git history).
+The owner decided that `ambition` stays in `skills.lock.json`. The kit fetches and copies it, as section 3 describes. It does not copy its files into `skills/`. Its upstream declares no licence, so the kit makes no licence claim for it. The decision was made on 2026-11-08, in task S9 of the self-check task list (deleted when finished; it is in git history).
 
 ## 10. Install the skills in another repository
 
 This section shows how to use the skills of this kit in a different project. In the examples, `~/agent-garage` is your clone of this repository. `~/my-app` is the other project.
 
-The install script links the skills. It does not copy them. A link points into `~/agent-garage`. So the clone must stay on the computer, and a `git pull` in the clone updates the skills in every project.
+The install script copies the skills. A copy is a real folder that does not follow changes in `~/agent-garage`. So after a `git pull` in the clone, run the install again to update each project's copies.
 
 ### Step 1. Fetch the locked skills (once per clone)
 
@@ -181,11 +181,11 @@ cd ~/agent-garage
 bash scripts/fetch-skills.sh
 ```
 
-Without this step, the install links the own skills only. It prints a note that names the missing sources. It does not fail.
+Without this step, the install copies the own skills only. It prints a note that names the missing sources. It does not fail.
 
 ### Step 2. Choose the target
 
-| You use | Command | Links go to |
+| You use | Command | Copies go to |
 |---------|---------|-------------|
 | Claude Code | `bash scripts/install-skills.sh --project ~/my-app` | `~/my-app/.claude/skills/` |
 | Codex, OpenCode or Gemini CLI | `bash scripts/install-skills.sh --project ~/my-app --agents` | `~/my-app/.agents/skills/` |
@@ -196,7 +196,7 @@ The `--project` folder must exist. It does not have to be a git repository. Run 
 ### Step 3. Install all skills, or only some
 
 ```bash
-# All 17 skills
+# All 19 skills
 bash scripts/install-skills.sh --project ~/my-app
 
 # Only the skills that you name
@@ -211,22 +211,22 @@ Some locked skills call other skills. For example, `grill-me` calls `grilling`. 
 # Show what is installed. This changes nothing.
 bash scripts/install-skills.sh --project ~/my-app --list
 
-# Remove the links that this script made.
+# Remove the copies that this script made.
 bash scripts/install-skills.sh --project ~/my-app --uninstall
 ```
 
-Add `--agents` to both commands if you installed with `--agents`. The script reports `installed`, `up to date`, `missing` or `removed` for each skill. It exits 0 on success.
+Add `--agents` to both commands if you installed with `--agents`. The script reports `installed`, `up to date`, `updated`, `missing` or `removed` for each skill. It exits 0 on success.
 
-### Step 5. Keep the links out of git
+### Step 5. Commit the copies, or keep them out of git
 
-A link holds the path of your clone. That path is not valid on another computer. Add these lines to the `.gitignore` of `~/my-app`:
+A copy holds the files of the skill, not a path to your clone. So the project can commit the copies, and another computer can use them as they are. A copy does not follow later changes in `~/agent-garage`: run the install again to update it. If you do not want the copies in git, add these lines to the `.gitignore` of `~/my-app`:
 
 ```gitignore
 /.claude/skills/
 /.agents/skills/
 ```
 
-Each person who clones `~/my-app` then runs the install on their own computer. Those two lines also hide a skill that the project keeps in those folders by hand. To keep such a skill in git, list only the link names in `.gitignore`.
+Those two lines also hide a skill that the project keeps in those folders by hand. To keep such a skill in git, list only the copied skill folders in `.gitignore`.
 
 ### Step 6. Add the playbooks (optional)
 
@@ -243,7 +243,7 @@ A second run reports `up to date`. A playbook that you changed in the project is
 | Message | Cause | Fix |
 |---------|-------|-----|
 | `no fetched copy for: ...` | Step 1 was not run. | Run `bash scripts/fetch-skills.sh`. |
-| `skipped` for a skill | A real folder, or a link from another source, has the same name. | Move it away, or use `--force` to replace it. The script never removes a folder it did not make. |
+| `skipped` for a skill | A folder without the marker, or a link from another source, has the same name. | Move it away, or use `--force` to replace it. The script never removes a folder it did not make. |
 | Exit 2 | Unknown option, missing `--project` folder, or `--project` with `CLAUDE_SKILLS_DIR`. | Fix the command. |
 | A skill does not appear in the harness | The harness was open during the install. | Start a new session. |
 

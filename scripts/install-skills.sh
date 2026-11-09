@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Install the skills of this repo as copies (cp -R), not links.
 # Usage: scripts/install-skills.sh [--project DIR] [--agents | --codex] [--force] [--uninstall] [--list] [skill-name ...]
+# Exit status: 0 ok, 1 a skill skipped, a name in both sources, or no skill found, 2 usage error.
 # Two sources: skills/ (own skills) and .cache/<source>/<path> for each skill in skills.lock.json
 # (fetched by scripts/fetch-skills.sh, git-ignored). Without .cache, the own skills are still
 # installed and the script says to run scripts/fetch-skills.sh.

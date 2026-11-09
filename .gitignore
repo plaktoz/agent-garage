@@ -6,8 +6,8 @@ claude/mods/*/.claude-plugin/types/
 # Mod themes live in ~/.claude/theme-cli/, outside the repo.
 scratch/
 
-# Per-project skill and agent links made by scripts/install-skills.sh and install-agents.sh.
-# They hold absolute paths to this machine, so never commit them.
+# Per-project skill and agent copies made by scripts/install-skills.sh and install-agents.sh.
+# This repo's own project folder ignores them: the copies are not kept in this repository.
 .claude/skills/
 .claude/agents/
 .agents/skills/

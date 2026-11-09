@@ -40,7 +40,7 @@ bash scripts/doctor.sh
 
 Expected result:
 
-- `install-skills.sh` prints `installed` for 17 skills.
+- `install-skills.sh` prints `installed` for 19 skills. It copies each one into `~/.claude/skills/`.
 - `doctor.sh` ends with a line that starts `Result:`. A new machine can show warnings. A failure makes `doctor.sh` exit 1.
 
 Then start a new Claude Code session. Type `/` and check that a skill name, for example `ste-docs`, is in the list.
@@ -55,7 +55,6 @@ Then start a new Claude Code session. Type `/` and check that a skill name, for 
 | `claude` command | Mods, `install-mods.*`, `--pstack` | Claude Code |
 | `python3` (`python` on Windows) | `skills/minimalism-ladder/scripts/check_evidence.py` and its tests | Standard library only. Needed only to check a ladder record. Python 3.15.0 ran the tests on macOS |
 | `jq` | The optional `git-guardrails-claude-code` hook | Without `jq`, the hook allows every command |
-| Developer Mode (Windows) | Links made by the install scripts | See "Windows" under "Install skills" |
 
 `bash scripts/doctor.sh` checks the tools on your machine. It changes nothing.
 
@@ -92,7 +91,7 @@ The kit has five systems and four harnesses. Each cell says how it was checked. 
 | macOS | Run: the scripts under bash 3.2.57. `claude plugin validate` on the 7 marketplace mods exits 0 each. 4 mods show an author warning and 6 show an icon warning. None reports a missing LICENSE since the four missing files were added (`--profile directory` on those 4: no licence problem). `claude plugin test` on the 7 mods: 0 fail (2026-11-08). `install-mods.sh --list` on the real home shows all 7 installed. Install round trip in a temp home (project scope): 7 installed, then 7 removed, and the real `~/.claude/plugins` and `settings.json` are unchanged. The whole `~/.claude` tree was not compared, because it changes while a session runs. Alfred through `claude -p --agent alfred` on 2026-11-03 | Program file read (Codex 0.164.0). Install checked on 2026-11-08 in a temp project: `--agents` and `--codex` linked 17 skills; `--list` and `--uninstall` ran. Not run live: `codex login status` shows an API key, but its validity is unproven. No request sent | From vendor documentation, not run. Not installed | From vendor documentation, not run. Not installed |
 | Linux | Verified by reading. CI ran the scripts, not Claude Code | Verified by reading. Not run | From vendor documentation, not run | From vendor documentation, not run |
 | WSL | Verified by reading. The doctor WSL check ran only with simulated input | Verified by reading. Not run | From vendor documentation, not run | From vendor documentation, not run |
-| Git Bash (Windows) | Verified by reading. CI ran the scripts and a symbolic link probe on Windows, not Claude Code | Verified by reading. Not run | From vendor documentation, not run | From vendor documentation, not run |
+| Git Bash (Windows) | Verified by reading. CI ran the scripts on Windows. The copy scripts need no symbolic link. Not run on Claude Code | Verified by reading. Not run | From vendor documentation, not run | From vendor documentation, not run |
 | PowerShell (Windows) | `claude/scripts/install-mods.ps1`: verified by reading only. The skill, agent, doctor and bootstrap scripts need Git Bash | Needs Git Bash. Not run | Needs Git Bash. Not run | Needs Git Bash. Not run |
 
 - **run**: a command ran and its output was read. The cell names the command.
@@ -105,24 +104,26 @@ CI run 42394334472 (commit `4aa64c6`) passed its syntax, fetch, install and doct
 
 Skills come from two sources.
 
-- `skills/` holds the own skills: `ste-docs`, `unslop` and `minimalism-ladder`. They have no upstream source.
+- `skills/` holds the own skills: `ste-docs`, `unslop`, `minimalism-ladder`, `triage` and `diagnosing-bugs`. They have no upstream source.
 - `.cache/` holds the locked third-party skills. `scripts/fetch-skills.sh` fetches them at the commit that `skills.lock.json` records. At this commit the lock names 14 skills: 11 from mattpocock/skills, 1 from ambition, 1 from good-readme and 1 from ponytail.
 
-The install script links all 17 skills into `~/.claude/skills/`. A link means that a change in this repository shows in Claude Code at once. The script does not copy files.
+The install script copies all 19 skills into `~/.claude/skills/`. Each copy is a real folder, so Claude Code reads it without a symbolic link, and Windows needs no Developer Mode. A copy does not follow changes in this repository. After you change a skill here, run the install again to update its copy. Each copy holds a file named `.agent-garage-source` that names its source folder. The script updates only copies that have that file.
 
-Without the fetch, the install links only the 3 own skills. It prints a note to run `scripts/fetch-skills.sh`. It does not fail.
+Without the fetch, the install copies only the 5 own skills. It prints a note to run `scripts/fetch-skills.sh`. It does not fail.
 
 | Command | Effect |
 |---------|--------|
 | `bash scripts/install-skills.sh` | Install every skill. |
 | `bash scripts/install-skills.sh ste-docs` | Install only the skills that you name. |
 | `bash scripts/install-skills.sh --list` | Show which skills are installed. Change nothing. |
-| `bash scripts/install-skills.sh --force` | Replace an existing skill that has the same name. |
-| `bash scripts/install-skills.sh --uninstall` | Remove the links that this script made. |
-| `bash scripts/install-skills.sh --agents` | Link into `~/.agents/skills/` in place of `~/.claude/skills/`. The alias `--codex` does the same. See "Use with Codex CLI". |
-| `bash scripts/install-skills.sh --project <folder>` | Link into `<folder>/.claude/skills`. With `--agents`, link into `<folder>/.agents/skills`. The folder must exist. It does not have to be a git repository. |
+| `bash scripts/install-skills.sh --force` | Replace a folder that has the same name and was not made by this script. |
+| `bash scripts/install-skills.sh --uninstall` | Remove the copies that this script made. |
+| `bash scripts/install-skills.sh --agents` | Copy into `~/.agents/skills/` in place of `~/.claude/skills/`. The alias `--codex` does the same. See "Use with Codex CLI". |
+| `bash scripts/install-skills.sh --project <folder>` | Copy into `<folder>/.claude/skills`. With `--agents`, copy into `<folder>/.agents/skills`. The folder must exist. It does not have to be a git repository. |
 
-The script never replaces a skill that you did not install from this repository, unless you use `--force`. It never removes such a skill. To install into a different folder, set `CLAUDE_SKILLS_DIR`:
+The script reports one state for each skill: `installed`, `up to date`, `updated` (a copy that differed from its source), `missing`, `unmanaged` (a folder this script did not make), `broken` (a dangling link) or `stale`. `--list` shows these states and changes nothing.
+
+The script never replaces a folder that it did not make, unless you use `--force`. It never removes such a folder. To install into a different folder, set `CLAUDE_SKILLS_DIR`:
 
 ```bash
 CLAUDE_SKILLS_DIR=/path/to/skills bash scripts/install-skills.sh
@@ -130,32 +131,30 @@ CLAUDE_SKILLS_DIR=/path/to/skills bash scripts/install-skills.sh
 
 The script exits 0 on success. It exits 1 when it skips a skill, finds a name in both sources, or finds no skill. It exits 2 on a usage error. A usage error includes an unknown option, a missing `--project` folder, and `--project` combined with `CLAUDE_SKILLS_DIR`.
 
-Before it links a skill that needs a plugin, the script checks read only whether that plugin is present. It never installs a plugin.
+Before it copies a skill that needs a plugin, the script checks read only whether that plugin is present. It never installs a plugin.
 
 ### Install for one project
 
-`--project <folder>` links the skills into one project only. The table shows the target folder and the harness that reads it.
+`--project <folder>` copies the skills into one project only. The table shows the target folder and the harness that reads it.
 
 | Command | Target folder | Read by |
 |---------|---------------|---------|
 | `bash scripts/install-skills.sh --project <folder>` | `<folder>/.claude/skills` | Claude Code. OpenCode also reads it, per its documentation. |
 | `bash scripts/install-skills.sh --project <folder> --agents` | `<folder>/.agents/skills` | Codex, OpenCode and Gemini CLI, per their documentation. |
 
-The links point into this repository, so a project folder with links in it is not portable to another computer. Add `/.claude/skills/` and `/.agents/skills/` to the project's `.gitignore`, as `sample/notes-cli/.gitignore` does. Then run the install again on each computer.
-
-Those two lines hide every file in the two folders. That includes a skill that the project keeps there by hand. To keep such a skill in git, list only the link names in `.gitignore`. Or move the skill elsewhere.
+A project copy can be committed. It holds the files of the skill, not a path to this clone, so another computer can use it as it is. A copy does not follow later changes in this repository. Run the install again to update it. To leave the copies out of git, add `/.claude/skills/` and `/.agents/skills/` to the project's `.gitignore`, as `sample/notes-cli/.gitignore` does.
 
 The `--project` option is tested on macOS only, in temporary folders and in a copy of `sample/notes-cli`. No person has run Codex, OpenCode or Gemini CLI against the project folders. The statement that they read these folders comes from their published documentation.
 
 ### Windows
 
-Run the scripts in Git Bash. The scripts set `MSYS=winsymlinks:nativestrict`, so `ln -s` makes a real link or fails. Creating links needs Windows Developer Mode. If `ln -s` makes a copy instead, the script removes the copy and exits with an error. A copy does not follow changes in this repository.
+Run the scripts in Git Bash. The scripts copy files and make no symbolic link, so they need no Developer Mode.
 
-This note comes from reading the script. A person has not tested it on Windows. CI probes a symbolic link on Windows, and the probe passed.
+This note comes from reading the script. A person has not tested it on Windows.
 
 ## Install agents
 
-The script `scripts/install-agents.sh` links each agent in `agents/` into `~/.claude/agents/`. Its options are `--list`, `--force`, `--uninstall` and agent names. It has no `--project` or `--agents` option.
+The script `scripts/install-agents.sh` copies each agent in `agents/` into `~/.claude/agents/`. Each copy has a sidecar file named `<agent>.agent-garage-source` that names its source. Its options are `--list`, `--force`, `--uninstall` and agent names. It has no `--project` or `--agents` option.
 
 ```bash
 bash scripts/install-agents.sh alfred
@@ -167,7 +166,7 @@ To install an agent into one project, set `CLAUDE_AGENTS_DIR` to `<project>/.cla
 
 The script exits 0 on success. It exits 1 when an agent is missing or skipped. It exits 2 on an unknown option.
 
-On Windows, run it in Git Bash with Developer Mode on. The warning in "Windows" applies here too.
+On Windows, run it in Git Bash. It copies files, so it needs no Developer Mode. The note in "Windows" under "Install skills" applies here too.
 
 ## Use with Codex CLI
 
@@ -176,7 +175,7 @@ Codex CLI reads the same shared instructions and the same skills. It does not ru
 | Part | Codex CLI |
 |------|-----------|
 | `AGENTS.md` | Works. Codex reads it. |
-| `skills/` and the locked skills | Works. Run `scripts/fetch-skills.sh`, then `bash scripts/install-skills.sh --agents`. The program file contains the name `.agents/skills`. It does not show that Codex reads a project's `.agents/skills/`: that claim is not confirmed. Not run live. The install into a temp project linked 17 skills on 2026-11-08. |
+| `skills/` and the locked skills | Works. Run `scripts/fetch-skills.sh`, then `bash scripts/install-skills.sh --agents`. The program file contains the name `.agents/skills`. It does not show that Codex reads a project's `.agents/skills/`: that claim is not confirmed. Not run live. The copy into a temp project has not been run for this version of the script yet. |
 | `skills/unslop` | Works. `skills/unslop/agents/openai.yaml` turns off implicit use, so Codex runs it only when you name it. |
 | `agents/alfred.md` | Partly. `.codex/agents/alfred.toml` tells Codex to follow it. Not confirmed: that Codex loads agents from a project folder. If it does not, ask Codex to follow `agents/alfred.md`. |
 | `claude/mods/` | Does not work. Mods use Claude Code calls that Codex does not have. Do not add the marketplace in Codex. |
@@ -280,7 +279,7 @@ The scripts in `scripts/` run under bash. `fetch-skills.sh` and `check-upstream.
 | `fetch-skills.sh` | Fetches the locked sources into `.cache/`. `--update` rewrites the lock | `.cache/`, and the lock with `--update` |
 | `check-upstream.sh` | Reports whether a locked source moved upstream | No |
 | `check-claims.sh` | Compares the options, exit codes and source names in this README with the scripts and the lock | No |
-| `install-skills.sh`, `install-agents.sh` | Link skills and agents. See "Install skills" and "Install agents" | Links in the target folder |
+| `install-skills.sh`, `install-agents.sh` | Copy skills and agents. See "Install skills" and "Install agents" | Copies in the target folder |
 | `lib-deps.sh` | Read-only dependency checks that other scripts source | No |
 | `skills-lock.cjs` | A `node` helper for `skills.lock.json` | Only through `fetch-skills.sh --update` |
 
@@ -290,7 +289,7 @@ Read only. It changes nothing. It reports:
 
 - the tools `bash`, `git`, `node`, `jq`, `claude` and `gh`, with versions;
 - WSL, when the repo is under `/mnt/`;
-- each skill in `~/.claude/skills` and `~/.agents/skills`, as `ok`, `shadowed`, `broken` or `missing`;
+- each skill in `~/.claude/skills` and `~/.agents/skills`, as `ok`, `stale`, `shadowed`, `broken` or `missing`. A `stale` copy is a warning: run the install again;
 - the tree hashes in `skills.lock.json`;
 - the calls and mentions between skills;
 - the skill names that the playbooks use;
@@ -449,12 +448,12 @@ The install needs the `claude` command. A pilot install ran in a copy of `sample
 - **Part**: a single skill, agent, hook or library doc.
 - **Behavior**: a named bundle of parts, defined by a manifest in `behaviors/`. No behavior exists yet. The manifest format is provisional.
 - **Library**: the long-lived context that behaviors draw on and that grows with use.
-- **Deploy**: put a part where a harness reads it. The install scripts link skills into `~/.claude/skills/`, `~/.agents/skills/` or a project folder. They link agents into `~/.claude/agents/`. Mods install as Claude Code plugins. A behavior is not deployed yet.
+- **Deploy**: put a part where a harness reads it. The install scripts copy skills into `~/.claude/skills/`, `~/.agents/skills/` or a project folder. They copy agents into `~/.claude/agents/`. Mods install as Claude Code plugins. A behavior is not deployed yet.
 
 ## Open questions
 
 - Manifest format for behaviors (see `behaviors/README.md`).
-- How a behavior deploys its parts to a target: copy, link, or plugin packaging.
+- How a behavior deploys its parts to a target: copy, or plugin packaging.
 - How library content gets promoted from usage (for example, memory files) and reviewed.
 
 ## Contributing
