@@ -29,7 +29,7 @@
 #             locked skill, a copy or an own skill. A pstack name must be in the locked pstack
 #             plugin (its fetched copy). A name that is not found is a warning.
 #   Plugins   from requires.plugins: the locked version and commit, what is installed (claude plugin
-#             list), the marketplace, and the plugin's skills that are linked in a skill folder.
+#             list), the marketplace, and the plugin's skills that are copied in a skill folder.
 #             Old or missing is a warning. A check that cannot run says "check skipped".
 #
 # The dependency checks (tools, plugins) are shared with the installer and bootstrap, in
