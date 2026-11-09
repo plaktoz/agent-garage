@@ -24,7 +24,7 @@ The licence of mattpocock/skills is MIT. Its text is at https://github.com/mattp
 
 `jakedahn/ambition` declares no licence. The kit therefore fetches it and links it. It never copies the files into this repository. Do not copy them into `skills/` unless the author gives permission. The repository is public, although its README says it is private.
 
-The kit keeps no copy of an upstream skill. `skills/ste-docs` and `skills/unslop` are the only own skills, and they have no upstream source. `diagnosing-bugs` and `triage` were copies of mattpocock/skills. They were removed on 2026-11-08 (they are in git history).
+The kit keeps no copy of an upstream skill. `skills/ste-docs`, `skills/unslop` and `skills/minimalism-ladder` are the only own skills, and they have no upstream source. `skills/minimalism-ladder` was copied on 2026-11-09 from a pack of the same name in another repository (version 0.1.0): the skill text, the record schema, the evidence script and its tests. The pack's spec, fixtures and assessment were not copied. `diagnosing-bugs` and `triage` were copies of mattpocock/skills. They were removed on 2026-11-08 (they are in git history).
 
 ## 3. Locked skills (mattpocock/skills)
 
@@ -174,7 +174,7 @@ The install script links the skills. It does not copy them. A link points into `
 
 ### Step 1. Fetch the locked skills (once per clone)
 
-Own skills (`ste-docs`, `unslop`) need no fetch. The 14 locked skills do.
+Own skills (`ste-docs`, `unslop`, `minimalism-ladder`) need no fetch. The 14 locked skills do.
 
 ```bash
 cd ~/agent-garage
@@ -196,7 +196,7 @@ The `--project` folder must exist. It does not have to be a git repository. Run 
 ### Step 3. Install all skills, or only some
 
 ```bash
-# All 16 skills
+# All 17 skills
 bash scripts/install-skills.sh --project ~/my-app
 
 # Only the skills that you name
