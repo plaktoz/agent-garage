@@ -40,7 +40,7 @@ bash scripts/doctor.sh
 
 Expected result:
 
-- `install-skills.sh` prints `installed` for 16 skills.
+- `install-skills.sh` prints `installed` for 17 skills.
 - `doctor.sh` ends with a line that starts `Result:`. A new machine can show warnings. A failure makes `doctor.sh` exit 1.
 
 Then start a new Claude Code session. Type `/` and check that a skill name, for example `ste-docs`, is in the list.
@@ -53,6 +53,7 @@ Then start a new Claude Code session. Type `/` and check that a skill name, for 
 | `git` | `fetch-skills.sh`, `check-upstream.sh`, `bootstrap-project.sh` | |
 | `node` | `fetch-skills.sh`, `check-upstream.sh` | CI uses Node 24. The repository records no minimum version |
 | `claude` command | Mods, `install-mods.*`, `--pstack` | Claude Code |
+| `python3` (`python` on Windows) | `skills/minimalism-ladder/scripts/check_evidence.py` and its tests | Standard library only. Needed only to check a ladder record. Python 3.15.0 ran the tests on macOS |
 | `jq` | The optional `git-guardrails-claude-code` hook | Without `jq`, the hook allows every command |
 | Developer Mode (Windows) | Links made by the install scripts | See "Windows" under "Install skills" |
 
@@ -104,12 +105,12 @@ CI run 42394334472 (commit `4aa64c6`) passed its syntax, fetch, install and doct
 
 Skills come from two sources.
 
-- `skills/` holds the own skills: `ste-docs` and `unslop`. They have no upstream source.
+- `skills/` holds the own skills: `ste-docs`, `unslop` and `minimalism-ladder`. They have no upstream source.
 - `.cache/` holds the locked third-party skills. `scripts/fetch-skills.sh` fetches them at the commit that `skills.lock.json` records. At this commit the lock names 14 skills: 11 from mattpocock/skills, 1 from ambition, 1 from good-readme and 1 from ponytail.
 
-The install script links all 16 skills into `~/.claude/skills/`. A link means that a change in this repository shows in Claude Code at once. The script does not copy files.
+The install script links all 17 skills into `~/.claude/skills/`. A link means that a change in this repository shows in Claude Code at once. The script does not copy files.
 
-Without the fetch, the install links only the 2 own skills. It prints a note to run `scripts/fetch-skills.sh`. It does not fail.
+Without the fetch, the install links only the 3 own skills. It prints a note to run `scripts/fetch-skills.sh`. It does not fail.
 
 | Command | Effect |
 |---------|--------|
@@ -439,6 +440,8 @@ The install needs the `claude` command. A pilot install ran in a copy of `sample
 - Node has no recorded minimum version.
 - `ambition` declares no licence upstream. Whether its author permits redistribution is not confirmed.
 - `ponytail` and `ambition` give opposite advice. Call one of them for a task, not both.
+- `ponytail` and `minimalism-ladder` use the same six steps. `ponytail` is a habit for the whole session. `minimalism-ladder` is one pass per task that ends in a JSON record, and `scripts/check_evidence.py` checks that the cited files exist. Call one of them for a task, not both.
+- `minimalism-ladder` was copied from a pack whose fixtures F1 to F8 were judged by the pack's author only. The kit does not hold those fixtures and makes no claim that the ladder passes them.
 - `ponytail` is locked as its skill only. Its hooks, status band and slash commands are not installed.
 
 ## Concepts
