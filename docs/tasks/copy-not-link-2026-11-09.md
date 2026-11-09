@@ -32,6 +32,10 @@ Limits for every subagent: do not commit, push, merge, delete a branch, or chang
   Waits for T1: it reads the marker that T1 writes.
   Files: `scripts/doctor.sh`.
   Acceptance: `classify` reports `ok` for a marked copy that matches its source, `stale` (a warning) for a marked copy that differs, `shadowed` for a folder without the marker or a link to another place, `broken` for a dangling link, `missing` for none. The Git Bash and Cygwin link notes are removed. Run on a temp `HOME` after T1's install: no error.
+  Result (branch `feat/copy-not-link-2026-11-09`, worktree `agent-a7e26dc7d9775c54f`): the copy rules are in `classify` and `folder_check`, and the header and link notes are updated. `bash -n` passes. The planted-fault test passed: a clean install shows `ok` for the 4 own skills; an edited copy shows `stale` (a warning); a copy with no marker shows `shadowed`; a legacy link into the repo shows `shadowed`, with a `--force` fix line; a dangling link shows `broken`; a missing name shows `missing`. A copy whose marker names a source outside this repo shows `shadowed`.
+  Legacy decision: a link into this repo is `shadowed` (kind `legacy`), not `ok`. Its fix line runs `install-skills.sh --force` with only the legacy names, so a real folder in the same folder is never replaced by that line. Note: `install-skills.sh` already replaces a legacy link without `--force` (its `legacy)` branch), so `--force` is not needed; it is kept because the task asked for it.
+  Not met: the run on a full install exits 1. The 14 locked skills have no fetched copy in this worktree's `.cache`, so each is `missing`. Those are not copy checks. Close this with the full run in T5, after `fetch-skills.sh`.
+  Test setup: `CLAUDE_SKILLS_DIR` in `.cache/t3-NdUcRp/`. The real `HOME` was not set (agent guard refused `HOME=`), so the `~/.agents/skills` section read the real home, read only. It shows the user's current links into `~/Developer/claude-mods` as `shadowed`. Bash 3.2.57 ran the test. Not verified: Windows and Linux (verified by reading only).
 
 - [ ] **T4. Update the docs, CI and ignore lists.**
   Waits for T1, T2 and T3: it describes their final output.
