@@ -37,7 +37,7 @@ Handoff prompt for starting `theme-cli`, the terminal build of the theme mod. Pa
 
 ## Prompt
 
-> Start `theme-cli`: a Claude Code mod for the terminal surface, in `claude/mods/theme-cli/` of `/Users/tianhonglee/Developer/claude-mods`.
+> Start `theme-cli`: a Claude Code mod for the terminal surface, in `claude/mods/theme-cli/` of `/Users/tianhonglee/orca/agent-garage`.
 >
 > Read first: `library/theme-cli-handoff.md`, `library/theme-mod-spec.md`, and `claude/mods/theme-desk/hooks/register.tsx` (the engine to reuse).
 >
