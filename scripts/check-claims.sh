@@ -207,8 +207,8 @@ TMPCOUNT=$(mktemp "${TMPDIR:-/tmp}/check-claims.XXXXXX")
 trap 'rm -f "$TMPCOUNT"' EXIT
 
 count_claim "$README" 'prints `installed` for [0-9]+ skills' "$TOTAL" "installed for N skills"
-count_claim "$README" 'links all [0-9]+ skills' "$TOTAL" "links all N skills"
-count_claim "$README" 'links only the [0-9]+ own skills' "$OWN" "links only the N own skills"
+count_claim "$README" 'copies all [0-9]+ skills' "$TOTAL" "copies all N skills"
+count_claim "$README" 'copies only the [0-9]+ own skills' "$OWN" "copies only the N own skills"
 count_claim "$README" 'the lock names [0-9]+ skills' "$LOCKED" "the lock names N skills"
 for src in $LOCK_KEYS; do
   n=$(printf '%s\n' "$SKILL_ROWS" | grep -c -x -F "$src")

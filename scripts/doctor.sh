@@ -10,8 +10,14 @@
 #             copies in .cache/, from skills.lock.json), in two skill folders:
 #               ~/.claude/skills   Claude Code
 #               ~/.agents/skills   Codex, OpenCode, Gemini CLI (install-skills.sh --agents)
-#             ok        a link that resolves to this repo's folder (skills/ or .cache/)
-#             shadowed  another link, or a real folder or file, is in the way (named)
+#             Each skill is a copy (install-skills.sh uses cp -R). The copy holds a marker file,
+#             .agent-garage-source, with the path of its source folder.
+#             ok        a copy with the marker, whose files match its source (diff -r)
+#             stale     a copy with the marker, whose files differ from its source. A warning: run
+#                       install-skills.sh again to update it
+#             shadowed  something else is in the way (named): a real folder without the marker, a
+#                       copy made from another place, a file, a link to another place, or an old
+#                       link into this repo (replace it with a copy: install-skills.sh --force)
 #             broken    a link whose target is gone
 #             missing   nothing with that name in the folder
 #   Lock      each locked skill: its fetched copy in .cache/ is present and its git tree hash
@@ -23,7 +29,7 @@
 #             locked skill, a copy or an own skill. A pstack name must be in the locked pstack
 #             plugin (its fetched copy). A name that is not found is a warning.
 #   Plugins   from requires.plugins: the locked version and commit, what is installed (claude plugin
-#             list), the marketplace, and the plugin's skills that are linked in a skill folder.
+#             list), the marketplace, and the plugin's skills that are copied in a skill folder.
 #             Old or missing is a warning. A check that cannot run says "check skipped".
 #
 # The dependency checks (tools, plugins) are shared with the installer and bootstrap, in
@@ -35,7 +41,8 @@
 #   - A folder that does not exist is "not used", not an error. So is a shared folder that holds
 #     no kit skill at all (for example one another tool made). The Claude Code folder with no kit
 #     skill is a warning, not a failure, because the user may not use Claude Code.
-#   - A used folder must hold every kit skill. Shadowed, broken and missing entries fail.
+#   - A used folder must hold every kit skill. Shadowed, broken and missing entries fail. A stale
+#     copy is a warning.
 #   - If no folder is used, that is a warning: nothing is installed, and nothing is missing from
 #     a folder that exists.
 #   - A name in both sources (skills/ and the lock) fails, as install-skills.sh refuses it.
@@ -66,6 +73,7 @@ fi
 claude_dir="${CLAUDE_SKILLS_DIR:-$home/.claude/skills}"
 agents_dir="$home/.agents/skills"
 cache="$repo/.cache"
+marker=".agent-garage-source"
 helper="$repo/scripts/skills-lock.cjs"
 fails=0
 warns=0
@@ -182,11 +190,6 @@ if [ "$is_wsl" -eq 1 ]; then
 else
   say ok "not WSL"
 fi
-if [ "$os_kind" = gitbash ]; then
-  say note "Git Bash: a link needs Developer Mode or MSYS=winsymlinks:nativestrict (not checked here). Without it a link may be a copy, and this check reports it as shadowed."
-elif [ "$os_kind" = cygwin ]; then
-  say note "Cygwin: a link needs CYGWIN=winsymlinks:native (not checked here). Without it a link may be a copy, and this check reports it as shadowed."
-fi
 
 # ---- Skills --------------------------------------------------------------
 
@@ -222,34 +225,90 @@ add_kit_root() {
   done
 }
 
-# classify LINK SOURCE: sets st (ok, shadowed, broken or missing) and detail.
+# path_key_any PATH: a comparable key for PATH. The physical path of the folder when it exists. When
+# it does not (a source folder that was removed), the physical parent folder and the name.
+path_key_any() {
+  local k p
+  k="$(dep_path_key "$1")"
+  if [ -z "$k" ]; then
+    p="$(dep_path_key "${1%/*}")"
+    [ -n "$p" ] && k="$p/${1##*/}"
+  fi
+  printf '%s' "$k"
+}
+
+# in_repo_key KEY: true when KEY (from path_key_any or dep_path_key) is this repo's folder or inside it.
+in_repo_key() {
+  local pr
+  pr="$(dep_path_key "$repo")"
+  case "$1" in
+    "$pr" | "$pr"/*) return 0 ;;
+  esac
+  return 1
+}
+
+# classify TARGET SOURCE: sets st (ok, stale, shadowed, broken or missing), detail, and kind (legacy
+# for an old link into this repo). The rules are those of install-skills.sh: a copy holds the marker
+# file, whose line is the source folder path.
+#   ok        a folder with the marker (source in this repo), whose files match SOURCE (diff -r)
+#   stale     the marker names a source in this repo, and the files differ (a warning)
+#   shadowed  a folder without the marker, or with one from another place; a file; a link to another
+#             place; or an old link into this repo (kind=legacy)
+#   broken    a link whose target is gone
+#   missing   nothing there
 classify() {
-  local t="$1" s="$2" pt ps
+  local t="$1" s="$2" msrc="" mk sk
   detail=""
+  kind=""
   if [ -L "$t" ]; then
     if [ ! -e "$t" ]; then
       st=broken
       detail="link to $(readlink "$t"), whose target is gone"
     else
-      pt="$(dep_path_key "$t")"
-      ps="$(dep_path_key "$s")"
-      if [ -n "$pt" ] && [ "$pt" = "$ps" ]; then
-        st=ok
-      elif [ -n "$pt" ]; then
+      mk="$(dep_path_key "$t")"
+      if [ -n "$mk" ] && in_repo_key "$mk"; then
         st=shadowed
-        detail="link to $pt (not this repo's skills/ or .cache/)"
+        kind=legacy
+        detail="an old link into this repo (a copy replaces it)"
+      elif [ -n "$mk" ]; then
+        st=shadowed
+        detail="link to $mk (not a copy made by install-skills.sh)"
       else
         st=shadowed
-        detail="link to $(readlink "$t") (not this repo's skills/ or .cache/)"
+        detail="link to $(readlink "$t") (not a copy made by install-skills.sh)"
+      fi
+    fi
+  elif [ -d "$t" ]; then
+    if [ -f "$t/$marker" ]; then
+      IFS= read -r msrc < "$t/$marker" || true
+    fi
+    if [ -z "$msrc" ]; then
+      st=shadowed
+      detail="a real folder without the $marker file is in the way"
+    else
+      mk="$(path_key_any "$msrc")"
+      if ! in_repo_key "$mk"; then
+        st=shadowed
+        detail="a copy made from $msrc, not from this repo"
+      else
+        sk="$(path_key_any "$s")"
+        if [ "$mk" != "$sk" ]; then
+          st=stale
+          detail="the copy was made from $msrc, not from $s"
+        elif [ ! -d "$s" ]; then
+          st=stale
+          detail="its source $s is not there, so it cannot be compared"
+        elif diff -r -x "$marker" "$s" "$t" >/dev/null 2>&1; then
+          st=ok
+        else
+          st=stale
+          detail="the files differ from $s"
+        fi
       fi
     fi
   elif [ -e "$t" ]; then
     st=shadowed
-    if [ -d "$t" ]; then
-      detail="a real folder is in the way"
-    else
-      detail="a real file is in the way"
-    fi
+    detail="a real file is in the way"
   else
     st=missing
     detail="not in this folder"
@@ -259,7 +318,7 @@ classify() {
 # folder_check DIR LABEL FLAG ROLE: FLAG is "" or " --agents" (the install-skills.sh option for this folder).
 # ROLE is primary (Claude Code) or shared (~/.agents/skills, read by other harnesses).
 folder_check() {
-  local dir="$1" label="$2" flag="$3" role="$4" i name src t st detail present parent redo=""
+  local dir="$1" label="$2" flag="$3" role="$4" i name src t st detail kind present parent redo="" force_redo=""
   parent="${dir%/*}"
   if [ ! -d "$dir" ]; then
     if [ -e "$dir" ] || [ -L "$dir" ]; then
@@ -302,17 +361,30 @@ folder_check() {
     else
       printf '  %-10s %s\n' "$st" "$name"
     fi
-    if [ "$st" != ok ]; then
-      fails=$((fails + 1))
+    if [ "$st" = stale ]; then
+      # A stale copy is updated by a plain install (no --force). It is a warning, not a failure.
+      warns=$((warns + 1))
       redo="$redo $name"
-      if [ -L "$t" ]; then
-        fix "rm \"$t\""
-      elif [ -e "$t" ]; then
-        fix "mv \"$t\" \"$parent/before-kit-$name\""
+    elif [ "$st" != ok ]; then
+      fails=$((fails + 1))
+      if [ "$kind" = legacy ]; then
+        # An old link into this repo: --force replaces it with a copy. Only this name gets --force,
+        # so a real folder in the same folder is never replaced by this line.
+        force_redo="$force_redo $name"
+      else
+        redo="$redo $name"
+        if [ -L "$t" ]; then
+          fix "rm \"$t\""
+        elif [ -e "$t" ]; then
+          fix "mv \"$t\" \"$parent/before-kit-$name\""
+        fi
       fi
     fi
     i=$((i + 1))
   done
+  if [ -n "$force_redo" ]; then
+    fix "\"$repo/scripts/install-skills.sh\"$flag --force$force_redo"
+  fi
   if [ -n "$redo" ]; then
     fix "\"$repo/scripts/install-skills.sh\"$flag$redo"
   fi
