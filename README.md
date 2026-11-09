@@ -441,7 +441,7 @@ The install needs the `claude` command. A pilot install ran in a copy of `sample
 - `ambition` declares no licence upstream. Whether its author permits redistribution is not confirmed.
 - `ponytail` and `ambition` give opposite advice. Call one of them for a task, not both.
 - `ponytail` and `minimalism-ladder` use the same six steps. `ponytail` is a habit for the whole session. `minimalism-ladder` is one pass per task that ends in a JSON record, and `scripts/check_evidence.py` checks that the cited files exist. Call one of them for a task, not both.
-- `minimalism-ladder` was copied from a pack whose fixtures F1 to F8 were judged by the pack's author only. The kit does not hold those fixtures and makes no claim that the ladder passes them.
+- `minimalism-ladder` was copied from a pack whose fixtures F1 to F8 were judged by the pack's author only, and whose new fixtures F9 to F12 were written but not run. The kit does not hold those fixtures and makes no claim that the ladder passes them. Its scope, bug-fix, test and never-cut rules are adapted from `ponytail` (MIT), and the skill carries the licence text.
 - `ponytail` is locked as its skill only. Its hooks, status band and slash commands are not installed.
 
 ## Concepts
