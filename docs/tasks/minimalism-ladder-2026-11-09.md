@@ -38,3 +38,13 @@ Not parallel: all tasks are small, and T2 and T3 read the files that T1 writes. 
 Verified by reading only: Windows and Linux. The script uses `pathlib` and `encoding="utf-8"` and has no POSIX-only call. The tests ran on macOS only.
 
 Not done, not asked: linking the skill into `~/.claude/skills`; a commit; the pack's open decisions D1 to D3 (they stay in the source pack).
+
+## Update: four rules ported (2026-11-09)
+
+- [x] **T4. Bring the four ponytail rules and the credit into `SKILL.md`.** The copy from T1 was made before ADR-0006 and lacked them. `SKILL.md` now has the Scope step (8 steps), Scope, Bug fixes, Tests for new logic, Never cut, the level note, and Credits and licence with the full MIT text. Source: `packs/minimalism-ladder/PACK.md` at `/Users/tianhonglee/Developer/agentzero-v2-dev`. Kept from T1: the description with the `ponytail` split, and the schema and checker sentence.
+  Verified: `python3 -I -m unittest discover -s tests`: 17 OK. `check_evidence.py` on a temp repo: an existing path exits 0; a missing path exits 1 with `MISSING`. `check-claims.sh`: 36 claims, 0 stale. `doctor.sh`: 33 failures, unchanged from before (the same "not in this folder" items; see T2).
+  Caller check: the only scripts that read `SKILL.md` are `install-skills.sh` (plugin mention check), `check-claims.sh` (counts), `doctor.sh` (names) and `fetch-skills.sh`. None reads the ladder's wording, so the new sections change no script's output.
+  Not verified on Windows: verified by reading only (the port adds no code; the checker is unchanged).
+- [x] **T5. Kit text updated.** `README.md` (Limits): fixtures F9 to F12 not run; the four rules come from `ponytail`. `docs/skills-sources.md`: the copy note now lists the rules and the licence location.
+- Committed on branch `feat/minimalism-ladder-ponytail-rules-2026-11-09` (the user asked for commit, PR and merge). `.claude/` stays untracked: it was not part of this work.
+- Still open: the pack's fixtures and spec are not in this repo by design (T2 note). The round 2 caller assessment in `agentzero-v2-dev` is still running.

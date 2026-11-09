@@ -24,7 +24,7 @@ The licence of mattpocock/skills is MIT. Its text is at https://github.com/mattp
 
 `jakedahn/ambition` declares no licence. The kit therefore fetches it and links it. It never copies the files into this repository. Do not copy them into `skills/` unless the author gives permission. The repository is public, although its README says it is private.
 
-The kit keeps no copy of an upstream skill. `skills/ste-docs`, `skills/unslop` and `skills/minimalism-ladder` are the only own skills, and they have no upstream source. `skills/minimalism-ladder` was copied on 2026-11-09 from a pack of the same name in another repository (version 0.1.0): the skill text, the record schema, the evidence script and its tests. The pack's spec, fixtures and assessment were not copied. `diagnosing-bugs` and `triage` were copies of mattpocock/skills. They were removed on 2026-11-08 (they are in git history).
+The kit keeps no copy of an upstream skill. `skills/ste-docs`, `skills/unslop` and `skills/minimalism-ladder` are the only own skills, and they have no upstream source. `skills/minimalism-ladder` was copied on 2026-11-09 from a pack of the same name in another repository (version 0.1.0, with ADR-0006 applied): the skill text, the record schema, the evidence script and its tests. Its four rules (scope, bug-fix callers, tests for new logic, never cut) are adapted from `ponytail` at the locked commit, and the MIT text is in `SKILL.md`. The pack's spec, fixtures and assessment were not copied. `diagnosing-bugs` and `triage` were copies of mattpocock/skills. They were removed on 2026-11-08 (they are in git history).
 
 ## 3. Locked skills (mattpocock/skills)
 
